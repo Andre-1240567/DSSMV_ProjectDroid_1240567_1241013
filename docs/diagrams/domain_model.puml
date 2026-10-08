@@ -1,0 +1,93 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    ArrowColor #2C3E50
+    BorderColor #2C3E50
+    BorderThickness 1.5
+    HeaderBackgroundColor #ECEFF1
+}
+
+hide circle
+skinparam classAttributeIconSize 0
+
+package "CineTrack Domain" <<Rectangle>> {
+
+    class User {
+        - userId : String
+        - name : String
+        - email : String
+        - registrationDate : Date
+    }
+
+    class MovieList {
+        - listId : String
+        - name : String
+        - createdAt : Date
+    }
+
+    class SavedMovie {
+        - internalId : String
+        - tmdbId : Integer
+        - title : String
+        - posterPath : String
+        - releaseYear : Integer
+        - overview : String
+        - status : WatchStatus
+    }
+
+    enum WatchStatus {
+        PLAN_TO_WATCH
+        WATCHING
+        WATCHED
+        FAVORITE
+    }
+
+    class Rating {
+        - ratingId : String
+        - score : Float
+        - comment : String
+        - createdAt : Date
+    }
+
+    class WatchProvider {
+        - providerId : Integer
+        - name : String
+        - logoPath : String
+        - accessType : String
+    }
+
+    class Cinema {
+        - fsqId : String
+        - name : String
+        - latitude : Double
+        - longitude : Double
+        - address : String
+        - distanceMeters : Integer
+    }
+
+    class UserPreferences {
+        - cinemaRadiusKm : Integer
+        - defaultRegion : String
+    }
+
+}
+
+' Relationships & Multiplicities
+User "1" -- "0..*" MovieList : creates / manages >
+User "1" -- "0..*" Rating : writes >
+User "1" -- "1" UserPreferences : defines >
+
+MovieList "1..*" -- "0..*" SavedMovie : organizes >
+SavedMovie "1" -- "0..*" Rating : receives <
+SavedMovie "1" -- "1" WatchStatus : marked as >
+SavedMovie "0..*" -- "0..*" WatchProvider : available on >
+
+User ..> Cinema : searches nearby >
+
+@enduml

@@ -1,0 +1,159 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 11
+skinparam classAttributeIconSize 0
+
+package "pt.isep.dssmv.projectdroid.exceptions" {
+    class InvalidDataException <<checked exception>> {
+        + InvalidDataException(message : String)
+    }
+
+    class InvalidRatingException <<checked exception>> {
+        + InvalidRatingException(message : String)
+    }
+
+    Exception <|-- InvalidDataException
+    Exception <|-- InvalidRatingException
+}
+
+package "pt.isep.dssmv.projectdroid.model" {
+
+    enum WatchStatus {
+        PLAN_TO_WATCH
+        WATCHING
+        WATCHED
+        FAVORITE
+    }
+
+    class User {
+        - userId : String
+        - name : String
+        - email : String
+        - registrationDate : Date
+        + User(userId : String, name : String, email : String)
+        + User(userId : String, name : String, email : String, registrationDate : Date)
+        + getUserId() : String
+        + getName() : String
+        + setName(name : String) : void
+        + getEmail() : String
+        + setEmail(email : String) : void
+        + getRegistrationDate() : Date
+        + toString() : String
+        + equals(o : Object) : boolean
+        + hashCode() : int
+    }
+
+    class MovieList {
+        - listId : String
+        - name : String
+        - createdAt : Date
+        + MovieList(listId : String, name : String)
+        + MovieList(listId : String, name : String, createdAt : Date)
+        + getListId() : String
+        + getName() : String
+        + setName(name : String) : void
+        + getCreatedAt() : Date
+        + toString() : String
+        + equals(o : Object) : boolean
+        + hashCode() : int
+    }
+
+    class SavedMovie {
+        - internalId : String
+        - tmdbId : int
+        - title : String
+        - posterPath : String
+        - releaseYear : int
+        - overview : String
+        - status : WatchStatus
+        + SavedMovie(internalId : String, tmdbId : int, title : String)
+        + getInternalId() : String
+        + getTmdbId() : int
+        + getTitle() : String
+        + getPosterPath() : String
+        + setPosterPath(posterPath : String) : void
+        + getReleaseYear() : int
+        + setReleaseYear(releaseYear : int) : void
+        + getOverview() : String
+        + setOverview(overview : String) : void
+        + getStatus() : WatchStatus
+        + setStatus(status : WatchStatus) : void
+        + toString() : String
+        + equals(o : Object) : boolean
+        + hashCode() : int
+    }
+
+    class Rating {
+        - ratingId : String
+        - score : float
+        - comment : String
+        - createdAt : Date
+        + Rating(ratingId : String, score : float, comment : String)
+        + Rating(ratingId : String, score : float, comment : String, createdAt : Date)
+        + getRatingId() : String
+        + getScore() : float
+        + setScore(score : float) : void
+        + getComment() : String
+        + setComment(comment : String) : void
+        + getCreatedAt() : Date
+        + toString() : String
+        + equals(o : Object) : boolean
+        + hashCode() : int
+    }
+
+    class Cinema {
+        - fsqId : String
+        - name : String
+        - latitude : double
+        - longitude : double
+        - address : String
+        - distanceMeters : int
+        + Cinema(fsqId : String, name : String, latitude : double, longitude : double)
+        + getFsqId() : String
+        + getName() : String
+        + getLatitude() : double
+        + getLongitude() : double
+        + getAddress() : String
+        + setAddress(address : String) : void
+        + getDistanceMeters() : int
+        + setDistanceMeters(distanceMeters : int) : void
+        + toString() : String
+    }
+
+    class WatchProvider {
+        - providerId : int
+        - name : String
+        - logoPath : String
+        - accessType : String
+        + WatchProvider(providerId : int, name : String, logoPath : String, accessType : String)
+        + getProviderId() : int
+        + getName() : String
+        + getLogoPath() : String
+        + getAccessType() : String
+        + toString() : String
+    }
+
+    class UserPreferences {
+        - cinemaRadiusKm : int
+        - defaultRegion : String
+        + UserPreferences()
+        + UserPreferences(cinemaRadiusKm : int, defaultRegion : String)
+        + getCinemaRadiusKm() : int
+        + setCinemaRadiusKm(cinemaRadiusKm : int) : void
+        + getDefaultRegion() : String
+        + setDefaultRegion(defaultRegion : String) : void
+        + toString() : String
+    }
+}
+
+User ..> InvalidDataException : throws
+MovieList ..> InvalidDataException : throws
+SavedMovie ..> InvalidDataException : throws
+Rating ..> InvalidRatingException : throws
+
+SavedMovie --> WatchStatus
+
+@enduml
