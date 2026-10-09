@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "579731470100",
+    "project_id": "cinetrack-dssmv",
+    "storage_bucket": "cinetrack-dssmv.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579731470100:android:82a9c3049898b008d73401",
+        "android_client_info": {
+          "package_name": "pt.isep.dssmv.projectdroid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY71dY9g-mq7AW46vZVm2O6Panw_u_l4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

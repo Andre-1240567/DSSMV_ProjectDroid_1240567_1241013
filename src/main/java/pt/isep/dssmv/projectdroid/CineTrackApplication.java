@@ -10,12 +10,12 @@ public class CineTrackApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Ensure FirebaseApp is safely initialized even if google-services.json is not present yet
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setApplicationId("pt.isep.dssmv.projectdroid")
-                    .setApiKey("AIzaSyLocalDevMockKey1234567890abcdef")
+                    .setApplicationId("1:579731470100:android:82a9c3049898b008d73401")
+                    .setApiKey("AIzaSyBY71dY9g-mq7AW46vZVm2O6Panw_u_l4Q")
                     .setProjectId("cinetrack-dssmv")
+                    .setStorageBucket("cinetrack-dssmv.firebasestorage.app")
                     .build();
             FirebaseApp.initializeApp(this, options);
         }
