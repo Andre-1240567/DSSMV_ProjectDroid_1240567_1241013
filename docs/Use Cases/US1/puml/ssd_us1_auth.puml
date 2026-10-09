@@ -1,0 +1,66 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":Firebase Auth" as FirebaseAuth
+
+autonumber
+
+== Scenario: User Authentication (Login) ==
+
+User -> System : enterCredentials(email, password)
+activate System
+
+System -> System : validateLocalFormat(email, password)
+
+alt [Invalid local credential format]
+    System --> User : displayValidationError("Invalid email or password format")
+else [Valid format]
+    System -> FirebaseAuth : signInWithEmailAndPassword(email, password)
+    activate FirebaseAuth
+    
+    alt [Authentication Success]
+        FirebaseAuth --> System : authResult(uid, email)
+        System -> System : initSession(uid)
+        System --> User : navigateToMainActivity()
+    else [Authentication Failure (Invalid credentials / User not found)]
+        FirebaseAuth --> System : authError(exception)
+        System --> User : displayErrorMessage("Login failed: invalid credentials")
+    end
+    deactivate FirebaseAuth
+end
+
+deactivate System
+
+== Scenario: User Registration (Sign Up) ==
+
+User -> System : enterRegistrationDetails(name, email, password, confirmPassword)
+activate System
+
+System -> System : validateRegistrationInput(name, email, password, confirmPassword)
+
+alt [Validation error (mismatched password or weak password)]
+    System --> User : displayValidationError("Passwords must match and have at least 6 characters")
+else [Valid input]
+    System -> FirebaseAuth : createUserWithEmailAndPassword(email, password)
+    activate FirebaseAuth
+    
+    alt [Registration Success]
+        FirebaseAuth --> System : authResult(uid, email)
+        System -> System : createInitialUserProfile(uid, name, email)
+        System --> User : navigateToMainActivity()
+    else [Registration Failure (Email already registered / Network error)]
+        FirebaseAuth --> System : authError(exception)
+        System --> User : displayErrorMessage("Registration failed: email already in use")
+    end
+    deactivate FirebaseAuth
+end
+
+deactivate System
+
+@enduml

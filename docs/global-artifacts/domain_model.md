@@ -16,9 +16,9 @@ In strict adherence to the **Model-View-Controller (MVC)** architectural pattern
 
 ## 2. Domain Model Diagram (PlantUML)
 
-The domain diagram is modeled in PlantUML and versioned in [`docs/diagrams/domain_model.puml`](diagrams/domain_model.puml).
+The domain diagram is modeled in PlantUML and versioned in [`puml/domain_model.puml`](puml/domain_model.puml).
 
-![CineTrack Domain Model](diagrams/domain_model.png)
+![CineTrack Domain Model](svg/domain_model.svg)
 
 ```plantuml
 @startuml
