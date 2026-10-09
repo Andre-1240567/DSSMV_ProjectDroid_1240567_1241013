@@ -57,21 +57,31 @@ A especificação funcional foi alinhada com as 11 *Issues* operacionais definid
 ### 3.1. Modelo de Domínio (Domain Model)
 O Modelo de Domínio define as entidades conceptuais nucleares do sistema e a sua semântica antes de qualquer dependência tecnológica:
 
-![Modelo de Domínio CineTrack](diagrams/domain_model.png)
+![Modelo de Domínio CineTrack](svg/domain_model.svg)
 
-*(Ver documentação detalhada e invariantes em [`docs/01_domain_model.md`](01_domain_model.md)).*
+*(Ver documentação detalhada e invariantes em [`domain_model.md`](domain_model.md) e Glossário em [`glossary.md`](glossary.md)).*
 
-### 3.2. Diagrama Global de Casos de Uso
+### 3.2. Diagrama Global de Casos de Uso (UCD)
 O diagrama reflete a interação do ator principal (*Utilizador*) com as funcionalidades do CineTrack e as ligações com os serviços externos:
 
-![Casos de Uso CineTrack](diagrams/use_cases.png)
+![Casos de Uso CineTrack](svg/ucd.svg)
 
-*(Ver fichas completas e SSDs em [`docs/02_requirements_and_use_cases.md`](02_requirements_and_use_cases.md)).*
+*(Ver fichas completas e SSDs na pasta [`../Use Cases/`](../Use%20Cases/) e requisitos em [`requirements.md`](requirements.md)).*
 
-### 3.3. Diagrama de Sequência de Sistema (SSD — UC01)
+### 3.3. Diagrama de Classes de Implementação (Model Layer)
+Estrutura detalhada do pacote `pt.isep.dssmv.projectdroid.model` e exceções checadas:
+
+![Diagrama de Classes](svg/class_diagram.svg)
+
+### 3.4. Fluxo de Navegação e Interface (UI Flow Diagram)
+Mapeamento dos ecrãs da aplicação, transições de estado e disparo de Intents explícitos e implícitos:
+
+![UI Flow Diagram](svg/ui_flow.svg)
+
+### 3.5. Diagrama de Sequência de Sistema (SSD — US1)
 Demonstração da interação do utilizador durante o fluxo de autenticação e comunicação assíncrona com o Firebase Auth:
 
-![SSD UC01](diagrams/ssd_uc01_auth.png)
+![SSD US1](../Use%20Cases/US1/svg/ssd_us1_auth.svg)
 
 ---
 

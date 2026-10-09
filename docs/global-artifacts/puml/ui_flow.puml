@@ -1,0 +1,84 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+skinparam state {
+    BackgroundColor #FFFFFF
+    BorderColor #2C3E50
+    BorderThickness 1.5
+    ArrowColor #2C3E50
+    HeaderBackgroundColor #ECEFF1
+}
+
+[*] --> AppLaunch
+
+state AppLaunch <<choice>>
+note right of AppLaunch: Check FirebaseAuth.getInstance().getCurrentUser()
+
+AppLaunch --> LoginActivity : [No active session]
+AppLaunch --> MainActivity : [Session exists]
+
+state LoginActivity {
+    [*] --> DisplayLoginForm
+    DisplayLoginForm --> Authenticate : Submit credentials
+    Authenticate --> DisplayLoginForm : [Error: Invalid email/password]
+}
+
+LoginActivity --> RegisterActivity : "Create Account" (Explicit Intent)
+LoginActivity --> MainActivity : [Auth Success] (Clear Task Stack)
+
+state RegisterActivity {
+    [*] --> DisplayRegisterForm
+    DisplayRegisterForm --> CreateAccount : Submit registration
+    CreateAccount --> DisplayRegisterForm : [Error: Email in use / Weak password]
+}
+
+RegisterActivity --> LoginActivity : "Back to Login"
+RegisterActivity --> MainActivity : [Registration Success] (Clear Task Stack)
+
+state MainActivity {
+    [*] --> ViewDashboard
+    ViewDashboard --> MovieListDetail : Select custom list
+    ViewDashboard --> SearchMovies : Enter search keyword
+    ViewDashboard --> ShakeSuggestion : Physical shake (Accelerometer)
+}
+
+MainActivity --> MovieDetailActivity : Select movie (Explicit Intent)
+MainActivity --> CinemaMapActivity : Click "Nearby Cinemas" (Explicit Intent)
+MainActivity --> ProfileActivity : Click "Profile" icon (Explicit Intent)
+
+state MovieDetailActivity {
+    [*] --> DisplayDetails
+    DisplayDetails --> AddToList : "Add to List"
+    DisplayDetails --> SubmitRating : "Rate Movie" (1.0 - 5.0 stars)
+}
+
+state CinemaMapActivity {
+    [*] --> CheckLocationPermission
+    CheckLocationPermission --> RequestGPS : Permission granted
+    RequestGPS --> FetchFoursquareCinemas : Coords acquired
+    FetchFoursquareCinemas --> DisplayMapPins : Cinemas loaded
+}
+
+state ProfileActivity {
+    [*] --> DisplayProfile
+    DisplayProfile --> SavePreferences : Update radius/country (SharedPreferences .apply())
+}
+
+ProfileActivity --> LoginActivity : "Logout" (FirebaseAuth.signOut(), Clear Task Stack)
+
+' External Interactions via Implicit Intents
+state "External Apps (Implicit Intents)" as ExternalApps {
+    state YouTubeApp : ACTION_VIEW ("vnd.youtube:...")
+    state GoogleMaps : ACTION_VIEW ("geo:lat,lng?q=Cinema")
+    state SocialShare : ACTION_SEND (Intent.createChooser)
+}
+
+MovieDetailActivity --> YouTubeApp : "Watch Trailer"
+MovieDetailActivity --> SocialShare : "Share Movie"
+CinemaMapActivity --> GoogleMaps : Click marker "Directions"
+
+@enduml
