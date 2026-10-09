@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class FirebaseAuthManager {
 
     private static FirebaseAuthManager instance;
-    private final FirebaseAuth auth;
+    private FirebaseAuth auth;
 
     public interface AuthCallback {
         void onSuccess(String userId, String email);
@@ -14,7 +14,11 @@ public class FirebaseAuthManager {
     }
 
     private FirebaseAuthManager() {
-        this.auth = FirebaseAuth.getInstance();
+        try {
+            this.auth = FirebaseAuth.getInstance();
+        } catch (Exception e) {
+            this.auth = null;
+        }
     }
 
     public static synchronized FirebaseAuthManager getInstance() {
@@ -25,14 +29,19 @@ public class FirebaseAuthManager {
     }
 
     public boolean isUserLoggedIn() {
-        return auth.getCurrentUser() != null;
+        return auth != null && auth.getCurrentUser() != null;
     }
 
     public FirebaseUser getCurrentUser() {
-        return auth.getCurrentUser();
+        return (auth != null) ? auth.getCurrentUser() : null;
     }
 
     public void login(String email, String password, AuthCallback callback) {
+        if (auth == null) {
+            callback.onFailure("Firebase Authentication is not available. Please verify Firebase configuration.");
+            return;
+        }
+
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && auth.getCurrentUser() != null) {
@@ -48,6 +57,11 @@ public class FirebaseAuthManager {
     }
 
     public void register(String email, String password, AuthCallback callback) {
+        if (auth == null) {
+            callback.onFailure("Firebase Authentication is not available. Please verify Firebase configuration.");
+            return;
+        }
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && auth.getCurrentUser() != null) {
@@ -63,6 +77,8 @@ public class FirebaseAuthManager {
     }
 
     public void logout() {
-        auth.signOut();
+        if (auth != null) {
+            auth.signOut();
+        }
     }
 }
