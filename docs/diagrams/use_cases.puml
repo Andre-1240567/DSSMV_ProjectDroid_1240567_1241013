@@ -1,0 +1,56 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+actor "Utilizador" as User
+actor "Sistema Externo: Firebase" as Firebase <<Sistema>>
+actor "Sistema Externo: TMDB" as TMDB <<Sistema>>
+actor "Sistema Externo: Foursquare" as Foursquare <<Sistema>>
+actor "Hardware / Sensores" as Sensores <<Dispositivo>>
+
+rectangle "CineTrack (ProjectDroid)" {
+    usecase "UC01: Registar e Autenticar" as UC01
+    usecase "UC02: Criar e Gerir Listas" as UC02
+    usecase "UC03: Adicionar Filmes e Avaliar" as UC03
+    usecase "UC04: Pesquisar Filmes e Streaming" as UC04
+    usecase "UC05: Localizar Cinemas no Mapa" as UC05
+    usecase "UC06: Sugestão Aleatória (Shake)" as UC06
+    usecase "UC07: Consultar Perfil e Logout" as UC07
+    usecase "UC08: Configurar Preferências Locais" as UC08
+    usecase "UC09: Filtrar e Ordenar Coleção" as UC09
+    usecase "UC10: Visualizar Trailer Oficial" as UC10
+    usecase "UC11: Partilhar Ficha de Filme" as UC11
+}
+
+' Relações com o Utilizador
+User --> UC01
+User --> UC02
+User --> UC03
+User --> UC04
+User --> UC05
+User --> UC06
+User --> UC07
+User --> UC08
+User --> UC09
+User --> UC10
+User --> UC11
+
+' Relações com Sistemas Externos / Serviços
+UC01 ..> Firebase : autentica
+UC02 ..> Firebase : sincroniza listas (Firestore)
+UC03 ..> Firebase : persiste avaliações (Firestore)
+UC07 ..> Firebase : encerra sessão
+
+UC04 ..> TMDB : consome catálogo e providers
+UC10 ..> TMDB : obtém chave do trailer
+
+UC05 ..> Foursquare : pesquisa cinemas próximos
+UC05 ..> Sensores : obtém coordenadas GPS
+
+UC06 ..> Sensores : deteta aceleração brusca
+
+@enduml
