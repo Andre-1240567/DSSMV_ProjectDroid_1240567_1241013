@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Network permissions for Firebase and REST APIs -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".CineTrackApplication"
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CineTrack">
+
+        <!-- Entry point: LoginActivity checks active session and redirects -->
+        <activity
+            android:name=".controllers.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Registration screen -->
+        <activity
+            android:name=".controllers.RegisterActivity"
+            android:exported="false" />
+
+        <!-- Main dashboard screen -->
+        <activity
+            android:name=".controllers.MainActivity"
+            android:exported="false" />
+
+    </application>
+</manifest>

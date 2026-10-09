@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CineTrack</string>
+    <string name="app_tagline">Your personal movie curator and cinema finder</string>
+    
+    <!-- Auth Strings -->
+    <string name="title_login">Sign In</string>
+    <string name="title_register">Create Account</string>
+    <string name="hint_name">Full Name</string>
+    <string name="hint_email">Email Address</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_register">Create Account</string>
+    <string name="prompt_no_account">Don\'t have an account? Sign up</string>
+    <string name="prompt_has_account">Already have an account? Sign in</string>
+    
+    <!-- Feedback & Validations -->
+    <string name="error_empty_fields">Please fill in all fields</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_short_password">Password must be at least 6 characters</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="auth_success">Authentication successful</string>
+    <string name="register_success">Account created successfully</string>
+    
+    <!-- Main Dashboard & Lists (US2) -->
+    <string name="welcome_user">Welcome, %1$s!</string>
+    <string name="btn_logout">Log Out</string>
+    <string name="section_movie_lists">My Movie Lists</string>
+    <string name="empty_movie_lists">You don\'t have any lists yet.\nTap the \'+\' button below to create one!</string>
+    <string name="cd_create_list">Create list</string>
+    <string name="dialog_title_create_list">Create New List</string>
+    <string name="hint_list_name">List name (e.g., Favorites)</string>
+    <string name="btn_create">Create</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="dialog_title_delete_list">Delete List</string>
+    <string name="dialog_message_delete_list">Are you sure you want to delete "%1$s"?</string>
+    <string name="btn_delete">Delete</string>
+    <string name="error_list_name_empty">List name cannot be empty</string>
+    <string name="list_created_success">List created successfully</string>
+    <string name="list_deleted_success">List deleted successfully</string>
+    <string name="error_loading_lists">Failed to load lists: %1$s</string>
+</resources>
