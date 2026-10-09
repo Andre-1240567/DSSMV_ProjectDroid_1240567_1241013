@@ -1,0 +1,77 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":Cloud Firestore" as Firestore
+
+autonumber
+
+== Scenario 1: Fetch and Display User Lists ==
+
+User -> System : openDashboard()
+activate System
+
+System -> Firestore : getUserMovieLists(userId)
+activate Firestore
+Firestore --> System : movieListsData(list of documents)
+deactivate Firestore
+
+System -> System : updateRecyclerView(movieLists)
+System --> User : displayMovieLists()
+deactivate System
+
+== Scenario 2: Create New Movie List ==
+
+User -> System : tapCreateListButton()
+activate System
+System --> User : displayCreateListDialog()
+
+User -> System : enterListName(name)
+System -> System : validateListName(name)
+
+alt [Empty or invalid name]
+    System --> User : displayValidationError("List name cannot be empty")
+else [Valid name]
+    System -> Firestore : createMovieList(userId, listId, name, createdAt)
+    activate Firestore
+    
+    alt [Success]
+        Firestore --> System : successCallback()
+        System -> System : addListToAdapterAndRefresh()
+        System --> User : showSuccessToast("List created successfully")
+    else [Failure / Network Error]
+        Firestore --> System : failureCallback(exception)
+        System --> User : showErrorMessage("Failed to create list")
+    end
+    deactivate Firestore
+end
+deactivate System
+
+== Scenario 3: Delete Movie List ==
+
+User -> System : clickDeleteList(listId)
+activate System
+System --> User : showDeleteConfirmationDialog()
+
+User -> System : confirmDelete()
+System -> Firestore : deleteMovieList(userId, listId)
+activate Firestore
+
+alt [Success]
+    Firestore --> System : successCallback()
+    System -> System : removeListFromAdapterAndRefresh()
+    System --> User : showSuccessToast("List removed")
+else [Failure]
+    Firestore --> System : failureCallback(exception)
+    System --> User : showErrorMessage("Failed to delete list")
+end
+deactivate Firestore
+
+deactivate System
+
+@enduml
