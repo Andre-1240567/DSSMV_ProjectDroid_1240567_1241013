@@ -3,6 +3,17 @@ plugins {
     id 'com.google.gms.google-services' version '4.4.2'
 }
 
+def getEnvProperty(String key) {
+    def envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        def properties = new Properties()
+        envFile.withInputStream { properties.load(it) }
+        def val = properties.getProperty(key)
+        if (val != null) return val
+    }
+    return System.getenv(key) ?: ""
+}
+
 android {
     namespace 'pt.isep.dssmv.projectdroid'
     compileSdk 34
@@ -15,6 +26,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "TMDB_API_KEY", "\"${getEnvProperty('TMDB_API_KEY')}\""
+        buildConfigField "String", "FOURSQUARE_API_KEY", "\"${getEnvProperty('FOURSQUARE_API_KEY')}\""
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
