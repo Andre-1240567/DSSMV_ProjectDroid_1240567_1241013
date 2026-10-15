@@ -24,6 +24,8 @@ import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
 import pt.isep.dssmv.projectdroid.firebase.FirebaseAuthManager;
 import pt.isep.dssmv.projectdroid.firebase.FirestoreManager;
 import pt.isep.dssmv.projectdroid.model.MovieList;
+import pt.isep.dssmv.projectdroid.model.UserPreferences;
+import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private TextView textViewWelcomeUser;
+    private Button buttonPreferences;
     private Button buttonLogout;
     private RecyclerView recyclerViewMovieLists;
     private ProgressBar progressBarLists;
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private MovieListAdapter adapter;
     private FirebaseAuthManager authManager;
     private FirestoreManager firestoreManager;
+    private SharedPrefManager prefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         authManager = FirebaseAuthManager.getInstance();
         firestoreManager = FirestoreManager.getInstance();
+        prefManager = SharedPrefManager.getInstance(this);
 
         if (!authManager.isUserLoggedIn()) {
             redirectToLogin();
@@ -70,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         textViewWelcomeUser = findViewById(R.id.textViewWelcomeUser);
+        buttonPreferences = findViewById(R.id.buttonPreferences);
         buttonLogout = findViewById(R.id.buttonLogout);
         recyclerViewMovieLists = findViewById(R.id.recyclerViewMovieLists);
         progressBarLists = findViewById(R.id.progressBarLists);
@@ -92,12 +98,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
+        buttonPreferences.setOnClickListener(v -> showPreferencesDialog());
+
         buttonLogout.setOnClickListener(v -> {
             authManager.logout();
             redirectToLogin();
         });
 
         fabAddList.setOnClickListener(v -> showCreateListDialog());
+    }
+
+    private void showPreferencesDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preferences, null);
+        EditText editTextRadius = dialogView.findViewById(R.id.editTextCinemaRadius);
+        EditText editTextRegion = dialogView.findViewById(R.id.editTextDefaultRegion);
+
+        UserPreferences currentPrefs = prefManager.getUserPreferences();
+        editTextRadius.setText(String.valueOf(currentPrefs.getCinemaRadiusKm()));
+        editTextRegion.setText(currentPrefs.getDefaultRegion());
+
+        new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setPositiveButton(R.string.btn_save, (dialog, which) -> {
+                    String radiusStr = editTextRadius.getText().toString().trim();
+                    String regionStr = editTextRegion.getText().toString().trim();
+
+                    try {
+                        if (radiusStr.isEmpty()) {
+                            throw new InvalidDataException(getString(R.string.helper_cinema_radius));
+                        }
+                        int radius = Integer.parseInt(radiusStr);
+                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr);
+                        prefManager.saveUserPreferences(updatedPrefs);
+                        Toast.makeText(MainActivity.this, R.string.preferences_saved_success, Toast.LENGTH_SHORT).show();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(MainActivity.this, R.string.helper_cinema_radius, Toast.LENGTH_SHORT).show();
+                    } catch (InvalidDataException e) {
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
     }
 
     private void loadMovieLists() {

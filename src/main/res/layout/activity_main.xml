@@ -31,6 +31,15 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/buttonPreferences"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_preferences"
+                android:textColor="@color/surface"
+                android:textSize="14sp" />
+
+            <Button
                 android:id="@+id/buttonLogout"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"

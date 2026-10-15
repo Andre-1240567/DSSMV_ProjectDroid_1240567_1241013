@@ -40,4 +40,14 @@
     <string name="list_created_success">List created successfully</string>
     <string name="list_deleted_success">List deleted successfully</string>
     <string name="error_loading_lists">Failed to load lists: %1$s</string>
+
+    <!-- Preferences (US8) -->
+    <string name="btn_preferences">Preferences</string>
+    <string name="dialog_title_preferences">App Preferences</string>
+    <string name="hint_cinema_radius">Cinema Search Radius (km)</string>
+    <string name="hint_default_region">Default Country/Region (e.g., PT)</string>
+    <string name="helper_cinema_radius">Value between 1 and 100 km</string>
+    <string name="helper_default_region">Used for streaming providers &amp; catalog</string>
+    <string name="btn_save">Save</string>
+    <string name="preferences_saved_success">Preferences saved successfully</string>
 </resources>
