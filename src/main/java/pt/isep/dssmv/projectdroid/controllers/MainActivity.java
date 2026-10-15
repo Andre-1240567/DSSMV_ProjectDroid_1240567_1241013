@@ -33,6 +33,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private TextView textViewWelcomeUser;
+    private Button buttonSearchMovies;
     private Button buttonPreferences;
     private Button buttonLogout;
     private RecyclerView recyclerViewMovieLists;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         textViewWelcomeUser = findViewById(R.id.textViewWelcomeUser);
+        buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
         buttonLogout = findViewById(R.id.buttonLogout);
         recyclerViewMovieLists = findViewById(R.id.recyclerViewMovieLists);
@@ -98,6 +100,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
+        buttonSearchMovies.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MovieSearchActivity.class);
+            startActivity(intent);
+        });
+
         buttonPreferences.setOnClickListener(v -> showPreferencesDialog());
 
         buttonLogout.setOnClickListener(v -> {

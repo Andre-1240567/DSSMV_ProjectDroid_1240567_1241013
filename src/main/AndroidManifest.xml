@@ -32,5 +32,15 @@
             android:name=".controllers.MainActivity"
             android:exported="false" />
 
+        <!-- Movie search screen (US4) -->
+        <activity
+            android:name=".controllers.MovieSearchActivity"
+            android:exported="false" />
+
+        <!-- Movie detail screen (US4 & US10) -->
+        <activity
+            android:name=".controllers.MovieDetailActivity"
+            android:exported="false" />
+
     </application>
 </manifest>

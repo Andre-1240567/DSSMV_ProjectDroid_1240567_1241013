@@ -50,4 +50,29 @@
     <string name="helper_default_region">Used for streaming providers &amp; catalog</string>
     <string name="btn_save">Save</string>
     <string name="preferences_saved_success">Preferences saved successfully</string>
+
+    <!-- Navigation & Common -->
+    <string name="btn_back">Back</string>
+    <string name="btn_search_movies">Search</string>
+
+    <!-- TMDB Search (US4) -->
+    <string name="title_movie_search">Search Movies</string>
+    <string name="hint_search_movie">Enter movie title…</string>
+    <string name="btn_search">Search</string>
+    <string name="status_search_initial">Search for any movie to discover where to stream in your region.</string>
+    <string name="status_no_results">No movies found matching "%1$s".</string>
+    <string name="error_empty_search">Please enter a movie title to search</string>
+    <string name="error_search_failed">Search failed: %1$s</string>
+    <string name="cd_movie_poster">Movie poster</string>
+    <string name="cd_provider_logo">Provider logo</string>
+
+    <!-- Movie Details & Providers (US4 & US10) -->
+    <string name="title_movie_detail">Movie Details</string>
+    <string name="section_overview">Synopsis</string>
+    <string name="section_streaming_providers">Streaming Providers (%1$s)</string>
+    <string name="no_streaming_providers">Sem serviços de streaming disponíveis em %1$s</string>
+    <string name="error_loading_providers">Failed to load streaming providers: %1$s</string>
+    <string name="btn_watch_trailer">Watch Trailer</string>
+    <string name="error_no_trailer">No official trailer found for this movie</string>
+    <string name="error_loading_trailer">Failed to load trailer: %1$s</string>
 </resources>
