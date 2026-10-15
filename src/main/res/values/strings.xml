@@ -75,4 +75,25 @@
     <string name="btn_watch_trailer">Watch Trailer</string>
     <string name="error_no_trailer">No official trailer found for this movie</string>
     <string name="error_loading_trailer">Failed to load trailer: %1$s</string>
+
+    <!-- Nearby Cinemas (US5) -->
+    <string name="btn_nearby_cinemas">Cinemas Nearby</string>
+    <string name="title_nearby_cinemas">Nearby Cinemas</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_get_directions">Directions</string>
+    <string name="btn_settings">Settings</string>
+    <string name="empty_nearby_cinemas">No cinemas found within search radius.\nTry increasing your search radius in Preferences.</string>
+    <string name="cinemas_radius_info">Searching within %1$d km of your current GPS location</string>
+    <string name="dialog_title_gps">GPS Disabled</string>
+    <string name="dialog_message_gps">Please enable Location Services (GPS) to find nearby cinemas.</string>
+    <string name="error_location_permission_denied">Location permission is required to detect nearby cinemas.</string>
+    <string name="error_gps_coordinates">Failed to acquire GPS coordinates: %1$s</string>
+    <string name="error_foursquare_api">Failed to load cinemas: %1$s</string>
+
+    <!-- Shake to Suggest (US6) -->
+    <string name="btn_shake_suggest">Shake to Suggest</string>
+    <string name="dialog_title_shake_suggest">Shake Suggestion!</string>
+    <string name="empty_shake_movies">Ainda não tens filmes guardados para sortear. Explora o catálogo e adiciona filmes às tuas listas!</string>
+    <string name="btn_shake_details">View Details</string>
+    <string name="btn_shake_again">Shake Again</string>
 </resources>

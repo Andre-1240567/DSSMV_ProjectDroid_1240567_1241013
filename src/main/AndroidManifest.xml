@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Location permissions for GPS and Foursquare nearby cinemas (US5) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Haptic feedback for shake detection (US6) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name=".CineTrackApplication"
         android:allowBackup="true"
@@ -40,6 +47,11 @@
         <!-- Movie detail screen (US4 & US10) -->
         <activity
             android:name=".controllers.MovieDetailActivity"
+            android:exported="false" />
+
+        <!-- Nearby cinemas screen (US5) -->
+        <activity
+            android:name=".controllers.CinemasActivity"
             android:exported="false" />
 
     </application>

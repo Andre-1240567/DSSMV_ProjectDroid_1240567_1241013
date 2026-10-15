@@ -86,6 +86,37 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <!-- Quick Actions Row (Cinemas & Shake) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp">
+
+            <Button
+                android:id="@+id/buttonNearbyCinemas"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:text="@string/btn_nearby_cinemas"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/buttonShakeSuggest"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="@string/btn_shake_suggest"
+                android:textSize="13sp" />
+        </LinearLayout>
+
         <!-- Loading Indicator -->
         <ProgressBar
             android:id="@+id/progressBarLists"

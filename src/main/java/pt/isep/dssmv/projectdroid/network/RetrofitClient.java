@@ -19,6 +19,7 @@ public class RetrofitClient {
 
     private static RetrofitClient instance;
     private final TmdbApiService tmdbApiService;
+    private final FoursquareApiService foursquareApiService;
 
     private RetrofitClient() {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -66,6 +67,33 @@ public class RetrofitClient {
                 .build();
 
         this.tmdbApiService = retrofit.create(TmdbApiService.class);
+
+        // Foursquare Places API client setup (US5 AC03 & AC04)
+        Interceptor fsqAuthInterceptor = chain -> {
+            Request original = chain.request();
+            String fsqKey = BuildConfig.FOURSQUARE_API_KEY;
+            Request.Builder b = original.newBuilder()
+                    .header("Accept", "application/json");
+            if (fsqKey != null && !fsqKey.trim().isEmpty()) {
+                b.header("Authorization", fsqKey.trim());
+            }
+            return chain.proceed(b.build());
+        };
+
+        OkHttpClient fsqOkHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .addInterceptor(fsqAuthInterceptor)
+                .addInterceptor(loggingInterceptor)
+                .build();
+
+        Retrofit fsqRetrofit = new Retrofit.Builder()
+                .baseUrl("https://api.foursquare.com/v3/")
+                .client(fsqOkHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        this.foursquareApiService = fsqRetrofit.create(FoursquareApiService.class);
     }
 
     public static synchronized RetrofitClient getInstance() {
@@ -77,5 +105,9 @@ public class RetrofitClient {
 
     public TmdbApiService getTmdbApiService() {
         return tmdbApiService;
+    }
+
+    public FoursquareApiService getFoursquareApiService() {
+        return foursquareApiService;
     }
 }

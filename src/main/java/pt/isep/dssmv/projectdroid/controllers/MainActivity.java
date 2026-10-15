@@ -1,11 +1,18 @@
 package pt.isep.dssmv.projectdroid.controllers;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -25,9 +33,17 @@ import pt.isep.dssmv.projectdroid.firebase.FirebaseAuthManager;
 import pt.isep.dssmv.projectdroid.firebase.FirestoreManager;
 import pt.isep.dssmv.projectdroid.model.MovieList;
 import pt.isep.dssmv.projectdroid.model.UserPreferences;
+import pt.isep.dssmv.projectdroid.network.RetrofitClient;
+import pt.isep.dssmv.projectdroid.network.dto.TmdbMovieDto;
+import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
+import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonSearchMovies;
     private Button buttonPreferences;
     private Button buttonLogout;
+    private Button buttonNearbyCinemas;
+    private Button buttonShakeSuggest;
     private RecyclerView recyclerViewMovieLists;
     private ProgressBar progressBarLists;
     private TextView textViewEmptyLists;
@@ -45,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuthManager authManager;
     private FirestoreManager firestoreManager;
     private SharedPrefManager prefManager;
+
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private ShakeDetector shakeDetector;
+    private Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +87,16 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         displayUserData();
         setupListeners();
+        setupSensors();
+    }
+
+    private void setupSensors() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+        shakeDetector = new ShakeDetector(this::handleDeviceShake);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Override
@@ -72,6 +105,19 @@ public class MainActivity extends AppCompatActivity {
         if (authManager.isUserLoggedIn()) {
             loadMovieLists();
         }
+        // AC04: Strictly register accelerometer in onResume()
+        if (sensorManager != null && accelerometer != null) {
+            sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // AC04: Strictly unregister accelerometer in onPause() to preserve device battery
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(shakeDetector);
+        }
     }
 
     private void initViews() {
@@ -79,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
         buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
         buttonLogout = findViewById(R.id.buttonLogout);
+        buttonNearbyCinemas = findViewById(R.id.buttonNearbyCinemas);
+        buttonShakeSuggest = findViewById(R.id.buttonShakeSuggest);
         recyclerViewMovieLists = findViewById(R.id.recyclerViewMovieLists);
         progressBarLists = findViewById(R.id.progressBarLists);
         textViewEmptyLists = findViewById(R.id.textViewEmptyLists);
@@ -105,6 +153,13 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        buttonNearbyCinemas.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CinemasActivity.class);
+            startActivity(intent);
+        });
+
+        buttonShakeSuggest.setOnClickListener(v -> triggerShakeSuggestion());
+
         buttonPreferences.setOnClickListener(v -> showPreferencesDialog());
 
         buttonLogout.setOnClickListener(v -> {
@@ -113,6 +168,96 @@ public class MainActivity extends AppCompatActivity {
         });
 
         fabAddList.setOnClickListener(v -> showCreateListDialog());
+    }
+
+    private void handleDeviceShake() {
+        // AC05: Gentle haptic feedback
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(100);
+            }
+        }
+        triggerShakeSuggestion();
+    }
+
+    /**
+     * AC06 & AC07: Shake to suggest randomly picks a movie and presents it in a modal dialog.
+     */
+    private void triggerShakeSuggestion() {
+        RetrofitClient.getInstance().getTmdbApiService()
+                .searchMovies("cinema", "en-US", 1)
+                .enqueue(new Callback<TmdbSearchResponse>() {
+                    @Override
+                    public void onResponse(Call<TmdbSearchResponse> call, Response<TmdbSearchResponse> response) {
+                        if (response.isSuccessful() && response.body() != null && !response.body().getResults().isEmpty()) {
+                            List<TmdbMovieDto> results = response.body().getResults();
+                            int randomIndex = new Random().nextInt(results.size());
+                            TmdbMovieDto picked = results.get(randomIndex);
+                            showShakeSuggestionDialog(picked);
+                        } else {
+                            showEmptyShakeDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TmdbSearchResponse> call, Throwable t) {
+                        showEmptyShakeDialog();
+                    }
+                });
+    }
+
+    private void showEmptyShakeDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_shake_suggest)
+                .setMessage(R.string.empty_shake_movies)
+                .setPositiveButton(R.string.btn_search_movies, (dialog, which) -> {
+                    startActivity(new Intent(MainActivity.this, MovieSearchActivity.class));
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showShakeSuggestionDialog(TmdbMovieDto movie) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_shake_suggestion, null);
+        ImageView imageViewPoster = dialogView.findViewById(R.id.imageViewShakePoster);
+        TextView textViewTitle = dialogView.findViewById(R.id.textViewShakeTitle);
+        TextView textViewYear = dialogView.findViewById(R.id.textViewShakeYear);
+        TextView textViewOverview = dialogView.findViewById(R.id.textViewShakeOverview);
+
+        textViewTitle.setText(movie.getTitle());
+        if (movie.getReleaseYear() > 0) {
+            textViewYear.setText(String.valueOf(movie.getReleaseYear()));
+            textViewYear.setVisibility(View.VISIBLE);
+        } else {
+            textViewYear.setVisibility(View.GONE);
+        }
+
+        if (movie.getOverview() != null && !movie.getOverview().isEmpty()) {
+            textViewOverview.setText(movie.getOverview());
+        }
+
+        Glide.with(this)
+                .load(movie.getFullPosterUrl())
+                .placeholder(R.drawable.ic_movie_placeholder)
+                .error(R.drawable.ic_movie_error)
+                .into(imageViewPoster);
+
+        new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setPositiveButton(R.string.btn_shake_details, (dialog, which) -> {
+                    Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+                    intent.putExtra(MovieDetailActivity.EXTRA_TMDB_ID, movie.getId());
+                    intent.putExtra(MovieDetailActivity.EXTRA_TITLE, movie.getTitle());
+                    intent.putExtra(MovieDetailActivity.EXTRA_POSTER_PATH, movie.getPosterPath());
+                    intent.putExtra(MovieDetailActivity.EXTRA_OVERVIEW, movie.getOverview());
+                    intent.putExtra(MovieDetailActivity.EXTRA_RELEASE_YEAR, movie.getReleaseYear());
+                    startActivity(intent);
+                })
+                .setNeutralButton(R.string.btn_shake_again, (dialog, which) -> triggerShakeSuggestion())
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
     }
 
     private void showPreferencesDialog() {

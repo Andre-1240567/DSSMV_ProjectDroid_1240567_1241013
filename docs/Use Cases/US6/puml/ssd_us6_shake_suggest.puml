@@ -1,0 +1,64 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":SensorManager\n(Accelerometer)" as Sensor
+participant ":Vibrator\n(Haptic Feedback)" as Haptic
+
+autonumber
+
+== Lifecycle: Sensor Registration & Deregistration ==
+
+User -> System : openActivity() / onResume()
+activate System
+System -> Sensor : registerListener(shakeDetector, TYPE_ACCELEROMETER)
+activate Sensor
+System --> User : ready()
+deactivate System
+
+== Scenario: Physical Device Shake Event ==
+
+User -> Sensor : physicallyShakesDevice(force > 2.7g)
+Sensor -> System : onSensorChanged(event[x,y,z])
+activate System
+
+System -> System : calculateAccelerationForce()
+
+alt [Acceleration Force >= 2.7g and Cooldown Expired]
+    System -> Haptic : vibrate(100ms)
+    activate Haptic
+    Haptic --> System : hapticAcknowledged
+    deactivate Haptic
+    
+    System -> System : getAvailableMoviesFromUserLists()
+    
+    alt [User Has No Movies in Lists]
+        System --> User : showEmptyNoticeDialog("Add movies to your lists to enable shake suggestions!")
+    else [Movies Available]
+        System -> System : selectRandomMovie(movieList)
+        System --> User : displaySuggestionDialog(movieTitle, poster, overview)
+        
+        opt [User Wants To View Details]
+            User -> System : tapViewDetails()
+            System -> System : navigateToMovieDetail(selectedMovieId)
+            System --> User : showMovieDetailScreen()
+        end
+    end
+end
+
+deactivate System
+
+== Lifecycle: Activity Paused ==
+
+User -> System : leaveActivity() / onPause()
+activate System
+System -> Sensor : unregisterListener(shakeDetector)
+deactivate Sensor
+deactivate System
+
+@enduml
