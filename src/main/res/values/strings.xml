@@ -40,4 +40,45 @@
     <string name="list_created_success">List created successfully</string>
     <string name="list_deleted_success">List deleted successfully</string>
     <string name="error_loading_lists">Failed to load lists: %1$s</string>
+
+    <!-- Movie Details & Ratings (US3) -->
+    <string name="title_list_details">List Details</string>
+    <string name="btn_add_movie">Add Movie</string>
+    <string name="cd_add_movie">Add movie</string>
+    <string name="empty_movies_list">No movies in this list yet.\nTap \'+\' to add your first movie!</string>
+    <string name="error_loading_movies">Failed to load movies: %1$s</string>
+    <string name="dialog_title_add_movie">Add Movie to List</string>
+    <string name="hint_movie_title">Movie Title</string>
+    <string name="hint_release_year">Release Year (e.g., 2024)</string>
+    <string name="hint_movie_overview">Overview / Notes</string>
+    <string name="hint_watch_status">Watch Status</string>
+    <string name="btn_add">Add</string>
+    <string name="dialog_title_rate_movie">Rate Movie</string>
+    <string name="hint_rating_comment">Your review / thoughts (optional)</string>
+    <string name="btn_submit_rating">Save Rating</string>
+    <string name="btn_rate">Rate</string>
+    <string name="dialog_title_delete_movie">Remove Movie</string>
+    <string name="dialog_message_delete_movie">Are you sure you want to remove \"%1$s\" from this list?</string>
+    <string name="movie_added_success">Movie added to list</string>
+    <string name="movie_deleted_success">Movie removed from list</string>
+    <string name="rating_submitted_success">Rating saved successfully</string>
+    <string name="error_movie_title_empty">Movie title cannot be empty</string>
+    <string name="error_invalid_rating">Rating must be between 1.0 and 5.0</string>
+    <string name="status_plan_to_watch">Plan to Watch</string>
+    <string name="status_watching">Watching</string>
+    <string name="status_watched">Watched</string>
+    <string name="status_favorite">Favorite</string>
+    <string name="no_rating_yet">Not rated yet</string>
+    <string name="btn_back">Back</string>
+
+    <!-- TMDB Infinite Feed & Add to List -->
+    <string name="btn_add_to_list">+ Add</string>
+    <string name="dialog_title_add_to_list">Add Movie to List</string>
+    <string name="hint_select_list">Select destination list</string>
+    <string name="hint_rate_movie_optional">Your Rating (Optional)</string>
+    <string name="nav_explore">Explore</string>
+    <string name="nav_my_lists">My Lists</string>
+    <string name="prompt_no_lists_create_first">You don\'t have any lists yet. Please create a list first!</string>
+    <string name="movie_added_to_list_success">Movie added to \"%1$s\"!</string>
+    <string name="error_loading_feed">Failed to load movies: %1$s</string>
 </resources>

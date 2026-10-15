@@ -42,4 +42,17 @@ public class SavedMovieTest {
         movie.setStatus(WatchStatus.WATCHED);
         assertEquals(WatchStatus.WATCHED, movie.getStatus());
     }
+
+    @Test
+    public void testSetAndGetRating() throws Exception {
+        SavedMovie movie = new SavedMovie("m1", 550, "Fight Club");
+        assertNull(movie.getRating());
+
+        Rating rating = new Rating("r1", 4.5f, "Masterpiece");
+        movie.setRating(rating);
+
+        assertNotNull(movie.getRating());
+        assertEquals(4.5f, movie.getRating().getScore());
+        assertEquals("Masterpiece", movie.getRating().getComment());
+    }
 }
