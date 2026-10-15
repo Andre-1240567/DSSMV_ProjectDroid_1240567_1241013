@@ -13,6 +13,7 @@ public class SavedMovie {
     private int releaseYear;
     private String overview;
     private WatchStatus status;
+    private Rating rating;
 
     public SavedMovie() {
         this.status = WatchStatus.PLAN_TO_WATCH;
@@ -88,6 +89,14 @@ public class SavedMovie {
 
     public void setStatus(WatchStatus status) {
         this.status = (status != null) ? status : WatchStatus.PLAN_TO_WATCH;
+    }
+
+    public Rating getRating() {
+        return rating;
+    }
+
+    public void setRating(Rating rating) {
+        this.rating = rating;
     }
 
     @Override

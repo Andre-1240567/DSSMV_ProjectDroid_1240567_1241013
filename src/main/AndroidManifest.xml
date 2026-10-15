@@ -32,5 +32,10 @@
             android:name=".controllers.MainActivity"
             android:exported="false" />
 
+        <!-- List Details screen (US3) -->
+        <activity
+            android:name=".controllers.ListDetailsActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
