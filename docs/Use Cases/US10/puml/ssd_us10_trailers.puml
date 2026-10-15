@@ -1,0 +1,53 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":TmdbApiService\n(Retrofit)" as TmdbApi
+participant ":YouTube App" as YouTubeApp
+participant ":Web Browser" as Browser
+
+autonumber
+
+== Scenario 1: Fetch and Launch Official Movie Trailer ==
+
+User -> System : tapWatchTrailer(movieId)
+activate System
+
+System -> System : showLoadingIndicator(true)
+System -> TmdbApi : getMovieVideos(movieId, apiKey)
+activate TmdbApi
+
+TmdbApi -> TmdbApi : GET /3/movie/{id}/videos
+TmdbApi --> System : videosJsonPayload
+deactivate TmdbApi
+
+System -> System : showLoadingIndicator(false)
+System -> System : findOfficialYouTubeTrailerKey(videosList)
+
+alt [No YouTube Trailer Found]
+    System --> User : showToastMessage("No official trailer available for this movie")
+else [Official YouTube Trailer Key Found (videoKey)]
+    System -> System : createImplicitIntent("vnd.youtube:" + videoKey)
+    
+    alt [YouTube App is Installed]
+        System -> YouTubeApp : startActivity(ACTION_VIEW, vnd.youtube:key)
+        activate YouTubeApp
+        YouTubeApp --> User : playTrailerInYouTubeApp()
+        deactivate YouTubeApp
+    else [YouTube App Not Installed (ActivityNotFoundException)]
+        System -> System : fallbackToWebUrl("https://www.youtube.com/watch?v=" + videoKey)
+        System -> Browser : startActivity(ACTION_VIEW, webUri)
+        activate Browser
+        Browser --> User : playTrailerInBrowser()
+        deactivate Browser
+    end
+end
+
+deactivate System
+
+@enduml

@@ -16,6 +16,11 @@ public class TmdbVideosResponse {
     public TmdbVideosResponse() {
     }
 
+    public TmdbVideosResponse(int id, List<TmdbVideoDto> results) {
+        this.id = id;
+        this.results = (results != null) ? results : new ArrayList<>();
+    }
+
     public int getId() {
         return id;
     }

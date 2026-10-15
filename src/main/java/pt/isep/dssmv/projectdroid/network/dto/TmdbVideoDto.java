@@ -25,6 +25,15 @@ public class TmdbVideoDto {
     public TmdbVideoDto() {
     }
 
+    public TmdbVideoDto(String id, String key, String name, String site, String type, boolean official) {
+        this.id = id;
+        this.key = key;
+        this.name = name;
+        this.site = site;
+        this.type = type;
+        this.official = official;
+    }
+
     public String getId() {
         return id;
     }
