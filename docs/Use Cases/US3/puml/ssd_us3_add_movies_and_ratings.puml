@@ -1,0 +1,105 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":Cloud Firestore" as Firestore
+
+autonumber
+
+== Scenario 1: Open List Details & Load Saved Movies ==
+
+User -> System : selectMovieList(listId, listName)
+activate System
+
+System -> System : startListDetailsActivity(listId, listName)
+System -> Firestore : getMoviesInList(userId, listId)
+activate Firestore
+Firestore --> System : moviesData(list of documents)
+deactivate Firestore
+
+System -> System : updateRecyclerView(savedMovies)
+System --> User : displaySavedMoviesList()
+deactivate System
+
+== Scenario 2: Add Movie to List ==
+
+User -> System : tapAddMovieButton()
+activate System
+System --> User : displayAddMovieDialog()
+
+User -> System : submitMovieData(title, releaseYear, overview, status)
+System -> System : new SavedMovie(internalId, tmdbId, title)
+
+alt [Invalid data (empty title)]
+    System --> User : displayValidationError("Movie title cannot be empty")
+else [Valid data]
+    System -> Firestore : addMovieToList(userId, listId, movieData)
+    activate Firestore
+    
+    alt [Success]
+        Firestore --> System : successCallback()
+        System -> System : addMovieToAdapterAndRefresh()
+        System --> User : showSuccessToast("Movie added to list")
+    else [Failure / Network error]
+        Firestore --> System : failureCallback(exception)
+        System --> User : showErrorMessage("Failed to add movie")
+    end
+    deactivate Firestore
+end
+deactivate System
+
+== Scenario 3: Submit Movie Rating ==
+
+User -> System : tapRateMovieButton(internalId)
+activate System
+System --> User : displayRatingDialog(ratingBar, commentField)
+
+User -> System : submitRating(score, comment)
+System -> System : new Rating(ratingId, score, comment)
+
+alt [Invalid rating (score < 1.0 or score > 5.0)]
+    System --> User : displayValidationError("Score must be between 1.0 and 5.0")
+else [Valid rating]
+    System -> Firestore : rateMovieInList(userId, listId, internalId, ratingData)
+    activate Firestore
+    
+    alt [Success]
+        Firestore --> System : successCallback()
+        System -> System : updateMovieInAdapterAndRefresh()
+        System --> User : showSuccessToast("Rating submitted successfully")
+    else [Failure]
+        Firestore --> System : failureCallback(exception)
+        System --> User : showErrorMessage("Failed to submit rating")
+    end
+    deactivate Firestore
+end
+deactivate System
+
+== Scenario 4: Delete Movie from List ==
+
+User -> System : tapDeleteMovie(internalId)
+activate System
+System --> User : showDeleteConfirmationDialog()
+
+User -> System : confirmDelete()
+System -> Firestore : deleteMovieFromList(userId, listId, internalId)
+activate Firestore
+
+alt [Success]
+    Firestore --> System : successCallback()
+    System -> System : removeMovieFromAdapterAndRefresh()
+    System --> User : showSuccessToast("Movie removed from list")
+else [Failure]
+    Firestore --> System : failureCallback(exception)
+    System --> User : showErrorMessage("Failed to delete movie")
+end
+deactivate Firestore
+
+deactivate System
+
+@enduml
