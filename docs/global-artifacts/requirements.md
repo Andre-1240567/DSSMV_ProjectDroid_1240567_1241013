@@ -37,9 +37,9 @@ A especificação de requisitos do **CineTrack** (*ProjectDroid*) estrutura-se e
 
 O diagrama global de Casos de Uso espelha as interações do utilizador com o CineTrack e a comunicação orquestrada com serviços externos e sensores nativos do hardware.
 
-Ficheiro PlantUML: [`docs/diagrams/use_cases.puml`](diagrams/use_cases.puml).
+Ficheiro PlantUML: [`puml/ucd.puml`](puml/ucd.puml).
 
-![Diagrama Global de Casos de Uso](diagrams/use_cases.png)
+![Diagrama Global de Casos de Uso](svg/ucd.svg)
 
 ---
 
@@ -86,6 +86,6 @@ Ficheiro PlantUML: [`docs/diagrams/use_cases.puml`](diagrams/use_cases.puml).
 
 ### 3.4. Diagrama de Sequência de Sistema (SSD — UC01)
 
-Ficheiro PlantUML: [`docs/diagrams/ssd_uc01_auth.puml`](diagrams/ssd_uc01_auth.puml).
+Ficheiro PlantUML: [`docs/Use Cases/US1/puml/ssd_us1_auth.puml`](../Use%20Cases/US1/puml/ssd_us1_auth.puml).
 
-![SSD UC01](diagrams/ssd_uc01_auth.png)
+![SSD UC01](../Use%20Cases/US1/svg/ssd_us1_auth.svg)
