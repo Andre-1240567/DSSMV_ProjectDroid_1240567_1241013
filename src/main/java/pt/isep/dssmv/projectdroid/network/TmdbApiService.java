@@ -12,6 +12,12 @@ public interface TmdbApiService {
 
     @GET("movie/popular")
     Call<TmdbPagedResponse> getPopularMovies(
+            @Query("page") int page,
+            @Query("language") String language
+    );
+
+    @GET("movie/popular")
+    Call<TmdbPagedResponse> getPopularMovies(
             @Query("api_key") String apiKey,
             @Query("page") int page,
             @Query("language") String language

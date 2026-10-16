@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
 
         RetrofitClient.getInstance()
                 .getTmdbApiService()
-                .getPopularMovies(apiKey, page, "pt-PT")
+                .getPopularMovies(page, "pt-PT")
                 .enqueue(new Callback<TmdbPagedResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<TmdbPagedResponse> call, @NonNull Response<TmdbPagedResponse> response) {
