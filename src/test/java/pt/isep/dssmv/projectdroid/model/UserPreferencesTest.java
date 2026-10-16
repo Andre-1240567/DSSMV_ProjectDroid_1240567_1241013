@@ -58,4 +58,43 @@ public class UserPreferencesTest {
             new UserPreferences(15, "   ");
         });
     }
+
+    @Test
+    public void testRecommendationFiltersAndThreshold() throws InvalidDataException {
+        java.util.Set<String> providers = new java.util.HashSet<>();
+        providers.add(UserPreferences.PROVIDER_NETFLIX);
+        providers.add(UserPreferences.PROVIDER_HBO_MAX);
+
+        UserPreferences prefs = new UserPreferences(15, "PT", 7.5f, 2021, providers, 3.5f);
+        assertEquals(7.5f, prefs.getMinRating());
+        assertEquals(2021, prefs.getMinReleaseYear());
+        assertEquals(3.5f, prefs.getShakeThreshold());
+        assertTrue(prefs.getStreamingProviders().contains(UserPreferences.PROVIDER_NETFLIX));
+        assertTrue(prefs.getStreamingProviders().contains(UserPreferences.PROVIDER_HBO_MAX));
+        assertNotNull(prefs.getFormattedWatchProviders());
+    }
+
+    @Test
+    public void testInvalidRatingThrowsException() {
+        assertThrows(InvalidDataException.class, () -> {
+            new UserPreferences(15, "PT", -0.5f, 2020, null, 3.2f);
+        });
+        assertThrows(InvalidDataException.class, () -> {
+            new UserPreferences(15, "PT", 10.5f, 2020, null, 3.2f);
+        });
+    }
+
+    @Test
+    public void testInvalidReleaseYearThrowsException() {
+        assertThrows(InvalidDataException.class, () -> {
+            new UserPreferences(15, "PT", 7.0f, 1850, null, 3.2f);
+        });
+    }
+
+    @Test
+    public void testInvalidThresholdThrowsException() {
+        assertThrows(InvalidDataException.class, () -> {
+            new UserPreferences(15, "PT", 7.0f, 2020, null, 1.0f);
+        });
+    }
 }

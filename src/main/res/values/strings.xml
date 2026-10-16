@@ -50,6 +50,24 @@
     <string name="helper_default_region">Used for streaming providers &amp; catalog</string>
     <string name="btn_save">Save</string>
     <string name="preferences_saved_success">Preferences saved successfully</string>
+    <string name="section_general_prefs">General Settings</string>
+    <string name="section_shake_prefs">Shake Recommendation Filters</string>
+    <string name="hint_min_rating">Minimum Rating (0.0 - 10.0)</string>
+    <string name="helper_min_rating">e.g., 7.0 for highly rated movies</string>
+    <string name="hint_min_year">Minimum Release Year (0 = Any)</string>
+    <string name="helper_min_year">e.g., 2020 (only movies from 2020 onward)</string>
+    <string name="label_streaming_services">Your Streaming Subscriptions</string>
+    <string name="label_shake_sensitivity">Shake Sensitivity</string>
+    <string name="provider_netflix">Netflix</string>
+    <string name="provider_hbo">HBO Max</string>
+    <string name="provider_disney">Disney+</string>
+    <string name="provider_prime">Amazon Prime Video</string>
+    <string name="provider_apple">Apple TV+</string>
+    <string name="sensitivity_normal">Normal (Recommended)</string>
+    <string name="sensitivity_high">High (Easier shake)</string>
+    <string name="sensitivity_low">Low (Firm shake)</string>
+    <string name="btn_shake_config">Filters</string>
+    <string name="empty_shake_filtered_movies">Nenhum filme encontrado com os filtros selecionados. Experimenta reduzir a nota mínima ou adicionar mais serviços nas Preferências!</string>
 
     <!-- Navigation & Common -->
     <string name="btn_back">Back</string>

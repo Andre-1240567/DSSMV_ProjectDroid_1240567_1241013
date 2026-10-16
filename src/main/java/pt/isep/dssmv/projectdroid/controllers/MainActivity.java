@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,9 +58,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -102,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
     private ShakeDetector shakeDetector;
     private Vibrator vibrator;
 
+    private boolean isShakeDialogOpen = false;
+    private boolean isShakeLoading = false;
+    private AlertDialog currentShakeDialog = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
-        shakeDetector = new ShakeDetector(this::handleDeviceShake);
+        float savedThreshold = prefManager.getShakeThreshold();
+        shakeDetector = new ShakeDetector(this::handleDeviceShake, savedThreshold);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
@@ -161,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
         if (sensorManager != null && shakeDetector != null) {
             sensorManager.unregisterListener(shakeDetector);
         }
+        if (currentShakeDialog != null && currentShakeDialog.isShowing()) {
+            currentShakeDialog.dismiss();
+            currentShakeDialog = null;
+        }
+        isShakeDialogOpen = false;
+        isShakeLoading = false;
     }
 
     @Override
@@ -271,6 +285,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleDeviceShake() {
+        // Prevent stacking dialogs while one is already shown or while fetching
+        if (isShakeDialogOpen || isShakeLoading) {
+            return;
+        }
+
         // AC05: Gentle haptic feedback
         if (vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -283,14 +302,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * AC06 & AC07: Shake to suggest randomly picks a movie and presents it in a modal dialog.
+     * AC06 & AC07: Shake to suggest smartly discovers movies based on user preferences
+     * (rating, release date, and user's streaming subscriptions) and presents a random match in a modal dialog.
      */
     private void triggerShakeSuggestion() {
+        if (isShakeDialogOpen || isShakeLoading) {
+            return;
+        }
+        isShakeLoading = true;
+
+        UserPreferences prefs = prefManager.getUserPreferences();
+        String region = prefs.getDefaultRegion();
+        Float minRating = prefs.getMinRating() > 0 ? prefs.getMinRating() : null;
+        String minDate = prefs.getMinReleaseYear() > 0 ? (prefs.getMinReleaseYear() + "-01-01") : null;
+        String providers = prefs.getFormattedWatchProviders();
+
+        // Discover movies matching user's rating, year, streaming services and region
         RetrofitClient.getInstance().getTmdbApiService()
-                .searchMovies("cinema", "en-US", 1)
+                .discoverMovies("pt-PT", "popularity.desc", minRating, minDate, region, providers, 1)
                 .enqueue(new Callback<TmdbSearchResponse>() {
                     @Override
-                    public void onResponse(Call<TmdbSearchResponse> call, Response<TmdbSearchResponse> response) {
+                    public void onResponse(@NonNull Call<TmdbSearchResponse> call, @NonNull Response<TmdbSearchResponse> response) {
+                        isShakeLoading = false;
                         if (response.isSuccessful() && response.body() != null && !response.body().getResults().isEmpty()) {
                             List<pt.isep.dssmv.projectdroid.network.dto.TmdbMovieDto> results = response.body().getResults();
                             int randomIndex = new Random().nextInt(results.size());
@@ -302,24 +335,46 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<TmdbSearchResponse> call, Throwable t) {
+                    public void onFailure(@NonNull Call<TmdbSearchResponse> call, @NonNull Throwable t) {
+                        isShakeLoading = false;
                         showEmptyShakeDialog();
                     }
                 });
     }
 
     private void showEmptyShakeDialog() {
-        new AlertDialog.Builder(this)
+        if (isFinishing() || isDestroyed()) return;
+
+        if (currentShakeDialog != null && currentShakeDialog.isShowing()) {
+            currentShakeDialog.dismiss();
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_shake_suggest)
-                .setMessage(R.string.empty_shake_movies)
-                .setPositiveButton(R.string.btn_search_movies, (dialog, which) -> {
-                    startActivity(new Intent(MainActivity.this, MovieSearchActivity.class));
-                })
+                .setMessage(R.string.empty_shake_filtered_movies)
+                .setPositiveButton(R.string.btn_preferences, (d, which) -> showPreferencesDialog())
                 .setNegativeButton(R.string.btn_cancel, null)
-                .show();
+                .create();
+
+        dialog.setOnShowListener(d -> isShakeDialogOpen = true);
+        dialog.setOnDismissListener(d -> {
+            isShakeDialogOpen = false;
+            if (currentShakeDialog == dialog) {
+                currentShakeDialog = null;
+            }
+        });
+
+        currentShakeDialog = dialog;
+        dialog.show();
     }
 
     private void showShakeSuggestionDialog(TmdbMovieDto movie) {
+        if (isFinishing() || isDestroyed()) return;
+
+        if (currentShakeDialog != null && currentShakeDialog.isShowing()) {
+            currentShakeDialog.dismiss();
+        }
+
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_shake_suggestion, null);
         ImageView imageViewPoster = dialogView.findViewById(R.id.imageViewShakePoster);
         TextView textViewTitle = dialogView.findViewById(R.id.textViewShakeTitle);
@@ -344,9 +399,9 @@ public class MainActivity extends AppCompatActivity {
                 .error(R.drawable.ic_movie_error)
                 .into(imageViewPoster);
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setPositiveButton(R.string.btn_shake_details, (dialog, which) -> {
+                .setPositiveButton(R.string.btn_shake_details, (d, which) -> {
                     Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
                     intent.putExtra(MovieDetailActivity.EXTRA_TMDB_ID, movie.getId());
                     intent.putExtra(MovieDetailActivity.EXTRA_TITLE, movie.getTitle());
@@ -355,36 +410,107 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(MovieDetailActivity.EXTRA_RELEASE_YEAR, movie.getReleaseYear());
                     startActivity(intent);
                 })
-                .setNeutralButton(R.string.btn_shake_again, (dialog, which) -> triggerShakeSuggestion())
+                .setNeutralButton(R.string.btn_shake_again, (d, which) -> {
+                    d.dismiss();
+                    triggerShakeSuggestion();
+                })
                 .setNegativeButton(R.string.btn_cancel, null)
-                .show();
+                .create();
+
+        dialog.setOnShowListener(d -> isShakeDialogOpen = true);
+        dialog.setOnDismissListener(d -> {
+            isShakeDialogOpen = false;
+            if (currentShakeDialog == dialog) {
+                currentShakeDialog = null;
+            }
+        });
+
+        currentShakeDialog = dialog;
+        dialog.show();
     }
 
     private void showPreferencesDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preferences, null);
         EditText editTextRadius = dialogView.findViewById(R.id.editTextCinemaRadius);
         EditText editTextRegion = dialogView.findViewById(R.id.editTextDefaultRegion);
+        EditText editTextMinRating = dialogView.findViewById(R.id.editTextMinRating);
+        EditText editTextMinYear = dialogView.findViewById(R.id.editTextMinYear);
+
+        CheckBox checkboxNetflix = dialogView.findViewById(R.id.checkboxNetflix);
+        CheckBox checkboxHboMax = dialogView.findViewById(R.id.checkboxHboMax);
+        CheckBox checkboxDisneyPlus = dialogView.findViewById(R.id.checkboxDisneyPlus);
+        CheckBox checkboxPrimeVideo = dialogView.findViewById(R.id.checkboxPrimeVideo);
+        CheckBox checkboxAppleTv = dialogView.findViewById(R.id.checkboxAppleTv);
+
+        Spinner spinnerSensitivity = dialogView.findViewById(R.id.spinnerShakeSensitivity);
+
+        String[] sensitivities = new String[]{
+                getString(R.string.sensitivity_normal),
+                getString(R.string.sensitivity_high),
+                getString(R.string.sensitivity_low)
+        };
+        ArrayAdapter<String> sensitivityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sensitivities);
+        spinnerSensitivity.setAdapter(sensitivityAdapter);
 
         UserPreferences currentPrefs = prefManager.getUserPreferences();
         editTextRadius.setText(String.valueOf(currentPrefs.getCinemaRadiusKm()));
         editTextRegion.setText(currentPrefs.getDefaultRegion());
+        editTextMinRating.setText(String.format(Locale.US, "%.1f", currentPrefs.getMinRating()));
+        editTextMinYear.setText(currentPrefs.getMinReleaseYear() > 0 ? String.valueOf(currentPrefs.getMinReleaseYear()) : "");
+
+        Set<String> activeProviders = currentPrefs.getStreamingProviders();
+        checkboxNetflix.setChecked(activeProviders.contains(UserPreferences.PROVIDER_NETFLIX));
+        checkboxHboMax.setChecked(activeProviders.contains(UserPreferences.PROVIDER_HBO_MAX));
+        checkboxDisneyPlus.setChecked(activeProviders.contains(UserPreferences.PROVIDER_DISNEY_PLUS));
+        checkboxPrimeVideo.setChecked(activeProviders.contains(UserPreferences.PROVIDER_PRIME_VIDEO));
+        checkboxAppleTv.setChecked(activeProviders.contains(UserPreferences.PROVIDER_APPLE_TV));
+
+        float currentThreshold = currentPrefs.getShakeThreshold();
+        if (Math.abs(currentThreshold - 2.7f) < 0.1f) {
+            spinnerSensitivity.setSelection(1); // High
+        } else if (Math.abs(currentThreshold - 3.8f) < 0.1f) {
+            spinnerSensitivity.setSelection(2); // Low
+        } else {
+            spinnerSensitivity.setSelection(0); // Normal
+        }
 
         new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setPositiveButton(R.string.btn_save, (dialog, which) -> {
                     String radiusStr = editTextRadius.getText().toString().trim();
                     String regionStr = editTextRegion.getText().toString().trim();
+                    String ratingStr = editTextMinRating.getText().toString().trim();
+                    String yearStr = editTextMinYear.getText().toString().trim();
 
                     try {
                         if (radiusStr.isEmpty()) {
                             throw new InvalidDataException(getString(R.string.helper_cinema_radius));
                         }
                         int radius = Integer.parseInt(radiusStr);
-                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr);
+                        float minRating = ratingStr.isEmpty() ? 0.0f : Float.parseFloat(ratingStr);
+                        int minYear = yearStr.isEmpty() ? 0 : Integer.parseInt(yearStr);
+
+                        Set<String> selectedProviders = new HashSet<>();
+                        if (checkboxNetflix.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_NETFLIX);
+                        if (checkboxHboMax.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_HBO_MAX);
+                        if (checkboxDisneyPlus.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_DISNEY_PLUS);
+                        if (checkboxPrimeVideo.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_PRIME_VIDEO);
+                        if (checkboxAppleTv.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_APPLE_TV);
+
+                        float threshold = switch (spinnerSensitivity.getSelectedItemPosition()) {
+                            case 1 -> 2.7f;
+                            case 2 -> 3.8f;
+                            default -> 3.2f;
+                        };
+
+                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr, minRating, minYear, selectedProviders, threshold);
                         prefManager.saveUserPreferences(updatedPrefs);
+                        if (shakeDetector != null) {
+                            shakeDetector.setThreshold(threshold);
+                        }
                         Toast.makeText(MainActivity.this, R.string.preferences_saved_success, Toast.LENGTH_SHORT).show();
                     } catch (NumberFormatException e) {
-                        Toast.makeText(MainActivity.this, R.string.helper_cinema_radius, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Por favor verifique os valores numéricos", Toast.LENGTH_SHORT).show();
                     } catch (InvalidDataException e) {
                         Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }

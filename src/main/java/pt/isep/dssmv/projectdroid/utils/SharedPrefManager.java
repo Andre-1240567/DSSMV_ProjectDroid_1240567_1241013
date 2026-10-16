@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
 import pt.isep.dssmv.projectdroid.model.UserPreferences;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Centralized manager for persistent lightweight key-value storage using SharedPreferences.
  * Satisfies RNF05 and US8 Acceptance Criteria:
@@ -18,9 +21,10 @@ public class SharedPrefManager {
     private static final String PREF_NAME = "cinetrack_user_preferences";
     public static final String KEY_CINEMA_RADIUS_KM = "pref_cinema_radius_km";
     public static final String KEY_DEFAULT_REGION = "pref_default_region";
-
-    private static final int DEFAULT_RADIUS_KM = 10;
-    private static final String DEFAULT_REGION = "PT";
+    public static final String KEY_MIN_RATING = "pref_min_rating";
+    public static final String KEY_MIN_RELEASE_YEAR = "pref_min_release_year";
+    public static final String KEY_STREAMING_PROVIDERS = "pref_streaming_providers";
+    public static final String KEY_SHAKE_THRESHOLD = "pref_shake_threshold";
 
     private static SharedPrefManager instance;
     private final SharedPreferences sharedPreferences;
@@ -41,10 +45,15 @@ public class SharedPrefManager {
      * Falls back to default values if not set or invalid.
      */
     public UserPreferences getUserPreferences() {
-        int radius = sharedPreferences.getInt(KEY_CINEMA_RADIUS_KM, DEFAULT_RADIUS_KM);
-        String region = sharedPreferences.getString(KEY_DEFAULT_REGION, DEFAULT_REGION);
+        int radius = sharedPreferences.getInt(KEY_CINEMA_RADIUS_KM, UserPreferences.DEFAULT_RADIUS_KM);
+        String region = sharedPreferences.getString(KEY_DEFAULT_REGION, UserPreferences.DEFAULT_REGION);
+        float minRating = sharedPreferences.getFloat(KEY_MIN_RATING, UserPreferences.DEFAULT_MIN_RATING);
+        int minYear = sharedPreferences.getInt(KEY_MIN_RELEASE_YEAR, UserPreferences.DEFAULT_MIN_YEAR);
+        Set<String> providers = sharedPreferences.getStringSet(KEY_STREAMING_PROVIDERS, new HashSet<>());
+        float threshold = sharedPreferences.getFloat(KEY_SHAKE_THRESHOLD, UserPreferences.DEFAULT_SHAKE_THRESHOLD);
+
         try {
-            return new UserPreferences(radius, region);
+            return new UserPreferences(radius, region, minRating, minYear, providers, threshold);
         } catch (InvalidDataException e) {
             return new UserPreferences();
         }
@@ -62,33 +71,23 @@ public class SharedPrefManager {
         sharedPreferences.edit()
                 .putInt(KEY_CINEMA_RADIUS_KM, preferences.getCinemaRadiusKm())
                 .putString(KEY_DEFAULT_REGION, preferences.getDefaultRegion())
+                .putFloat(KEY_MIN_RATING, preferences.getMinRating())
+                .putInt(KEY_MIN_RELEASE_YEAR, preferences.getMinReleaseYear())
+                .putStringSet(KEY_STREAMING_PROVIDERS, preferences.getStreamingProviders())
+                .putFloat(KEY_SHAKE_THRESHOLD, preferences.getShakeThreshold())
                 .apply();
     }
 
     public int getCinemaRadiusKm() {
-        return sharedPreferences.getInt(KEY_CINEMA_RADIUS_KM, DEFAULT_RADIUS_KM);
-    }
-
-    public void saveCinemaRadiusKm(int radiusKm) throws InvalidDataException {
-        if (radiusKm < 1 || radiusKm > 100) {
-            throw new InvalidDataException("Search radius must be between 1 and 100 km");
-        }
-        sharedPreferences.edit()
-                .putInt(KEY_CINEMA_RADIUS_KM, radiusKm)
-                .apply();
+        return sharedPreferences.getInt(KEY_CINEMA_RADIUS_KM, UserPreferences.DEFAULT_RADIUS_KM);
     }
 
     public String getDefaultRegion() {
-        return sharedPreferences.getString(KEY_DEFAULT_REGION, DEFAULT_REGION);
+        return sharedPreferences.getString(KEY_DEFAULT_REGION, UserPreferences.DEFAULT_REGION);
     }
 
-    public void saveDefaultRegion(String region) throws InvalidDataException {
-        if (region == null || region.trim().isEmpty()) {
-            throw new InvalidDataException("Default region cannot be empty");
-        }
-        sharedPreferences.edit()
-                .putString(KEY_DEFAULT_REGION, region.trim().toUpperCase())
-                .apply();
+    public float getShakeThreshold() {
+        return sharedPreferences.getFloat(KEY_SHAKE_THRESHOLD, UserPreferences.DEFAULT_SHAKE_THRESHOLD);
     }
 
     public void clear() {

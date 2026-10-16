@@ -39,4 +39,15 @@ public interface TmdbApiService {
     Call<TmdbVideosResponse> getMovieVideos(
             @Path("movie_id") int movieId
     );
+
+    @GET("discover/movie")
+    Call<TmdbSearchResponse> discoverMovies(
+            @Query("language") String language,
+            @Query("sort_by") String sortBy,
+            @Query("vote_average.gte") Float minVoteAverage,
+            @Query("primary_release_date.gte") String minReleaseDate,
+            @Query("watch_region") String watchRegion,
+            @Query("with_watch_providers") String withWatchProviders,
+            @Query("page") int page
+    );
 }

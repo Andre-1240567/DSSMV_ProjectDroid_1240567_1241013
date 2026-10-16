@@ -8,8 +8,9 @@ import android.hardware.SensorManager;
 /**
  * Native accelerometer shake detector satisfying US6 criteria:
  * - AC01: Encapsulates SensorEventListener for TYPE_ACCELEROMETER.
- * - AC02: Vectorial acceleration threshold g > 2.7g.
- * - AC03: Debounce cooldown of 1000ms.
+ * - Vectorial acceleration threshold g > threshold (default 3.2g).
+ * - Multi-peak gesture detection requiring deliberate back-and-forth movement to eliminate accidental triggers.
+ * - Debounce cooldown of 1200ms.
  */
 public class ShakeDetector implements SensorEventListener {
 
@@ -17,14 +18,32 @@ public class ShakeDetector implements SensorEventListener {
         void onShake();
     }
 
-    private static final float SHAKE_THRESHOLD_G = 2.7f;
-    private static final int SHAKE_COOLDOWN_MS = 1000;
+    public static final float DEFAULT_THRESHOLD_G = 3.2f;
+    private static final int SHAKE_SLOP_TIME_MS = 200;
+    private static final int SHAKE_RESET_TIME_MS = 900;
+    private static final int SHAKE_COOLDOWN_MS = 1200;
 
     private final OnShakeListener listener;
-    private long lastShakeTimestamp = 0;
+    private float shakeThresholdG = DEFAULT_THRESHOLD_G;
+    private long lastShakePeakTimestamp = 0;
+    private long lastShakeTriggerTimestamp = 0;
+    private int shakeCount = 0;
 
     public ShakeDetector(OnShakeListener listener) {
         this.listener = listener;
+    }
+
+    public ShakeDetector(OnShakeListener listener, float thresholdG) {
+        this.listener = listener;
+        this.shakeThresholdG = thresholdG;
+    }
+
+    public void setThreshold(float thresholdG) {
+        this.shakeThresholdG = thresholdG;
+    }
+
+    public float getThreshold() {
+        return shakeThresholdG;
     }
 
     @Override
@@ -43,10 +62,31 @@ public class ShakeDetector implements SensorEventListener {
 
         double gForce = Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
-        if (gForce > SHAKE_THRESHOLD_G) {
+        if (gForce > shakeThresholdG) {
             long now = System.currentTimeMillis();
-            if (now - lastShakeTimestamp >= SHAKE_COOLDOWN_MS) {
-                lastShakeTimestamp = now;
+
+            // Ignore if in cooldown period following a trigger
+            if (now - lastShakeTriggerTimestamp < SHAKE_COOLDOWN_MS) {
+                return;
+            }
+
+            // Ignore peaks occurring too fast (sensor noise/jitter)
+            if (now - lastShakePeakTimestamp < SHAKE_SLOP_TIME_MS) {
+                return;
+            }
+
+            // Reset shake count if too much time elapsed since previous peak
+            if (now - lastShakePeakTimestamp > SHAKE_RESET_TIME_MS) {
+                shakeCount = 0;
+            }
+
+            lastShakePeakTimestamp = now;
+            shakeCount++;
+
+            // Require at least 2 distinct shake direction reversals to confirm deliberate shake
+            if (shakeCount >= 2) {
+                shakeCount = 0;
+                lastShakeTriggerTimestamp = now;
                 if (listener != null) {
                     listener.onShake();
                 }
