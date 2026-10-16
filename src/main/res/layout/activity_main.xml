@@ -31,11 +31,11 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/buttonLogout"
+                android:id="@+id/buttonProfile"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_logout"
+                android:text="@string/btn_profile"
                 android:textColor="@color/accent"
                 android:textSize="14sp" />
         </LinearLayout>

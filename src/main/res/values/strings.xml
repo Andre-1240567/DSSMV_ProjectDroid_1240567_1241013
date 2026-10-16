@@ -81,4 +81,15 @@
     <string name="prompt_no_lists_create_first">You don\'t have any lists yet. Please create a list first!</string>
     <string name="movie_added_to_list_success">Movie added to \"%1$s\"!</string>
     <string name="error_loading_feed">Failed to load movies: %1$s</string>
+
+    <!-- User Profile & Logout (US7) -->
+    <string name="title_profile">My Profile</string>
+    <string name="btn_profile">Profile</string>
+    <string name="label_account_details">Account Information</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_uid">Firebase UID</string>
+    <string name="label_member_since">Member Since</string>
+    <string name="label_total_lists">Movie Lists Created</string>
+    <string name="dialog_title_logout">Log Out</string>
+    <string name="dialog_message_logout">Are you sure you want to log out of CineTrack?</string>
 </resources>
