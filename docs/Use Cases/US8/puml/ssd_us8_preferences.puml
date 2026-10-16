@@ -8,6 +8,8 @@ skinparam defaultFontSize 12
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":SharedPreferences" as Prefs
+participant ":ShakeDetector" as Shake
+participant ":TMDB API" as TMDB
 
 autonumber
 
@@ -16,29 +18,33 @@ autonumber
 User -> System : openPreferences()
 activate System
 
-System -> Prefs : getInt("cinema_radius_km", 10)\ngetString("default_region", "PT")
+System -> Prefs : getInt("cinema_radius_km", 10)\ngetString("default_region", "PT")\ngetFloat("min_rating", 7.0)\ngetInt("min_release_year", 0)\ngetStringSet("streaming_providers")\ngetFloat("shake_threshold", 3.2)
 activate Prefs
 Prefs --> System : currentPreferencesValues
 deactivate Prefs
 
 System -> System : instantiateUserPreferences()
-System --> User : displayPreferencesForm(cinemaRadiusKm, defaultRegion)
+System --> User : displayPreferencesForm(radius, region, minRating, minYear, providers, sensitivity)
 deactivate System
 
 == Scenario 2: Save Updated Preferences ==
 
-User -> System : submitPreferences(cinemaRadiusKm, defaultRegion)
+User -> System : submitPreferences(radius, region, minRating, minYear, providers, sensitivity)
 activate System
 
 System -> System : validatePreferencesWithDomainModel()
 
-alt [Invalid Values (radius < 1 or > 100, or empty region)]
-    System --> User : showValidationError("Search radius must be between 1 and 100 km")
+alt [Invalid Values (radius < 1 or > 100, minRating < 0 or > 10, etc.)]
+    System --> User : showValidationError("Validation error message")
 else [Valid Values]
-    System -> Prefs : edit().putInt(...).putString(...).apply()
+    System -> Prefs : edit().putInt(...).putString(...).putFloat(...).putStringSet(...).apply()
     activate Prefs
     Prefs --> System : savedAsynchronously
     deactivate Prefs
+    
+    System -> Shake : setThreshold(newThreshold)
+    System -> System : clearRecommendationCache()
+    System -> TMDB : prefetchRecommendations(newFilters)
     
     System --> User : showSuccessToast("Preferences saved successfully")
 end

@@ -21,6 +21,7 @@ import pt.isep.dssmv.projectdroid.adapters.MovieSearchAdapter;
 import pt.isep.dssmv.projectdroid.network.RetrofitClient;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
+import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -88,9 +89,13 @@ public class MovieSearchActivity extends AppCompatActivity {
         textViewSearchStatus.setVisibility(View.GONE);
         recyclerViewSearchResults.setVisibility(View.GONE);
 
+        SharedPrefManager prefManager = SharedPrefManager.getInstance(this);
+        String region = prefManager.getDefaultRegion();
+        String language = "PT".equalsIgnoreCase(region) ? "pt-PT" : (region.toLowerCase() + "-" + region.toUpperCase());
+
         // AC02: Non-blocking asynchronous network call via Retrofit .enqueue()
         RetrofitClient.getInstance().getTmdbApiService()
-                .searchMovies(query, "en-US", 1)
+                .searchMovies(query, language, 1)
                 .enqueue(new Callback<TmdbSearchResponse>() {
                     @Override
                     public void onResponse(Call<TmdbSearchResponse> call, Response<TmdbSearchResponse> response) {

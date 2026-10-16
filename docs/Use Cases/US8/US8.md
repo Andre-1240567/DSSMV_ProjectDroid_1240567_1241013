@@ -1,16 +1,24 @@
 # US8: [Epic: Persistence] Guardar Preferências Locais (SharedPreferences)
 
 ## 1. Descrição do Caso de Uso / User Story
-Como um utilizador do CineTrack, pretendo configurar e persistir localmente as minhas preferências de aplicação (nomeadamente o raio de pesquisa de salas de cinema em quilómetros e o país/região padrão para consulta de catálogos e streaming), de modo a que a aplicação preserve estas definições de forma duradoura entre sessões e sem efetuar operações síncronas que afetem a fluidez da interface gráfica (*UI Thread*).
+Como um utilizador do CineTrack, pretendo configurar e persistir localmente as minhas preferências de aplicação (nomeadamente o raio de pesquisa de cinemas, o país/região padrão, filtros de recomendação como nota mínima e ano de lançamento, serviços de streaming subscritos e a sensibilidade do acelerómetro), de modo a que a aplicação preserve estas definições de forma duradoura entre sessões e sem efetuar operações síncronas que afetem a fluidez da interface gráfica (*UI Thread*).
 
 ---
 
 ## 2. Critérios de Aceitação (Acceptance Criteria)
-* **AC01 — Validação na Camada de Domínio Puro:** Os dados são validados estritamente pela entidade pura [`UserPreferences.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/model/UserPreferences.java). O raio de busca deve situar-se obrigatoriamente entre $1$ e $100\text{ km}$, e a região padrão não pode ser nula nem vazia (ex.: `"PT"`). Violações disparam a exceção checada [`InvalidDataException.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/exceptions/InvalidDataException.java).
-* **AC02 — Valores Padrão (Fallbacks):** Caso o utilizador nunca tenha gravado preferências, o sistema deve assumir por omissão $10\text{ km}$ para o raio de cinemas e `"PT"` para a região padrão.
+* **AC01 — Validação na Camada de Domínio Puro:** Os dados são validados estritamente pela entidade pura [`UserPreferences.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/model/UserPreferences.java):
+  * Raio de busca entre $1$ e $100\text{ km}$.
+  * Região padrão não nula nem vazia (ex.: `"PT"`).
+  * Nota mínima entre $0.0$ e $10.0$ (omissão: $7.0$).
+  * Ano mínimo de lançamento $\ge 1888$ ou $0$ para desativar filtro.
+  * Conjunto de fornecedores de streaming subscritos (`Set<String>`).
+  * Limiar de sensibilidade de agitação positivo ($>0.0g$).
+  * Violações disparam a exceção checada [`InvalidDataException.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/exceptions/InvalidDataException.java).
+* **AC02 — Valores Padrão (Fallbacks):** Caso o utilizador nunca tenha gravado preferências, o sistema assume: raio de $10\text{ km}$, região `"PT"`, nota mínima $7.0$, sem restrição de ano ($0$), sem restrição de streaming (todos disponíveis) e sensibilidade normal ($3.2g$).
 * **AC03 — Persistência Não-Bloqueante (RNF05):** A escrita de preferências em `SharedPreferences` deve ser realizada imperativa e exclusivamente através de **`.apply()`** (execução assíncrona em background). É **estritamente proibido** o recurso a `.commit()` (síncrono/bloqueante).
-* **AC04 — Encapsulamento em Gestor Centralizado:** O acesso a `SharedPreferences` deve ser encapsulado na classe utilitária `SharedPrefManager.java` (padrão Singleton ou Factory com `Context.getSharedPreferences`), protegendo a lógica das *Activities*.
-* **AC05 — Design Responsivo de Interface (RNF03):** O ecrã ou diálogo de preferências é desenhado em XML usando estritamente unidades **`dp`** e **`sp`**, sem píxeis absolutos (`px`).
+* **AC04 — Encapsulamento em Gestor Centralizado:** O acesso a `SharedPreferences` deve ser encapsulado na classe utilitária `SharedPrefManager.java` (padrão Singleton com `Context.getSharedPreferences`), protegendo a lógica das *Activities*.
+* **AC05 — Design Responsivo de Interface (RNF03):** O diálogo de preferências é desenhado em XML (`dialog_preferences.xml`) usando estritamente unidades **`dp`** e **`sp`**, com `ScrollView` para acomodar ecrãs de diferentes dimensões e orientações.
+* **AC06 — Invalidação de Cache de Recomendações:** Ao gravar novas preferências, a aplicação invalida automaticamente a cache e o histórico de sugestões do *Shake to Suggest*, reiniciando o prefetch com os novos critérios.
 
 ---
 
@@ -21,23 +29,21 @@ Como um utilizador do CineTrack, pretendo configurar e persistir localmente as m
 ---
 
 ## 4. Fluxo Principal de Eventos
-1. O utilizador acede ao ecrã/diálogo de Definições/Preferências.
-2. O sistema consulta `SharedPrefManager` e obtém os valores correntes de raio e região.
-3. O sistema apresenta o formulário preenchido com os valores ativos.
-4. O utilizador ajusta o raio de pesquisa e/ou seleciona a região e clica em "Guardar".
-5. O sistema instancia a entidade de domínio `UserPreferences` com os novos valores, validando as regras de negócio.
-6. O sistema invoca `SharedPrefManager.saveUserPreferences(...)`, persistindo assincronamente com `.apply()`.
-7. O sistema apresenta feedback de sucesso ao utilizador (*Toast* ou *Snackbar*) e encerra o ecrã/diálogo.
+1. O utilizador clica no botão de Preferências (ícone de engrenagem) na barra de ferramentas.
+2. O sistema consulta `SharedPrefManager` e obtém a instância de `UserPreferences`.
+3. O sistema apresenta o formulário preenchido com as configurações ativas (raio, região, nota mínima, ano, checkboxes de streaming e spinner de sensibilidade).
+4. O utilizador efetua os ajustes pretendidos e clica em "Guardar".
+5. O sistema instancia `UserPreferences` com os novos valores, validando as regras no domínio puro.
+6. O sistema invoca `SharedPrefManager.saveUserPreferences(...)`, persistindo com `.apply()`.
+7. O sistema atualiza o limiar do `ShakeDetector`, invalida a cache de recomendações e dispara um novo prefetch em background.
+8. O sistema apresenta feedback de sucesso (*Toast*) e fecha o diálogo.
 
 ---
 
 ## 5. Fluxos Alternativos e Exceções
-* **E1 — Valor de Raio Inválido:**
-  * No passo 5, se o raio for inferior a $1$ ou superior a $100\text{ km}$, o domínio lança `InvalidDataException`.
-  * O sistema captura a exceção, não grava em disco, e exibe mensagem de erro no respetivo campo (`TextInputLayout.setError`).
-* **E2 — Código de Região Inválido:**
-  * No passo 5, se a região estiver em branco, o domínio lança `InvalidDataException`.
-  * O sistema exibe o erro e aguarda correção.
+* **E1 — Valor de Raio ou Nota Inválido:**
+  * No passo 5, se algum valor violar as restrições de validação, o domínio lança `InvalidDataException`.
+  * O sistema captura a exceção, não persiste os dados e exibe mensagem de erro.
 
 ---
 
@@ -51,6 +57,6 @@ Ficheiro PlantUML fonte: [`puml/ssd_us8_preferences.puml`](puml/ssd_us8_preferen
 
 ## 7. Mapeamento Arquitetural (MVC)
 * **Model:** [`UserPreferences.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/model/UserPreferences.java) e [`InvalidDataException.java`](../../../src/main/java/pt/isep/dssmv/projectdroid/exceptions/InvalidDataException.java).
-* **View:** `res/layout/activity_preferences.xml` ou diálogo correspondente usando `dp`/`sp`.
+* **View:** `dialog_preferences.xml` usando `dp`/`sp`.
 * **Persistence / Manager:** `SharedPrefManager.java` no pacote `pt.isep.dssmv.projectdroid.utils`.
-* **Controller:** `PreferencesActivity.java` (ou gestão em diálogo) no pacote `pt.isep.dssmv.projectdroid.controllers`.
+* **Controller:** `MainActivity.java` gerindo a apresentação do diálogo e o ciclo de persistência.

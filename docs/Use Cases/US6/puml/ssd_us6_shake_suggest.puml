@@ -9,8 +9,17 @@ actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":SensorManager\n(Accelerometer)" as Sensor
 participant ":Vibrator\n(Haptic Feedback)" as Haptic
+participant ":TMDB API\n(Discover)" as TMDB
 
 autonumber
+
+== Boot / Background Cache Prefetch ==
+
+System -> TMDB : discoverMovies(sort_by="vote_average.desc", min_votes=300, min_rating, providers)
+activate TMDB
+TMDB --> System : pagedResults (up to 20 acclaimed movies)
+deactivate TMDB
+System -> System : storeInCache(cachedRecommendations)
 
 == Lifecycle: Sensor Registration & Deregistration ==
 
@@ -21,33 +30,45 @@ activate Sensor
 System --> User : ready()
 deactivate System
 
-== Scenario: Physical Device Shake Event ==
+== Scenario: Deliberate Device Shake Gesture ==
 
-User -> Sensor : physicallyShakesDevice(force > 2.7g)
+User -> Sensor : physicallyShakesDevice(multi-peak >= 2, gForce > threshold)
 Sensor -> System : onSensorChanged(event[x,y,z])
 activate System
 
-System -> System : calculateAccelerationForce()
+System -> System : verifyMultiPeakAndCooldown()
 
-alt [Acceleration Force >= 2.7g and Cooldown Expired]
+alt [Debounce Valid, Cooldown Expired, and Not Currently Showing Dialog]
     System -> Haptic : vibrate(100ms)
     activate Haptic
     Haptic --> System : hapticAcknowledged
     deactivate Haptic
     
-    System -> System : getAvailableMoviesFromUserLists()
-    
-    alt [User Has No Movies in Lists]
-        System --> User : showEmptyNoticeDialog("Add movies to your lists to enable shake suggestions!")
-    else [Movies Available]
-        System -> System : selectRandomMovie(movieList)
-        System --> User : displaySuggestionDialog(movieTitle, poster, overview)
+    alt [Movie Available in Prefetch Cache]
+        System -> System : pickUnconsumedMovieFromCache()
+        System -> System : markAsShown(movieId)
+        System --> User : displaySuggestionDialog(title, year, poster, overview)
+        
+        opt [Cache Low (< 5 items)]
+            System -> TMDB : discoverMovies(page=next)
+            activate TMDB
+            TMDB --> System : refillCache
+            deactivate TMDB
+        end
         
         opt [User Wants To View Details]
             User -> System : tapViewDetails()
-            System -> System : navigateToMovieDetail(selectedMovieId)
+            System -> System : navigateToMovieDetail(movieId)
             System --> User : showMovieDetailScreen()
         end
+        
+        opt [User Shakes Again / Taps Shake Again]
+            User -> System : tapShakeAgain()
+            System -> System : pickNextUnconsumedMovieFromCache()
+            System --> User : displaySuggestionDialog(newMovie)
+        end
+    else [Cache Empty or Filter Match Yields 0 Results]
+        System --> User : showDefensiveNoticeDialog("No movies found with selected filters. Adjust in Preferences!")
     end
 end
 
