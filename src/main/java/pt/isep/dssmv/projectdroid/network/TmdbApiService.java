@@ -10,6 +10,13 @@ import retrofit2.http.Query;
 
 public interface TmdbApiService {
 
+    @GET("movie/popular")
+    Call<TmdbPagedResponse> getPopularMovies(
+            @Query("api_key") String apiKey,
+            @Query("page") int page,
+            @Query("language") String language
+    );
+
     @GET("search/movie")
     Call<TmdbSearchResponse> searchMovies(
             @Query("query") String query,

@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
 
-    private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
+    public static final String BASE_URL = "https://api.themoviedb.org/3/";
+    private static final String TMDB_BASE_URL = BASE_URL;
 
     private static RetrofitClient instance;
     private final TmdbApiService tmdbApiService;
@@ -40,12 +41,14 @@ public class RetrofitClient {
                         // v4 Bearer Token
                         requestBuilder.header("Authorization", "Bearer " + apiKey);
                     } else {
-                        // v3 API Key query parameter
+                        // v3 API Key query parameter (only add if not already present)
                         HttpUrl originalUrl = original.url();
-                        HttpUrl urlWithKey = originalUrl.newBuilder()
-                                .addQueryParameter("api_key", apiKey)
-                                .build();
-                        requestBuilder.url(urlWithKey);
+                        if (originalUrl.queryParameter("api_key") == null) {
+                            HttpUrl urlWithKey = originalUrl.newBuilder()
+                                    .addQueryParameter("api_key", apiKey)
+                                    .build();
+                            requestBuilder.url(urlWithKey);
+                        }
                     }
                 }
 

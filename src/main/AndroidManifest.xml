@@ -54,5 +54,15 @@
             android:name=".controllers.CinemasActivity"
             android:exported="false" />
 
+        <!-- List Details screen (US3) -->
+        <activity
+            android:name=".controllers.ListDetailsActivity"
+            android:exported="false" />
+
+        <!-- User Profile screen (US7) -->
+        <activity
+            android:name=".controllers.ProfileActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
