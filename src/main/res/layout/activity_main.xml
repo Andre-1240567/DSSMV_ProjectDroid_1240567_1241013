@@ -30,32 +30,23 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/buttonSearchMovies"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_search_movies"
-                android:textColor="@color/accent"
-                android:textSize="14sp" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/btn_search_movies"
+                app:tint="@color/surface" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/buttonPreferences"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_preferences"
-                android:textColor="@color/surface"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/buttonProfile"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_profile"
-                android:textColor="@color/accent"
-                android:textSize="14sp" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_settings"
+                android:contentDescription="@string/btn_preferences"
+                app:tint="@color/surface" />
         </LinearLayout>
 
         <!-- Main Content Area: Tab 1 (Explore Feed) and Tab 2 (My Lists) -->

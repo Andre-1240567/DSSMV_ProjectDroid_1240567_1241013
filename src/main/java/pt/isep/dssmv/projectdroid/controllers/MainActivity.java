@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -68,9 +69,8 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     // Common views
-    private Button buttonProfile;
-    private Button buttonSearchMovies;
-    private Button buttonPreferences;
+    private ImageButton buttonSearchMovies;
+    private ImageButton buttonPreferences;
     private BottomNavigationView bottomNavigationView;
 
     // Tab 1: Explore / Popular Movies views
@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        buttonProfile = findViewById(R.id.buttonProfile);
         buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -230,6 +229,10 @@ public class MainActivity extends AppCompatActivity {
                 layoutMyLists.setVisibility(View.VISIBLE);
                 fabAddList.setVisibility(View.VISIBLE);
                 return true;
+            } else if (itemId == R.id.navigation_profile) {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                startActivity(intent);
+                return false;
             }
             return false;
         });
@@ -273,11 +276,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        buttonProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
-
         buttonSearchMovies.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, MovieSearchActivity.class);
             startActivity(intent);
