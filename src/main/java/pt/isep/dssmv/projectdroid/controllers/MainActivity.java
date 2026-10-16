@@ -109,6 +109,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean isShakeLoading = false;
     private AlertDialog currentShakeDialog = null;
 
+    // Recommendation Cache & No-repeat history
+    private final List<TmdbMovieDto> cachedRecommendations = new ArrayList<>();
+    private final Set<Integer> shownRecommendationMovieIds = new HashSet<>();
+    private int recommendationCurrentPage = 1;
+    private int recommendationTotalPages = 1;
+    private boolean isPrefetchingRecommendations = false;
+    private int recommendationConfigVersion = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Load initial feed of popular movies
         loadPopularMovies(1);
+
+        // Preload pool of smart recommendations in cache on boot (no repeats, instant response)
+        prefetchRecommendations();
     }
 
     private void setupSensors() {
@@ -302,33 +313,122 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * AC06 & AC07: Shake to suggest smartly discovers movies based on user preferences
-     * (rating, release date, and user's streaming subscriptions) and presents a random match in a modal dialog.
+     * Preloads a pool of acclaimed movies into cachedRecommendations in the background.
+     * Uses vote_average.desc with vote_count.gte=300 to focus on great movies across all years.
+     */
+    private void prefetchRecommendations() {
+        if (isPrefetchingRecommendations) return;
+        if (recommendationCurrentPage > recommendationTotalPages && recommendationTotalPages > 1) {
+            return;
+        }
+
+        isPrefetchingRecommendations = true;
+        final int currentVersion = recommendationConfigVersion;
+
+        UserPreferences prefs = prefManager.getUserPreferences();
+        String region = prefs.getDefaultRegion();
+        Float minRating = prefs.getMinRating() > 0 ? prefs.getMinRating() : 7.0f;
+        String minDate = prefs.getMinReleaseYear() > 0 ? (prefs.getMinReleaseYear() + "-01-01") : null;
+        String providers = prefs.getFormattedWatchProviders();
+        int pageToFetch = recommendationCurrentPage;
+
+        RetrofitClient.getInstance().getTmdbApiService()
+                .discoverMovies("pt-PT", "vote_average.desc", 300, minRating, minDate, region, providers, pageToFetch)
+                .enqueue(new Callback<TmdbSearchResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<TmdbSearchResponse> call, @NonNull Response<TmdbSearchResponse> response) {
+                        isPrefetchingRecommendations = false;
+                        if (currentVersion != recommendationConfigVersion) return;
+                        if (response.isSuccessful() && response.body() != null && response.body().getResults() != null) {
+                            recommendationTotalPages = Math.min(response.body().getTotalPages(), 20);
+                            recommendationCurrentPage++;
+
+                            for (TmdbMovieDto movie : response.body().getResults()) {
+                                if (!shownRecommendationMovieIds.contains(movie.getId())) {
+                                    cachedRecommendations.add(movie);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<TmdbSearchResponse> call, @NonNull Throwable t) {
+                        if (currentVersion == recommendationConfigVersion) {
+                            isPrefetchingRecommendations = false;
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Returns an unconsumed movie from the cache without repeats, and removes it from the cache.
+     */
+    private TmdbMovieDto getNextUnconsumedRecommendation() {
+        while (!cachedRecommendations.isEmpty()) {
+            int randomIndex = new Random().nextInt(cachedRecommendations.size());
+            TmdbMovieDto candidate = cachedRecommendations.remove(randomIndex);
+            if (!shownRecommendationMovieIds.contains(candidate.getId())) {
+                shownRecommendationMovieIds.add(candidate.getId());
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * AC06 & AC07: Shake to suggest delivers a movie from the preloaded cache with ZERO repeats,
+     * refilling the cache automatically in the background.
      */
     private void triggerShakeSuggestion() {
         if (isShakeDialogOpen || isShakeLoading) {
             return;
         }
-        isShakeLoading = true;
 
+        // Fast path: pull from preloaded cache
+        TmdbMovieDto cachedMovie = getNextUnconsumedRecommendation();
+        if (cachedMovie != null) {
+            showShakeSuggestionDialog(cachedMovie);
+
+            // Refill cache in background if running low (< 5 items)
+            if (cachedRecommendations.size() < 5 && recommendationCurrentPage <= recommendationTotalPages) {
+                prefetchRecommendations();
+            }
+            return;
+        }
+
+        // Fallback: If cache is empty, fetch immediately
+        isShakeLoading = true;
+        final int currentVersion = recommendationConfigVersion;
         UserPreferences prefs = prefManager.getUserPreferences();
         String region = prefs.getDefaultRegion();
-        Float minRating = prefs.getMinRating() > 0 ? prefs.getMinRating() : null;
+        Float minRating = prefs.getMinRating() > 0 ? prefs.getMinRating() : 7.0f;
         String minDate = prefs.getMinReleaseYear() > 0 ? (prefs.getMinReleaseYear() + "-01-01") : null;
         String providers = prefs.getFormattedWatchProviders();
+        int pageToFetch = recommendationCurrentPage <= recommendationTotalPages ? recommendationCurrentPage : 1;
 
-        // Discover movies matching user's rating, year, streaming services and region
         RetrofitClient.getInstance().getTmdbApiService()
-                .discoverMovies("pt-PT", "popularity.desc", minRating, minDate, region, providers, 1)
+                .discoverMovies("pt-PT", "vote_average.desc", 300, minRating, minDate, region, providers, pageToFetch)
                 .enqueue(new Callback<TmdbSearchResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<TmdbSearchResponse> call, @NonNull Response<TmdbSearchResponse> response) {
                         isShakeLoading = false;
-                        if (response.isSuccessful() && response.body() != null && !response.body().getResults().isEmpty()) {
-                            List<pt.isep.dssmv.projectdroid.network.dto.TmdbMovieDto> results = response.body().getResults();
-                            int randomIndex = new Random().nextInt(results.size());
-                            TmdbMovieDto picked = results.get(randomIndex);
-                            showShakeSuggestionDialog(picked);
+                        if (currentVersion != recommendationConfigVersion) return;
+                        if (response.isSuccessful() && response.body() != null && response.body().getResults() != null && !response.body().getResults().isEmpty()) {
+                            recommendationTotalPages = Math.min(response.body().getTotalPages(), 20);
+                            recommendationCurrentPage++;
+
+                            for (TmdbMovieDto movie : response.body().getResults()) {
+                                if (!shownRecommendationMovieIds.contains(movie.getId())) {
+                                    cachedRecommendations.add(movie);
+                                }
+                            }
+
+                            TmdbMovieDto picked = getNextUnconsumedRecommendation();
+                            if (picked != null) {
+                                showShakeSuggestionDialog(picked);
+                            } else {
+                                showEmptyShakeDialog();
+                            }
                         } else {
                             showEmptyShakeDialog();
                         }
@@ -337,7 +437,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Call<TmdbSearchResponse> call, @NonNull Throwable t) {
                         isShakeLoading = false;
-                        showEmptyShakeDialog();
+                        if (currentVersion == recommendationConfigVersion) {
+                            showEmptyShakeDialog();
+                        }
                     }
                 });
     }
@@ -508,6 +610,16 @@ public class MainActivity extends AppCompatActivity {
                         if (shakeDetector != null) {
                             shakeDetector.setThreshold(threshold);
                         }
+
+                        // Reset recommendation cache so new filters take effect immediately
+                        recommendationConfigVersion++;
+                        isPrefetchingRecommendations = false;
+                        cachedRecommendations.clear();
+                        shownRecommendationMovieIds.clear();
+                        recommendationCurrentPage = 1;
+                        recommendationTotalPages = 1;
+                        prefetchRecommendations();
+
                         Toast.makeText(MainActivity.this, R.string.preferences_saved_success, Toast.LENGTH_SHORT).show();
                     } catch (NumberFormatException e) {
                         Toast.makeText(MainActivity.this, "Por favor verifique os valores numéricos", Toast.LENGTH_SHORT).show();

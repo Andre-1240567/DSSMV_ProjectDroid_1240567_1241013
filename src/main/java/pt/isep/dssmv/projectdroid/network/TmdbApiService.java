@@ -44,6 +44,7 @@ public interface TmdbApiService {
     Call<TmdbSearchResponse> discoverMovies(
             @Query("language") String language,
             @Query("sort_by") String sortBy,
+            @Query("vote_count.gte") Integer minVoteCount,
             @Query("vote_average.gte") Float minVoteAverage,
             @Query("primary_release_date.gte") String minReleaseDate,
             @Query("watch_region") String watchRegion,
