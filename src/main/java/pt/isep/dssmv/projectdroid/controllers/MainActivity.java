@@ -52,7 +52,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     // Common views
-    private Button buttonLogout;
+    private Button buttonProfile;
     private BottomNavigationView bottomNavigationView;
 
     // Tab 1: Explore / Popular Movies views
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        buttonLogout = findViewById(R.id.buttonLogout);
+        buttonProfile = findViewById(R.id.buttonProfile);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Tab 1
@@ -192,9 +192,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        buttonLogout.setOnClickListener(v -> {
-            authManager.logout();
-            redirectToLogin();
+        buttonProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
         });
 
         fabAddList.setOnClickListener(v -> showCreateListDialog());
