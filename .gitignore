@@ -20,6 +20,7 @@ local.properties
 .env
 *.env
 !.env.example
+DEV_JOURNAL.md
 .idea/workspace.xml
 .idea/tasks.xml
 

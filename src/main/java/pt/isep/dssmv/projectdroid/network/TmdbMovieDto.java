@@ -22,6 +22,17 @@ public class TmdbMovieDto {
     @SerializedName("vote_average")
     private double voteAverage;
 
+    public TmdbMovieDto() {
+    }
+
+    public TmdbMovieDto(int id, String title, String overview, String posterPath, String releaseDate) {
+        this.id = id;
+        this.title = title;
+        this.overview = overview;
+        this.posterPath = posterPath;
+        this.releaseDate = releaseDate;
+    }
+
     public int getId() {
         return id;
     }
@@ -53,7 +64,7 @@ public class TmdbMovieDto {
     }
 
     public String getFullPosterUrl() {
-        if (posterPath != null && !posterPath.isEmpty()) {
+        if (posterPath != null && !posterPath.trim().isEmpty()) {
             return "https://image.tmdb.org/t/p/w500" + posterPath;
         }
         return null;

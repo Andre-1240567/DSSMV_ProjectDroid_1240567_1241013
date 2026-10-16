@@ -30,14 +30,23 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/buttonProfile"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_profile"
-                android:textColor="@color/accent"
-                android:textSize="14sp" />
+            <ImageButton
+                android:id="@+id/buttonSearchMovies"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/btn_search_movies"
+                app:tint="@color/surface" />
+
+            <ImageButton
+                android:id="@+id/buttonPreferences"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_settings"
+                android:contentDescription="@string/btn_preferences"
+                app:tint="@color/surface" />
         </LinearLayout>
 
         <!-- Main Content Area: Tab 1 (Explore Feed) and Tab 2 (My Lists) -->
@@ -128,6 +137,37 @@
                         android:text="@string/section_movie_lists"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Quick Actions Row (Cinemas & Shake) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="8dp">
+
+                    <Button
+                        android:id="@+id/buttonNearbyCinemas"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="@string/btn_nearby_cinemas"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/buttonShakeSuggest"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/btn_shake_suggest"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
                 <!-- Loading Indicator -->

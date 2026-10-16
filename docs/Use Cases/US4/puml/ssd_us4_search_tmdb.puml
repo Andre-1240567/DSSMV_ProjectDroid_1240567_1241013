@@ -1,0 +1,76 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(CineTrack)" as System
+participant ":TmdbApiService\n(Retrofit)" as TmdbApi
+participant ":TMDB Remote API" as RemoteTmdb
+
+autonumber
+
+== Scenario 1: Search Movies via TMDB ==
+
+User -> System : searchMovies(query)
+activate System
+
+alt [Query is blank]
+    System --> User : showPrompt("Please enter a movie title")
+else [Valid Query]
+    System -> System : showLoadingIndicator(true)
+    System -> TmdbApi : searchMovies(apiKey, query)
+    activate TmdbApi
+    
+    TmdbApi -> RemoteTmdb : GET /3/search/movie?api_key=...&query=...
+    activate RemoteTmdb
+    
+    alt [Network Failure / Offline]
+        RemoteTmdb --> TmdbApi : networkError / timeout
+        TmdbApi --> System : onFailure(t)
+        System -> System : showLoadingIndicator(false)
+        System --> User : showNetworkErrorMessage("Failed to connect to TMDB")
+    else [HTTP 200 OK]
+        RemoteTmdb --> TmdbApi : jsonResultsPayload
+        deactivate RemoteTmdb
+        TmdbApi --> System : onResponse(response.body().results)
+        deactivate TmdbApi
+        
+        System -> System : showLoadingIndicator(false)
+        alt [Results Empty]
+            System --> User : showEmptyResultsMessage("No movies found")
+        else [Results Found]
+            System -> System : renderMoviesRecyclerView(movieResults)
+            System --> User : displayMovieList(posters, titles, releaseDates)
+        end
+    end
+end
+
+deactivate System
+
+== Scenario 2: View Movie Streaming Providers ==
+
+User -> System : selectMovie(movieId)
+activate System
+
+System -> System : navigateToMovieDetail(movieId)
+System -> TmdbApi : getMovieWatchProviders(movieId, apiKey)
+activate TmdbApi
+
+TmdbApi -> RemoteTmdb : GET /3/movie/{id}/watch/providers
+activate RemoteTmdb
+RemoteTmdb --> TmdbApi : jsonProvidersPayload
+deactivate RemoteTmdb
+
+TmdbApi --> System : onResponse(providersBody)
+deactivate TmdbApi
+
+System -> System : extractProvidersForRegion("PT")
+System -> System : mapToWatchProviderEntities()
+System --> User : displayStreamingProviders(flatrate, rent, buy)
+
+deactivate System
+
+@enduml
