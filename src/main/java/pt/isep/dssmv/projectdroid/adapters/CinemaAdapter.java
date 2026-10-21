@@ -22,10 +22,20 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.CinemaView
         void onDirectionsClick(Cinema cinema);
     }
 
+    public interface OnCinemaClickListener {
+        void onCinemaClick(Cinema cinema);
+    }
+
     private final List<Cinema> cinemas = new ArrayList<>();
     private final OnDirectionsClickListener directionsClickListener;
+    private final OnCinemaClickListener cinemaClickListener;
 
     public CinemaAdapter(OnDirectionsClickListener directionsClickListener) {
+        this(null, directionsClickListener);
+    }
+
+    public CinemaAdapter(OnCinemaClickListener cinemaClickListener, OnDirectionsClickListener directionsClickListener) {
+        this.cinemaClickListener = cinemaClickListener;
         this.directionsClickListener = directionsClickListener;
     }
 
@@ -47,7 +57,7 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.CinemaView
     @Override
     public void onBindViewHolder(@NonNull CinemaViewHolder holder, int position) {
         Cinema cinema = cinemas.get(position);
-        holder.bind(cinema, directionsClickListener);
+        holder.bind(cinema, cinemaClickListener, directionsClickListener);
     }
 
     @Override
@@ -70,7 +80,7 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.CinemaView
             buttonDirections = itemView.findViewById(R.id.buttonGetDirections);
         }
 
-        public void bind(Cinema cinema, OnDirectionsClickListener listener) {
+        public void bind(Cinema cinema, OnCinemaClickListener cinemaListener, OnDirectionsClickListener directionsListener) {
             textViewName.setText(cinema.getName());
 
             int distance = cinema.getDistanceMeters();
@@ -95,14 +105,16 @@ public class CinemaAdapter extends RecyclerView.Adapter<CinemaAdapter.CinemaView
             }
 
             buttonDirections.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onDirectionsClick(cinema);
+                if (directionsListener != null) {
+                    directionsListener.onDirectionsClick(cinema);
                 }
             });
 
             itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onDirectionsClick(cinema);
+                if (cinemaListener != null) {
+                    cinemaListener.onCinemaClick(cinema);
+                } else if (directionsListener != null) {
+                    directionsListener.onDirectionsClick(cinema);
                 }
             });
         }

@@ -46,45 +46,117 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- Subtitle / Radius info -->
-    <TextView
-        android:id="@+id/textViewRadiusInfo"
+    <!-- Subtitle and View Mode Selector Bar -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="12dp"
+        android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
+        android:background="@color/surface">
 
-    <!-- Loading Indicator -->
-    <ProgressBar
-        android:id="@+id/progressBarCinemas"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="32dp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/textViewRadiusInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
 
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/textViewCinemasEmpty"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroupViewMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@+id/buttonModeBoth">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonModeBoth"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/btn_view_both"
+                android:textSize="11sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonModeMap"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/btn_view_map"
+                android:textSize="11sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonModeList"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/btn_view_list"
+                android:textSize="11sp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </LinearLayout>
+
+    <!-- Main Content Area with Map and Recycler View -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="32dp"
-        android:text="@string/empty_nearby_cinemas"
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp"
-        android:visibility="gone" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <!-- Recycler View -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewCinemas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="24dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Interactive OpenStreetMap (OSMDroid) -->
+            <org.osmdroid.views.MapView
+                android:id="@+id/mapViewCinemas"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Recycler View for Cinemas List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewCinemas"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+        </LinearLayout>
+
+        <!-- Loading Indicator centered over content -->
+        <ProgressBar
+            android:id="@+id/progressBarCinemas"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <!-- Empty State centered over content -->
+        <TextView
+            android:id="@+id/textViewCinemasEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="@string/empty_nearby_cinemas"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp"
+            android:visibility="gone" />
+    </RelativeLayout>
 
 </LinearLayout>

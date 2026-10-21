@@ -76,9 +76,14 @@ public class RetrofitClient {
             Request original = chain.request();
             String fsqKey = BuildConfig.FOURSQUARE_API_KEY;
             Request.Builder b = original.newBuilder()
-                    .header("Accept", "application/json");
+                    .header("Accept", "application/json")
+                    .header("X-Places-Api-Version", "2025-06-17");
             if (fsqKey != null && !fsqKey.trim().isEmpty()) {
-                b.header("Authorization", fsqKey.trim());
+                String token = fsqKey.trim();
+                if (!token.startsWith("Bearer ")) {
+                    token = "Bearer " + token;
+                }
+                b.header("Authorization", token);
             }
             return chain.proceed(b.build());
         };
@@ -91,7 +96,7 @@ public class RetrofitClient {
                 .build();
 
         Retrofit fsqRetrofit = new Retrofit.Builder()
-                .baseUrl("https://api.foursquare.com/v3/")
+                .baseUrl("https://places-api.foursquare.com/")
                 .client(fsqOkHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
