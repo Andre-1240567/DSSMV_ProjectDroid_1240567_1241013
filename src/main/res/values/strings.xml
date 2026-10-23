@@ -170,4 +170,27 @@
     <string name="label_total_lists">Movie Lists Created</string>
     <string name="dialog_title_logout">Log Out</string>
     <string name="dialog_message_logout">Are you sure you want to log out of CineTrack?</string>
+
+    <!-- Enhanced List Management & Exploration -->
+    <string name="option_search_catalog">Search in TMDB Catalog</string>
+    <string name="option_manual_entry">Enter Movie Manually</string>
+    <string name="title_choose_add_method">Add Movie to List</string>
+    <string name="subtitle_my_lists">Organize and track your favorite movies</string>
+    <string name="empty_lists_title">No movie lists yet</string>
+    <string name="empty_lists_subtitle">Create your first collection to save your favorite movies, watchlists and recommendations!</string>
+    <string name="badge_lists_count">%1$d lists</string>
+    <string name="btn_create_first_list">Create My First List</string>
+
+    <!-- Local Collection Filtering & Sorting (US9) -->
+    <string name="filter_all">All</string>
+    <string name="sort_by">Sort</string>
+    <string name="sort_dialog_title">Sort Movies</string>
+    <string name="sort_title_asc">Title (A to Z)</string>
+    <string name="sort_title_desc">Title (Z to A)</string>
+    <string name="sort_rating_desc">Highest Rating (★ 5.0 - 1.0)</string>
+    <string name="sort_rating_asc">Lowest Rating (★ 1.0 - 5.0)</string>
+    <string name="sort_year_desc">Newest Year</string>
+    <string name="sort_year_asc">Oldest Year</string>
+    <string name="empty_filtered_movies">No movies match the selected filter.</string>
+    <string name="hint_search_list">Search in this list…</string>
 </resources>

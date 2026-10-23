@@ -1,0 +1,65 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(ListDetailsActivity)" as System
+participant ":Domain\n(SavedMovieFilterSorter)" as Domain
+
+autonumber
+
+== Scenario 1: Filter Movies by WatchStatus ==
+
+User -> System : selectStatusFilter(statusChip)
+activate System
+
+System -> Domain : filterAndSort(allMovies, status, currentQuery, currentSort)
+activate Domain
+Domain -> Domain : filter(allMovies, status, currentQuery)
+Domain -> Domain : sort(filteredMovies, currentSort)
+Domain --> System : filteredAndSortedList
+deactivate Domain
+
+System -> System : adapter.setMovies(filteredAndSortedList)
+System -> System : updateMovieCount(filteredCount, totalCount)
+System --> User : renderFilteredListInRecyclerView()
+deactivate System
+
+== Scenario 2: Search Movies in Local Collection ==
+
+User -> System : inputSearchText(query)
+activate System
+
+System -> Domain : filterAndSort(allMovies, currentStatus, query, currentSort)
+activate Domain
+Domain -> Domain : filter(allMovies, currentStatus, query)
+Domain -> Domain : sort(filteredMovies, currentSort)
+Domain --> System : filteredAndSortedList
+deactivate Domain
+
+System -> System : adapter.setMovies(filteredAndSortedList)
+System -> System : updateMovieCount(filteredCount, totalCount)
+System --> User : renderMatchingMoviesInRecyclerView()
+deactivate System
+
+== Scenario 3: Sort Movies by Criteria (Title, Rating, Year) ==
+
+User -> System : tapSortButton()
+activate System
+System --> User : displaySortOptionsDialog(Title, Rating, Year)
+
+User -> System : selectSortOption(sortOption)
+System -> Domain : filterAndSort(allMovies, currentStatus, currentQuery, sortOption)
+activate Domain
+Domain -> Domain : sort(filteredMovies, sortOption using Comparator)
+Domain --> System : sortedList
+deactivate Domain
+
+System -> System : adapter.setMovies(sortedList)
+System --> User : renderSortedMoviesInRecyclerView()
+deactivate System
+
+@enduml

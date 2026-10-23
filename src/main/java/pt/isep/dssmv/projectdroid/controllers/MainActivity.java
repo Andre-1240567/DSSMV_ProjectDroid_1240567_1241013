@@ -51,6 +51,7 @@ import pt.isep.dssmv.projectdroid.model.WatchStatus;
 import pt.isep.dssmv.projectdroid.network.RetrofitClient;
 import pt.isep.dssmv.projectdroid.network.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.TmdbPagedResponse;
+import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
 import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
@@ -86,11 +87,12 @@ public class MainActivity extends AppCompatActivity {
     // Tab 2: My Lists views
     private LinearLayout layoutMyLists;
     private TextView textViewWelcomeUser;
-    private Button buttonNearbyCinemas;
-    private Button buttonShakeSuggest;
+    private TextView textViewListsCount;
+    private ImageButton buttonNearbyCinemas;
     private RecyclerView recyclerViewMovieLists;
     private ProgressBar progressBarLists;
-    private TextView textViewEmptyLists;
+    private LinearLayout layoutEmptyLists;
+    private Button buttonCreateFirstList;
     private FloatingActionButton fabAddList;
     private MovieListAdapter movieListAdapter;
     private List<MovieList> userLists = new ArrayList<>();
@@ -197,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
+        buttonNearbyCinemas = findViewById(R.id.buttonNearbyCinemas);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Tab 1
@@ -208,11 +211,11 @@ public class MainActivity extends AppCompatActivity {
         // Tab 2
         layoutMyLists = findViewById(R.id.layoutMyLists);
         textViewWelcomeUser = findViewById(R.id.textViewWelcomeUser);
-        buttonNearbyCinemas = findViewById(R.id.buttonNearbyCinemas);
-        buttonShakeSuggest = findViewById(R.id.buttonShakeSuggest);
+        textViewListsCount = findViewById(R.id.textViewListsCount);
         recyclerViewMovieLists = findViewById(R.id.recyclerViewMovieLists);
         progressBarLists = findViewById(R.id.progressBarLists);
-        textViewEmptyLists = findViewById(R.id.textViewEmptyLists);
+        layoutEmptyLists = findViewById(R.id.layoutEmptyLists);
+        buttonCreateFirstList = findViewById(R.id.buttonCreateFirstList);
         fabAddList = findViewById(R.id.fabAddList);
     }
 
@@ -239,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupExploreFeed() {
-        tmdbMovieAdapter = new TmdbMovieAdapter(this::showAddMovieToListDialog);
+        tmdbMovieAdapter = new TmdbMovieAdapter(this::openMovieDetail, this::showAddMovieToListDialog);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewExploreMovies.setLayoutManager(layoutManager);
         recyclerViewExploreMovies.setAdapter(tmdbMovieAdapter);
@@ -269,9 +272,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayUserData() {
         FirebaseUser currentUser = authManager.getCurrentUser();
-        if (currentUser != null && currentUser.getEmail() != null) {
-            String welcomeText = getString(R.string.welcome_user, currentUser.getEmail());
-            textViewWelcomeUser.setText(welcomeText);
+        if (currentUser != null) {
+            String name = currentUser.getDisplayName();
+            if (name == null || name.trim().isEmpty()) {
+                name = currentUser.getEmail();
+            }
+            if (name != null) {
+                int atIndex = name.indexOf('@');
+                if (atIndex > 0) {
+                    name = name.substring(0, atIndex);
+                }
+                textViewWelcomeUser.setText("Olá, " + name + "!");
+            }
         }
     }
 
@@ -283,14 +295,29 @@ public class MainActivity extends AppCompatActivity {
 
         buttonPreferences.setOnClickListener(v -> showPreferencesDialog());
 
-        buttonNearbyCinemas.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CinemasActivity.class);
-            startActivity(intent);
-        });
-
-        buttonShakeSuggest.setOnClickListener(v -> triggerShakeSuggestion());
+        if (buttonNearbyCinemas != null) {
+            buttonNearbyCinemas.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, CinemasActivity.class);
+                startActivity(intent);
+            });
+        }
 
         fabAddList.setOnClickListener(v -> showCreateListDialog());
+
+        if (buttonCreateFirstList != null) {
+            buttonCreateFirstList.setOnClickListener(v -> showCreateListDialog());
+        }
+    }
+
+    private void openMovieDetail(TmdbMovieDto movie) {
+        if (movie == null) return;
+        Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.EXTRA_TMDB_ID, movie.getId());
+        intent.putExtra(MovieDetailActivity.EXTRA_TITLE, movie.getTitle());
+        intent.putExtra(MovieDetailActivity.EXTRA_POSTER_PATH, movie.getPosterPath());
+        intent.putExtra(MovieDetailActivity.EXTRA_OVERVIEW, movie.getOverview());
+        intent.putExtra(MovieDetailActivity.EXTRA_RELEASE_YEAR, movie.getReleaseYear());
+        startActivity(intent);
     }
 
     private void handleDeviceShake() {
@@ -886,6 +913,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     Toast.makeText(MainActivity.this, getString(R.string.movie_added_to_list_success, targetList.getName()), Toast.LENGTH_SHORT).show();
+
+                    // HTTP POST rating to TMDB REST API if rated
+                    if (score >= 1.0f && tmdbId > 0) {
+                        TmdbRatingManager.getInstance(MainActivity.this)
+                                .submitRating(tmdbId, score, null);
+                    }
                 }
 
                 @Override
@@ -899,10 +932,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateListsEmptyState() {
-        if (movieListAdapter.getItemCount() == 0) {
-            textViewEmptyLists.setVisibility(View.VISIBLE);
+        int count = movieListAdapter.getItemCount();
+        if (count == 0) {
+            if (layoutEmptyLists != null) layoutEmptyLists.setVisibility(View.VISIBLE);
+            if (textViewListsCount != null) textViewListsCount.setText("0 listas");
         } else {
-            textViewEmptyLists.setVisibility(View.GONE);
+            if (layoutEmptyLists != null) layoutEmptyLists.setVisibility(View.GONE);
+            if (textViewListsCount != null) {
+                textViewListsCount.setText(count == 1 ? "1 lista" : count + " listas");
+            }
         }
     }
 

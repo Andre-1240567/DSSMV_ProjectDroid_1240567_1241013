@@ -36,6 +36,7 @@ import pt.isep.dssmv.projectdroid.model.SavedMovie;
 import pt.isep.dssmv.projectdroid.model.WatchProvider;
 import pt.isep.dssmv.projectdroid.model.WatchStatus;
 import pt.isep.dssmv.projectdroid.network.RetrofitClient;
+import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbCountryProvidersDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbProviderItemDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbVideosResponse;
@@ -405,6 +406,12 @@ public class MovieDetailActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     Toast.makeText(MovieDetailActivity.this, getString(R.string.movie_added_to_list_success, targetList.getName()), Toast.LENGTH_SHORT).show();
+
+                    // HTTP POST rating to TMDB REST API if rated
+                    if (score >= 1.0f && validTmdbId > 0) {
+                        TmdbRatingManager.getInstance(MovieDetailActivity.this)
+                                .submitRating(validTmdbId, score, null);
+                    }
                 }
 
                 @Override

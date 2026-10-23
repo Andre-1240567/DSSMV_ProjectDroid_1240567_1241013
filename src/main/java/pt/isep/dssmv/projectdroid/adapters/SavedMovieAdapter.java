@@ -5,10 +5,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import pt.isep.dssmv.projectdroid.R;
 import pt.isep.dssmv.projectdroid.model.Rating;
@@ -94,6 +97,21 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
 
         holder.textViewTitle.setText(movie.getTitle());
 
+        String posterPath = movie.getPosterPath();
+        if (posterPath != null && !posterPath.trim().isEmpty()) {
+            String fullUrl = posterPath.startsWith("http")
+                    ? posterPath
+                    : "https://image.tmdb.org/t/p/w500" + posterPath;
+
+            Glide.with(holder.itemView.getContext())
+                    .load(fullUrl)
+                    .placeholder(R.drawable.ic_movie_placeholder)
+                    .error(R.drawable.ic_movie_error)
+                    .into(holder.imageViewPoster);
+        } else {
+            holder.imageViewPoster.setImageResource(R.drawable.ic_movie_placeholder);
+        }
+
         if (movie.getReleaseYear() > 0) {
             holder.textViewYear.setText(String.valueOf(movie.getReleaseYear()));
             holder.textViewYear.setVisibility(View.VISIBLE);
@@ -152,6 +170,7 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public final ImageView imageViewPoster;
         public final TextView textViewTitle;
         public final TextView textViewYear;
         public final TextView textViewStatus;
@@ -162,6 +181,7 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            imageViewPoster = itemView.findViewById(R.id.imageViewSavedMoviePoster);
             textViewTitle = itemView.findViewById(R.id.textViewMovieTitle);
             textViewYear = itemView.findViewById(R.id.textViewMovieYear);
             textViewStatus = itemView.findViewById(R.id.textViewMovieStatus);

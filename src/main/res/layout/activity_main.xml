@@ -31,6 +31,15 @@
                 android:textStyle="bold" />
 
             <ImageButton
+                android:id="@+id/buttonNearbyCinemas"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_cinema_pin"
+                android:contentDescription="@string/btn_nearby_cinemas"
+                app:tint="@color/surface" />
+
+            <ImageButton
                 android:id="@+id/buttonSearchMovies"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -111,63 +120,54 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- Welcome Banner & Section Title -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="8dp">
-
-                    <TextView
-                        android:id="@+id/textViewWelcomeUser"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textViewSectionTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/section_movie_lists"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Quick Actions Row (Cinemas & Shake) -->
+                <!-- Header / Section Title Banner -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="8dp">
+                    android:paddingTop="16dp"
+                    android:paddingBottom="12dp">
 
-                    <Button
-                        android:id="@+id/buttonNearbyCinemas"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        android:text="@string/btn_nearby_cinemas"
-                        android:textSize="13sp" />
+                        android:orientation="vertical">
 
-                    <Button
-                        android:id="@+id/buttonShakeSuggest"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="0dp"
+                        <TextView
+                            android:id="@+id/textViewWelcomeUser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textViewSectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/subtitle_my_lists"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textViewListsCount"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        android:text="@string/btn_shake_suggest"
-                        android:textSize="13sp" />
+                        android:background="@drawable/badge_background"
+                        android:backgroundTint="#E8EAF6"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:textColor="@color/primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <!-- Loading Indicator -->
@@ -179,17 +179,51 @@
                     android:layout_marginTop="32dp"
                     android:visibility="gone" />
 
-                <!-- Empty State -->
-                <TextView
-                    android:id="@+id/textViewEmptyLists"
+                <!-- Empty State Layout -->
+                <LinearLayout
+                    android:id="@+id/layoutEmptyLists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="32dp"
+                    android:orientation="vertical"
                     android:gravity="center"
-                    android:text="@string/empty_movie_lists"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
+                    android:padding="32dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_empty_lists"
+                        android:contentDescription="Empty collections"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/empty_lists_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/textViewEmptyLists"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/empty_lists_subtitle"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="20dp" />
+
+                    <Button
+                        android:id="@+id/buttonCreateFirstList"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/btn_create_first_list"
+                        android:textSize="14sp"
+                        app:backgroundTint="@color/primary" />
+                </LinearLayout>
 
                 <!-- Recycler View for Movie Lists -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -197,7 +231,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:padding="12dp"
+                    android:paddingTop="6dp"
                     android:paddingBottom="80dp" />
 
             </LinearLayout>
