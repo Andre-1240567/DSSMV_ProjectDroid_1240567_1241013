@@ -33,6 +33,7 @@ import pt.isep.dssmv.projectdroid.firebase.FirestoreManager;
 import pt.isep.dssmv.projectdroid.model.Rating;
 import pt.isep.dssmv.projectdroid.model.SavedMovie;
 import pt.isep.dssmv.projectdroid.model.WatchStatus;
+import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 
 import java.util.List;
 import java.util.Locale;
@@ -332,6 +333,12 @@ public class ListDetailsActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     Toast.makeText(ListDetailsActivity.this, R.string.rating_submitted_success, Toast.LENGTH_SHORT).show();
+
+                    // HTTP POST rating to TMDB REST API if movie is linked to TMDB catalog
+                    if (movie.getTmdbId() > 0) {
+                        TmdbRatingManager.getInstance(ListDetailsActivity.this)
+                                .submitRating(movie.getTmdbId(), score, null);
+                    }
                 }
 
                 @Override
@@ -358,6 +365,12 @@ public class ListDetailsActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void result) {
                             Toast.makeText(ListDetailsActivity.this, R.string.movie_deleted_success, Toast.LENGTH_SHORT).show();
+
+                            // HTTP DELETE rating from TMDB REST API if movie was rated
+                            if (movie.getTmdbId() > 0 && movie.getRating() != null) {
+                                TmdbRatingManager.getInstance(ListDetailsActivity.this)
+                                        .deleteRating(movie.getTmdbId(), null);
+                            }
                         }
 
                         @Override

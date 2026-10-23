@@ -51,6 +51,7 @@ import pt.isep.dssmv.projectdroid.model.WatchStatus;
 import pt.isep.dssmv.projectdroid.network.RetrofitClient;
 import pt.isep.dssmv.projectdroid.network.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.TmdbPagedResponse;
+import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
 import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
@@ -912,6 +913,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     Toast.makeText(MainActivity.this, getString(R.string.movie_added_to_list_success, targetList.getName()), Toast.LENGTH_SHORT).show();
+
+                    // HTTP POST rating to TMDB REST API if rated
+                    if (score >= 1.0f && tmdbId > 0) {
+                        TmdbRatingManager.getInstance(MainActivity.this)
+                                .submitRating(tmdbId, score, null);
+                    }
                 }
 
                 @Override

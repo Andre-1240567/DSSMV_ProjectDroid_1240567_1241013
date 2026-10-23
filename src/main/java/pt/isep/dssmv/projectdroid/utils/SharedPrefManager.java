@@ -25,6 +25,7 @@ public class SharedPrefManager {
     public static final String KEY_MIN_RELEASE_YEAR = "pref_min_release_year";
     public static final String KEY_STREAMING_PROVIDERS = "pref_streaming_providers";
     public static final String KEY_SHAKE_THRESHOLD = "pref_shake_threshold";
+    public static final String KEY_TMDB_GUEST_SESSION_ID = "pref_tmdb_guest_session_id";
 
     private static SharedPrefManager instance;
     private final SharedPreferences sharedPreferences;
@@ -88,6 +89,16 @@ public class SharedPrefManager {
 
     public float getShakeThreshold() {
         return sharedPreferences.getFloat(KEY_SHAKE_THRESHOLD, UserPreferences.DEFAULT_SHAKE_THRESHOLD);
+    }
+
+    public String getTmdbGuestSessionId() {
+        return sharedPreferences.getString(KEY_TMDB_GUEST_SESSION_ID, null);
+    }
+
+    public void saveTmdbGuestSessionId(String sessionId) {
+        sharedPreferences.edit()
+                .putString(KEY_TMDB_GUEST_SESSION_ID, sessionId)
+                .apply();
     }
 
     public void clear() {

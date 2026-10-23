@@ -1,10 +1,16 @@
 package pt.isep.dssmv.projectdroid.network;
 
+import pt.isep.dssmv.projectdroid.network.dto.TmdbGuestSessionResponse;
+import pt.isep.dssmv.projectdroid.network.dto.TmdbRatingRequest;
+import pt.isep.dssmv.projectdroid.network.dto.TmdbRatingResponse;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbVideosResponse;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbWatchProvidersResponse;
 import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -50,5 +56,21 @@ public interface TmdbApiService {
             @Query("watch_region") String watchRegion,
             @Query("with_watch_providers") String withWatchProviders,
             @Query("page") int page
+    );
+
+    @GET("authentication/guest_session/new")
+    Call<TmdbGuestSessionResponse> createGuestSession();
+
+    @POST("movie/{movie_id}/rating")
+    Call<TmdbRatingResponse> postMovieRating(
+            @Path("movie_id") int movieId,
+            @Query("guest_session_id") String guestSessionId,
+            @Body TmdbRatingRequest body
+    );
+
+    @DELETE("movie/{movie_id}/rating")
+    Call<TmdbRatingResponse> deleteMovieRating(
+            @Path("movie_id") int movieId,
+            @Query("guest_session_id") String guestSessionId
     );
 }
