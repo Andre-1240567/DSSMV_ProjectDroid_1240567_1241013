@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class FsqPlaceDto {
 
-    @SerializedName("fsq_id")
+    @SerializedName(value = "fsq_place_id", alternate = {"fsq_id"})
     private String fsqId;
 
     @SerializedName("name")
@@ -12,6 +12,12 @@ public class FsqPlaceDto {
 
     @SerializedName("distance")
     private int distance;
+
+    @SerializedName("latitude")
+    private Double directLatitude;
+
+    @SerializedName("longitude")
+    private Double directLongitude;
 
     @SerializedName("geocodes")
     private FsqGeocodesDto geocodes;
@@ -35,10 +41,16 @@ public class FsqPlaceDto {
     }
 
     public double getLatitude() {
+        if (directLatitude != null) {
+            return directLatitude;
+        }
         return (geocodes != null && geocodes.getMain() != null) ? geocodes.getMain().getLatitude() : 0.0;
     }
 
     public double getLongitude() {
+        if (directLongitude != null) {
+            return directLongitude;
+        }
         return (geocodes != null && geocodes.getMain() != null) ? geocodes.getMain().getLongitude() : 0.0;
     }
 
