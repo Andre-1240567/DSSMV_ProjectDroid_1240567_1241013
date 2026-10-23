@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.Spinner;
@@ -18,8 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import pt.isep.dssmv.projectdroid.R;
 import pt.isep.dssmv.projectdroid.adapters.SavedMovieAdapter;
@@ -54,6 +57,7 @@ public class ListDetailsActivity extends AppCompatActivity {
     private SavedMovieAdapter adapter;
     private FirebaseAuthManager authManager;
     private FirestoreManager firestoreManager;
+    private ListenerRegistration moviesListenerRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +82,15 @@ public class ListDetailsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        loadMovies();
+    protected void onStart() {
+        super.onStart();
+        attachMoviesListener();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        detachMoviesListener();
     }
 
     private void initViews() {
@@ -130,14 +140,16 @@ public class ListDetailsActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void loadMovies() {
+    private void attachMoviesListener() {
         FirebaseUser user = authManager.getCurrentUser();
-        if (user == null) {
+        if (user == null || listId == null) {
             return;
         }
 
         progressBarMovies.setVisibility(View.VISIBLE);
-        firestoreManager.getMoviesInList(user.getUid(), listId, new FirestoreManager.FirestoreCallback<List<SavedMovie>>() {
+        detachMoviesListener();
+
+        moviesListenerRegistration = firestoreManager.attachMoviesInListListener(user.getUid(), listId, new FirestoreManager.FirestoreCallback<List<SavedMovie>>() {
             @Override
             public void onSuccess(List<SavedMovie> result) {
                 progressBarMovies.setVisibility(View.GONE);
@@ -153,6 +165,13 @@ public class ListDetailsActivity extends AppCompatActivity {
                 updateEmptyState();
             }
         });
+    }
+
+    private void detachMoviesListener() {
+        if (moviesListenerRegistration != null) {
+            moviesListenerRegistration.remove();
+            moviesListenerRegistration = null;
+        }
     }
 
     private void showManualAddMovieDialog() {
@@ -218,20 +237,14 @@ public class ListDetailsActivity extends AppCompatActivity {
             movie.setOverview(overview);
             movie.setStatus(status);
 
-            progressBarMovies.setVisibility(View.VISIBLE);
             firestoreManager.addMovieToList(user.getUid(), listId, movie, new FirestoreManager.FirestoreCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    progressBarMovies.setVisibility(View.GONE);
-                    adapter.addMovie(movie);
-                    updateMovieCount();
-                    updateEmptyState();
                     Toast.makeText(ListDetailsActivity.this, R.string.movie_added_success, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    progressBarMovies.setVisibility(View.GONE);
                     Toast.makeText(ListDetailsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 }
             });
@@ -243,11 +256,37 @@ public class ListDetailsActivity extends AppCompatActivity {
     private void showRateMovieDialog(SavedMovie movie) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rate_movie, null);
         TextView textViewTitle = dialogView.findViewById(R.id.textViewRateMovieTitle);
+        TextView textViewYear = dialogView.findViewById(R.id.textViewRateMovieYear);
+        ImageView imageViewPoster = dialogView.findViewById(R.id.imageViewRateMoviePoster);
         RatingBar ratingBar = dialogView.findViewById(R.id.ratingBarMovie);
         TextView textViewScoreDisplay = dialogView.findViewById(R.id.textViewRatingScoreDisplay);
         EditText editTextComment = dialogView.findViewById(R.id.editTextRatingComment);
 
         textViewTitle.setText(movie.getTitle());
+
+        if (textViewYear != null && movie.getReleaseYear() > 0) {
+            textViewYear.setText(String.valueOf(movie.getReleaseYear()));
+            textViewYear.setVisibility(View.VISIBLE);
+        } else if (textViewYear != null) {
+            textViewYear.setVisibility(View.GONE);
+        }
+
+        if (imageViewPoster != null) {
+            String posterPath = movie.getPosterPath();
+            if (posterPath != null && !posterPath.trim().isEmpty()) {
+                String fullUrl = posterPath.startsWith("http")
+                        ? posterPath
+                        : "https://image.tmdb.org/t/p/w500" + posterPath;
+
+                Glide.with(this)
+                        .load(fullUrl)
+                        .placeholder(R.drawable.ic_movie_placeholder)
+                        .error(R.drawable.ic_movie_error)
+                        .into(imageViewPoster);
+            } else {
+                imageViewPoster.setImageResource(R.drawable.ic_movie_placeholder);
+            }
+        }
 
         float initialScore = 3.0f;
         if (movie.getRating() != null && movie.getRating().getScore() > 0) {
@@ -289,19 +328,14 @@ public class ListDetailsActivity extends AppCompatActivity {
             String ratingId = (movie.getRating() != null) ? movie.getRating().getRatingId() : UUID.randomUUID().toString();
             Rating rating = new Rating(ratingId, score, comment);
 
-            progressBarMovies.setVisibility(View.VISIBLE);
             firestoreManager.rateMovieInList(user.getUid(), listId, movie.getInternalId(), rating, new FirestoreManager.FirestoreCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    progressBarMovies.setVisibility(View.GONE);
-                    movie.setRating(rating);
-                    adapter.updateMovie(movie);
                     Toast.makeText(ListDetailsActivity.this, R.string.rating_submitted_success, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    progressBarMovies.setVisibility(View.GONE);
                     Toast.makeText(ListDetailsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 }
             });
@@ -320,20 +354,14 @@ public class ListDetailsActivity extends AppCompatActivity {
                 .setTitle(R.string.dialog_title_delete_movie)
                 .setMessage(getString(R.string.dialog_message_delete_movie, movie.getTitle()))
                 .setPositiveButton(R.string.btn_delete, (dialog, which) -> {
-                    progressBarMovies.setVisibility(View.VISIBLE);
                     firestoreManager.deleteMovieFromList(user.getUid(), listId, movie.getInternalId(), new FirestoreManager.FirestoreCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
-                            progressBarMovies.setVisibility(View.GONE);
-                            adapter.removeMovie(movie.getInternalId());
-                            updateMovieCount();
-                            updateEmptyState();
                             Toast.makeText(ListDetailsActivity.this, R.string.movie_deleted_success, Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onFailure(String errorMessage) {
-                            progressBarMovies.setVisibility(View.GONE);
                             Toast.makeText(ListDetailsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                         }
                     });

@@ -3,6 +3,7 @@ package pt.isep.dssmv.projectdroid.firebase;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
@@ -172,6 +173,73 @@ public class FirestoreManager {
                 .set(data)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public ListenerRegistration attachMoviesInListListener(String userId, String listId, FirestoreCallback<List<SavedMovie>> callback) {
+        if (userId == null || listId == null) {
+            callback.onFailure("Invalid parameters");
+            return null;
+        }
+
+        return db.collection("users")
+                .document(userId)
+                .collection("lists")
+                .document(listId)
+                .collection("movies")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        callback.onFailure(error.getMessage());
+                        return;
+                    }
+
+                    List<SavedMovie> movies = new ArrayList<>();
+                    if (queryDocumentSnapshots != null) {
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String internalId = doc.getString("internalId");
+                            Long tmdbIdLong = doc.getLong("tmdbId");
+                            int tmdbId = (tmdbIdLong != null) ? tmdbIdLong.intValue() : 1;
+                            String title = doc.getString("title");
+
+                            if (internalId != null && title != null) {
+                                try {
+                                    SavedMovie movie = new SavedMovie(internalId, tmdbId, title);
+                                    Long yearLong = doc.getLong("releaseYear");
+                                    if (yearLong != null) {
+                                        movie.setReleaseYear(yearLong.intValue());
+                                    }
+                                    movie.setOverview(doc.getString("overview"));
+                                    movie.setPosterPath(doc.getString("posterPath"));
+
+                                    String statusStr = doc.getString("status");
+                                    if (statusStr != null) {
+                                        try {
+                                            movie.setStatus(WatchStatus.valueOf(statusStr));
+                                        } catch (IllegalArgumentException ignored) {
+                                            movie.setStatus(WatchStatus.PLAN_TO_WATCH);
+                                        }
+                                    }
+
+                                    Double scoreDouble = doc.getDouble("ratingScore");
+                                    String comment = doc.getString("ratingComment");
+                                    String ratingId = doc.getString("ratingId");
+                                    if (scoreDouble != null) {
+                                        try {
+                                            String rId = (ratingId != null) ? ratingId : internalId;
+                                            Rating rating = new Rating(rId, scoreDouble.floatValue(), comment != null ? comment : "");
+                                            movie.setRating(rating);
+                                        } catch (Exception ignored) {
+                                        }
+                                    }
+
+                                    movies.add(movie);
+                                } catch (InvalidDataException ignored) {
+                                    // Skip corrupted movie data
+                                }
+                            }
+                        }
+                    }
+                    callback.onSuccess(movies);
+                });
     }
 
     public void getMoviesInList(String userId, String listId, FirestoreCallback<List<SavedMovie>> callback) {
