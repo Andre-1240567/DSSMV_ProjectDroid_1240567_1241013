@@ -41,6 +41,7 @@ import pt.isep.dssmv.projectdroid.model.SavedMovieFilterSorter;
 import pt.isep.dssmv.projectdroid.model.SavedMovieSortOption;
 import pt.isep.dssmv.projectdroid.model.WatchStatus;
 import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
+import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,10 +143,15 @@ public class ListDetailsActivity extends AppCompatActivity {
         adapter = new SavedMovieAdapter(
                 this::onMovieClicked,
                 this::confirmDeleteMovie,
-                this::showRateMovieDialog
+                this::showRateMovieDialog,
+                this::onMovieShare
         );
         recyclerViewMovies.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewMovies.setAdapter(adapter);
+    }
+
+    private void onMovieShare(SavedMovie movie) {
+        ShareHelper.shareSavedMovie(this, movie);
     }
 
     private void setupListeners() {

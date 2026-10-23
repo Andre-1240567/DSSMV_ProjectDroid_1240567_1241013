@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
@@ -41,6 +42,7 @@ import pt.isep.dssmv.projectdroid.network.dto.TmdbCountryProvidersDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbProviderItemDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbVideosResponse;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbWatchProvidersResponse;
+import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,6 +62,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     public static final String EXTRA_RELEASE_YEAR = "extra_release_year";
 
     private Button buttonBack;
+    private ImageButton buttonShareMovie;
     private TextView textViewHeaderTitle;
     private ImageView imageViewPoster;
     private TextView textViewTitle;
@@ -97,6 +100,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private void initViews() {
         buttonBack = findViewById(R.id.buttonDetailBack);
+        buttonShareMovie = findViewById(R.id.buttonDetailShare);
         textViewHeaderTitle = findViewById(R.id.textViewDetailHeaderTitle);
         imageViewPoster = findViewById(R.id.imageViewDetailPoster);
         textViewTitle = findViewById(R.id.textViewDetailTitle);
@@ -153,6 +157,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private void setupListeners() {
         buttonBack.setOnClickListener(v -> finish());
+        buttonShareMovie.setOnClickListener(v -> ShareHelper.shareMovie(this, movieTitle, movieReleaseYear, movieOverview, tmdbId));
         buttonWatchTrailer.setOnClickListener(v -> loadAndPlayOfficialTrailer());
         buttonDetailAddToList.setOnClickListener(v -> handleAddMovieToList());
     }

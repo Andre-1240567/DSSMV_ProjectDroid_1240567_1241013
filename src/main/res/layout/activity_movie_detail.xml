@@ -38,6 +38,15 @@
             android:paddingEnd="8dp"
             android:maxLines="1"
             android:ellipsize="end" />
+
+        <ImageButton
+            android:id="@+id/buttonDetailShare"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_share"
+            android:contentDescription="@string/btn_share_movie"
+            app:tint="@color/surface" />
     </LinearLayout>
 
     <ScrollView

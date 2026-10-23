@@ -193,4 +193,8 @@
     <string name="sort_year_asc">Oldest Year</string>
     <string name="empty_filtered_movies">No movies match the selected filter.</string>
     <string name="hint_search_list">Search in this list…</string>
+
+    <!-- Movie Sharing (US11) -->
+    <string name="btn_share_movie">Share Movie</string>
+    <string name="share_movie_chooser_title">Share Movie via</string>
 </resources>

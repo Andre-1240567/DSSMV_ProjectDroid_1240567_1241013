@@ -36,17 +36,30 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
         void onMovieRate(SavedMovie movie);
     }
 
+    public interface OnMovieShareClickListener {
+        void onMovieShare(SavedMovie movie);
+    }
+
     private final List<SavedMovie> movies = new ArrayList<>();
     private final OnMovieClickListener clickListener;
     private final OnMovieDeleteClickListener deleteListener;
     private final OnMovieRateClickListener rateListener;
+    private final OnMovieShareClickListener shareListener;
 
     public SavedMovieAdapter(OnMovieClickListener clickListener,
                              OnMovieDeleteClickListener deleteListener,
                              OnMovieRateClickListener rateListener) {
+        this(clickListener, deleteListener, rateListener, null);
+    }
+
+    public SavedMovieAdapter(OnMovieClickListener clickListener,
+                             OnMovieDeleteClickListener deleteListener,
+                             OnMovieRateClickListener rateListener,
+                             OnMovieShareClickListener shareListener) {
         this.clickListener = clickListener;
         this.deleteListener = deleteListener;
         this.rateListener = rateListener;
+        this.shareListener = shareListener;
     }
 
     public void setMovies(List<SavedMovie> newMovies) {
@@ -153,6 +166,14 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
                 rateListener.onMovieRate(movie);
             }
         });
+
+        if (holder.buttonShare != null) {
+            holder.buttonShare.setOnClickListener(v -> {
+                if (shareListener != null) {
+                    shareListener.onMovieShare(movie);
+                }
+            });
+        }
     }
 
     @Override
@@ -177,6 +198,7 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
         public final TextView textViewRating;
         public final TextView textViewComment;
         public final ImageButton buttonDelete;
+        public final ImageButton buttonShare;
         public final Button buttonRate;
 
         public ViewHolder(@NonNull View itemView) {
@@ -188,6 +210,7 @@ public class SavedMovieAdapter extends RecyclerView.Adapter<SavedMovieAdapter.Vi
             textViewRating = itemView.findViewById(R.id.textViewMovieRating);
             textViewComment = itemView.findViewById(R.id.textViewMovieComment);
             buttonDelete = itemView.findViewById(R.id.buttonDeleteMovie);
+            buttonShare = itemView.findViewById(R.id.buttonShareMovie);
             buttonRate = itemView.findViewById(R.id.buttonRateMovie);
         }
     }

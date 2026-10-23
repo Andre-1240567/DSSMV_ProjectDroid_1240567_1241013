@@ -54,6 +54,7 @@ import pt.isep.dssmv.projectdroid.network.TmdbPagedResponse;
 import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
 import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
+import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -507,6 +508,17 @@ public class MainActivity extends AppCompatActivity {
         TextView textViewTitle = dialogView.findViewById(R.id.textViewShakeTitle);
         TextView textViewYear = dialogView.findViewById(R.id.textViewShakeYear);
         TextView textViewOverview = dialogView.findViewById(R.id.textViewShakeOverview);
+        ImageButton buttonShare = dialogView.findViewById(R.id.buttonShakeShare);
+
+        if (buttonShare != null) {
+            buttonShare.setOnClickListener(v -> ShareHelper.shareMovie(
+                    MainActivity.this,
+                    movie.getTitle(),
+                    movie.getReleaseYear(),
+                    movie.getOverview(),
+                    movie.getId()
+            ));
+        }
 
         textViewTitle.setText(movie.getTitle());
         if (movie.getReleaseYear() > 0) {
