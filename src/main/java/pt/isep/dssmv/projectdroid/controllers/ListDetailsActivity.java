@@ -2,6 +2,8 @@ package pt.isep.dssmv.projectdroid.controllers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,6 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -32,9 +37,12 @@ import pt.isep.dssmv.projectdroid.firebase.FirebaseAuthManager;
 import pt.isep.dssmv.projectdroid.firebase.FirestoreManager;
 import pt.isep.dssmv.projectdroid.model.Rating;
 import pt.isep.dssmv.projectdroid.model.SavedMovie;
+import pt.isep.dssmv.projectdroid.model.SavedMovieFilterSorter;
+import pt.isep.dssmv.projectdroid.model.SavedMovieSortOption;
 import pt.isep.dssmv.projectdroid.model.WatchStatus;
 import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -54,6 +62,21 @@ public class ListDetailsActivity extends AppCompatActivity {
     private TextView textViewEmptyMovies;
     private RecyclerView recyclerViewMovies;
     private FloatingActionButton fabAddMovie;
+
+    // US9: Local Filtering and Sorting state
+    private final List<SavedMovie> allMovies = new ArrayList<>();
+    private WatchStatus currentStatusFilter = null;
+    private String currentSearchQuery = "";
+    private SavedMovieSortOption currentSortOption = SavedMovieSortOption.TITLE_ASC;
+
+    private EditText editTextSearchList;
+    private MaterialButton buttonSortMovies;
+    private ChipGroup chipGroupStatus;
+    private Chip chipFilterAll;
+    private Chip chipFilterPlanToWatch;
+    private Chip chipFilterWatching;
+    private Chip chipFilterWatched;
+    private Chip chipFilterFavorite;
 
     private SavedMovieAdapter adapter;
     private FirebaseAuthManager authManager;
@@ -103,6 +126,15 @@ public class ListDetailsActivity extends AppCompatActivity {
         recyclerViewMovies = findViewById(R.id.recyclerViewMovies);
         fabAddMovie = findViewById(R.id.fabAddMovie);
 
+        editTextSearchList = findViewById(R.id.editTextSearchList);
+        buttonSortMovies = findViewById(R.id.buttonSortMovies);
+        chipGroupStatus = findViewById(R.id.chipGroupStatus);
+        chipFilterAll = findViewById(R.id.chipFilterAll);
+        chipFilterPlanToWatch = findViewById(R.id.chipFilterPlanToWatch);
+        chipFilterWatching = findViewById(R.id.chipFilterWatching);
+        chipFilterWatched = findViewById(R.id.chipFilterWatched);
+        chipFilterFavorite = findViewById(R.id.chipFilterFavorite);
+
         textViewListTitle.setText(listName != null ? listName : getString(R.string.title_list_details));
     }
 
@@ -119,6 +151,40 @@ public class ListDetailsActivity extends AppCompatActivity {
     private void setupListeners() {
         buttonBack.setOnClickListener(v -> finish());
         fabAddMovie.setOnClickListener(v -> showAddMovieMethodChooser());
+        buttonSortMovies.setOnClickListener(v -> showSortDialog());
+
+        editTextSearchList.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = (s != null) ? s.toString().trim() : "";
+                applyFilterAndSort();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        chipGroupStatus.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty() || checkedIds.contains(R.id.chipFilterAll)) {
+                currentStatusFilter = null;
+            } else if (checkedIds.contains(R.id.chipFilterPlanToWatch)) {
+                currentStatusFilter = WatchStatus.PLAN_TO_WATCH;
+            } else if (checkedIds.contains(R.id.chipFilterWatching)) {
+                currentStatusFilter = WatchStatus.WATCHING;
+            } else if (checkedIds.contains(R.id.chipFilterWatched)) {
+                currentStatusFilter = WatchStatus.WATCHED;
+            } else if (checkedIds.contains(R.id.chipFilterFavorite)) {
+                currentStatusFilter = WatchStatus.FAVORITE;
+            } else {
+                currentStatusFilter = null;
+            }
+            applyFilterAndSort();
+        });
     }
 
     private void showAddMovieMethodChooser() {
@@ -154,16 +220,18 @@ public class ListDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<SavedMovie> result) {
                 progressBarMovies.setVisibility(View.GONE);
-                adapter.setMovies(result);
-                updateMovieCount();
-                updateEmptyState();
+                allMovies.clear();
+                if (result != null) {
+                    allMovies.addAll(result);
+                }
+                applyFilterAndSort();
             }
 
             @Override
             public void onFailure(String errorMessage) {
                 progressBarMovies.setVisibility(View.GONE);
                 Toast.makeText(ListDetailsActivity.this, getString(R.string.error_loading_movies, errorMessage), Toast.LENGTH_SHORT).show();
-                updateEmptyState();
+                updateEmptyState(0, allMovies.size());
             }
         });
     }
@@ -397,13 +465,97 @@ public class ListDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void updateMovieCount() {
-        int count = adapter.getItemCount();
-        textViewMovieCount.setText(count == 1 ? "1 movie" : count + " movies");
+    private void showSortDialog() {
+        String[] options = new String[]{
+                getString(R.string.sort_title_asc),
+                getString(R.string.sort_title_desc),
+                getString(R.string.sort_rating_desc),
+                getString(R.string.sort_rating_asc),
+                getString(R.string.sort_year_desc),
+                getString(R.string.sort_year_asc)
+        };
+
+        int checkedIndex;
+        switch (currentSortOption) {
+            case TITLE_DESC:
+                checkedIndex = 1;
+                break;
+            case RATING_DESC:
+                checkedIndex = 2;
+                break;
+            case RATING_ASC:
+                checkedIndex = 3;
+                break;
+            case YEAR_DESC:
+                checkedIndex = 4;
+                break;
+            case YEAR_ASC:
+                checkedIndex = 5;
+                break;
+            case TITLE_ASC:
+            default:
+                checkedIndex = 0;
+                break;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.sort_dialog_title)
+                .setSingleChoiceItems(options, checkedIndex, (dialog, which) -> {
+                    switch (which) {
+                        case 1:
+                            currentSortOption = SavedMovieSortOption.TITLE_DESC;
+                            break;
+                        case 2:
+                            currentSortOption = SavedMovieSortOption.RATING_DESC;
+                            break;
+                        case 3:
+                            currentSortOption = SavedMovieSortOption.RATING_ASC;
+                            break;
+                        case 4:
+                            currentSortOption = SavedMovieSortOption.YEAR_DESC;
+                            break;
+                        case 5:
+                            currentSortOption = SavedMovieSortOption.YEAR_ASC;
+                            break;
+                        case 0:
+                        default:
+                            currentSortOption = SavedMovieSortOption.TITLE_ASC;
+                            break;
+                    }
+                    applyFilterAndSort();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
     }
 
-    private void updateEmptyState() {
-        if (adapter.getItemCount() == 0) {
+    private void applyFilterAndSort() {
+        List<SavedMovie> result = SavedMovieFilterSorter.filterAndSort(
+                allMovies,
+                currentStatusFilter,
+                currentSearchQuery,
+                currentSortOption
+        );
+
+        adapter.setMovies(result);
+        updateMovieCount(result.size(), allMovies.size());
+        updateEmptyState(result.size(), allMovies.size());
+    }
+
+    private void updateMovieCount(int filteredCount, int totalCount) {
+        if (filteredCount == totalCount) {
+            textViewMovieCount.setText(totalCount == 1 ? "1 movie" : totalCount + " movies");
+        } else {
+            textViewMovieCount.setText(filteredCount + " of " + totalCount + " movies");
+        }
+    }
+
+    private void updateEmptyState(int filteredCount, int totalCount) {
+        if (totalCount == 0) {
+            textViewEmptyMovies.setText(R.string.empty_movies_list);
+            textViewEmptyMovies.setVisibility(View.VISIBLE);
+        } else if (filteredCount == 0) {
+            textViewEmptyMovies.setText(R.string.empty_filtered_movies);
             textViewEmptyMovies.setVisibility(View.VISIBLE);
         } else {
             textViewEmptyMovies.setVisibility(View.GONE);

@@ -180,4 +180,17 @@
     <string name="empty_lists_subtitle">Create your first collection to save your favorite movies, watchlists and recommendations!</string>
     <string name="badge_lists_count">%1$d lists</string>
     <string name="btn_create_first_list">Create My First List</string>
+
+    <!-- Local Collection Filtering & Sorting (US9) -->
+    <string name="filter_all">All</string>
+    <string name="sort_by">Sort</string>
+    <string name="sort_dialog_title">Sort Movies</string>
+    <string name="sort_title_asc">Title (A to Z)</string>
+    <string name="sort_title_desc">Title (Z to A)</string>
+    <string name="sort_rating_desc">Highest Rating (★ 5.0 - 1.0)</string>
+    <string name="sort_rating_asc">Lowest Rating (★ 1.0 - 5.0)</string>
+    <string name="sort_year_desc">Newest Year</string>
+    <string name="sort_year_asc">Oldest Year</string>
+    <string name="empty_filtered_movies">No movies match the selected filter.</string>
+    <string name="hint_search_list">Search in this list…</string>
 </resources>
