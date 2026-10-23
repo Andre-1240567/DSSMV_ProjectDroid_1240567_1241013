@@ -1,5 +1,6 @@
 package pt.isep.dssmv.projectdroid.controllers;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,7 +107,27 @@ public class ListDetailsActivity extends AppCompatActivity {
 
     private void setupListeners() {
         buttonBack.setOnClickListener(v -> finish());
-        fabAddMovie.setOnClickListener(v -> showAddMovieDialog());
+        fabAddMovie.setOnClickListener(v -> showAddMovieMethodChooser());
+    }
+
+    private void showAddMovieMethodChooser() {
+        String[] options = new String[]{
+                getString(R.string.option_search_catalog),
+                getString(R.string.option_manual_entry)
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_choose_add_method)
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        Intent intent = new Intent(ListDetailsActivity.this, MovieSearchActivity.class);
+                        startActivity(intent);
+                    } else {
+                        showManualAddMovieDialog();
+                    }
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
     }
 
     private void loadMovies() {
@@ -134,7 +155,7 @@ public class ListDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void showAddMovieDialog() {
+    private void showManualAddMovieDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_movie, null);
         EditText editTextTitle = dialogView.findViewById(R.id.editTextAddMovieTitle);
         EditText editTextYear = dialogView.findViewById(R.id.editTextAddMovieYear);
@@ -322,8 +343,17 @@ public class ListDetailsActivity extends AppCompatActivity {
     }
 
     private void onMovieClicked(SavedMovie movie) {
-        // Will connect to MovieDetailActivity or external share in US11
-        Toast.makeText(this, movie.getTitle() + " (" + movie.getStatus() + ")", Toast.LENGTH_SHORT).show();
+        if (movie != null && movie.getTmdbId() > 0) {
+            Intent intent = new Intent(ListDetailsActivity.this, MovieDetailActivity.class);
+            intent.putExtra(MovieDetailActivity.EXTRA_TMDB_ID, movie.getTmdbId());
+            intent.putExtra(MovieDetailActivity.EXTRA_TITLE, movie.getTitle());
+            intent.putExtra(MovieDetailActivity.EXTRA_POSTER_PATH, movie.getPosterPath());
+            intent.putExtra(MovieDetailActivity.EXTRA_OVERVIEW, movie.getOverview());
+            intent.putExtra(MovieDetailActivity.EXTRA_RELEASE_YEAR, movie.getReleaseYear());
+            startActivity(intent);
+        } else if (movie != null) {
+            Toast.makeText(this, movie.getTitle() + " (" + movie.getStatus() + ")", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateMovieCount() {

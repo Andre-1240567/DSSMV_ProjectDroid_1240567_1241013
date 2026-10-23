@@ -21,15 +21,25 @@ import java.util.Locale;
 
 public class TmdbMovieAdapter extends RecyclerView.Adapter<TmdbMovieAdapter.ViewHolder> {
 
+    public interface OnMovieClickListener {
+        void onMovieClick(TmdbMovieDto movie);
+    }
+
     public interface OnMovieAddClickListener {
         void onMovieAddClick(TmdbMovieDto movie);
     }
 
     private final List<TmdbMovieDto> movies = new ArrayList<>();
+    private final OnMovieClickListener movieClickListener;
     private final OnMovieAddClickListener addClickListener;
 
-    public TmdbMovieAdapter(OnMovieAddClickListener addClickListener) {
+    public TmdbMovieAdapter(OnMovieClickListener movieClickListener, OnMovieAddClickListener addClickListener) {
+        this.movieClickListener = movieClickListener;
         this.addClickListener = addClickListener;
+    }
+
+    public TmdbMovieAdapter(OnMovieAddClickListener addClickListener) {
+        this(null, addClickListener);
     }
 
     public void addMovies(List<TmdbMovieDto> newMovies) {
@@ -89,13 +99,15 @@ public class TmdbMovieAdapter extends RecyclerView.Adapter<TmdbMovieAdapter.View
             holder.imageViewPoster.setImageResource(android.R.drawable.ic_menu_gallery);
         }
 
-        holder.buttonAddToList.setOnClickListener(v -> {
-            if (addClickListener != null) {
+        holder.itemView.setOnClickListener(v -> {
+            if (movieClickListener != null) {
+                movieClickListener.onMovieClick(movie);
+            } else if (addClickListener != null) {
                 addClickListener.onMovieAddClick(movie);
             }
         });
 
-        holder.itemView.setOnClickListener(v -> {
+        holder.buttonAddToList.setOnClickListener(v -> {
             if (addClickListener != null) {
                 addClickListener.onMovieAddClick(movie);
             }
