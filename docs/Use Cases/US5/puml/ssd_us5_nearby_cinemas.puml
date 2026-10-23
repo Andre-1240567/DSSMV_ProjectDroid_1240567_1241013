@@ -8,12 +8,13 @@ skinparam defaultFontSize 12
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":LocationManager\n(GPS Sensor)" as GPS
+participant ":MapView\n(OSMDroid)" as MapView
 participant ":FoursquareApiService\n(Retrofit)" as FsqApi
 participant ":External Map App\n(Google Maps)" as MapApp
 
 autonumber
 
-== Scenario 1: Request Location & Search Nearby Cinemas ==
+== Scenario 1: Request Location & Render Interactive Map ==
 
 User -> System : openNearbyCinemas()
 activate System
@@ -31,11 +32,16 @@ GPS --> System : currentLocation(latitude, longitude)
 deactivate GPS
 
 System -> System : readSearchRadiusFromPreferences()
+
+System -> MapView : setCenter(currentLocation) & setZoom(dynamicZoom)
+System -> MapView : drawRadiusCircumference(Polygon.pointsAsCircle, radiusMeters)
+System -> MapView : addMarker(userLocationMarker)
+
 System -> System : showLoadingIndicator(true)
 
-System -> FsqApi : searchNearbyCinemas(apiKey, latLng, radiusMeters)
+System -> FsqApi : searchNearbyCinemas(latLng, query, categories, radiusMeters)
 activate FsqApi
-FsqApi -> FsqApi : GET /v3/places/search?ll=lat,lon&radius=...&categories=10024
+FsqApi -> FsqApi : GET places/search?ll=lat,lon&radius=...&sort=DISTANCE
 FsqApi --> System : placesJsonPayload
 deactivate FsqApi
 
@@ -45,23 +51,27 @@ System -> System : showLoadingIndicator(false)
 alt [No Cinemas Found in Radius]
     System --> User : showEmptyStateMessage("No cinemas found nearby")
 else [Cinemas Found]
+    System -> MapView : plotCinemaMarkers(cinemasList)
     System -> System : renderCinemasRecyclerView(cinemasList)
-    System --> User : displayNearbyCinemas(name, address, distanceMeters)
+    System --> User : displayCinemasSplitView(map + list)
 end
 
-deactivate System
+== Scenario 2: Synchronized Map Focus & Navigation ==
 
-== Scenario 2: Open Cinema in External Maps (Directions) ==
+alt [User Taps Cinema in List]
+    User -> System : tapCinemaCard(cinema)
+    System -> MapView : animateTo(cinema.coordinates)
+    System -> MapView : showInfoWindow(cinema.name, distance, address)
+else [User Clicks Marker on Map]
+    User -> MapView : clickMarker(cinema)
+    MapView --> User : showPopupBubble(cinema.name, distance, address)
+end
 
-User -> System : tapCinemaDirections(cinema)
-activate System
-
-System -> System : buildGeoIntent("geo:latitude,longitude?q=CinemaName")
-System -> MapApp : startActivity(Intent.ACTION_VIEW, geoUri)
+User -> System : requestDirections(cinema)
+System -> MapApp : startActivity(ACTION_VIEW, "geo:lat,lng?q=CinemaName")
 activate MapApp
-MapApp --> User : openDirectionsInMapsApp()
+MapApp --> User : showTurnByTurnNavigation()
 deactivate MapApp
 
 deactivate System
-
 @enduml

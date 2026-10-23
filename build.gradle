@@ -67,6 +67,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
+    // OpenStreetMap (OSMDroid) for Interactive Map (US5)
+    implementation 'org.osmdroid:osmdroid-android:6.1.20'
+
     // Testing
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
