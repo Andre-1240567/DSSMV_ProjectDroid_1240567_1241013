@@ -245,8 +245,8 @@
             android:layout_height="wrap_content"
             android:background="@color/surface"
             app:elevation="8dp"
-            app:itemIconTint="@color/primary"
-            app:itemTextColor="@color/primary"
+            app:itemIconTint="@color/bottom_nav_color_selector"
+            app:itemTextColor="@color/bottom_nav_color_selector"
             app:menu="@menu/bottom_nav_menu" />
 
     </LinearLayout>

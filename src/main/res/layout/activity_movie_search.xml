@@ -12,67 +12,86 @@
         android:layout_height="64dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingStart="16dp"
+        android:paddingStart="12dp"
         android:paddingEnd="16dp"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        android:elevation="4dp">
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonBack"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_back"
-            android:textColor="@color/surface"
-            android:textSize="14sp" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="@string/btn_back"
+            app:tint="@color/surface" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:text="@string/title_movie_search"
             android:textColor="@color/surface"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp" />
+            android:textSize="19sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Search Input Area -->
-    <LinearLayout
+    <!-- Modern Elevated Search Bar -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="3dp"
+        app:cardBackgroundColor="@color/surface">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputLayoutSearch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:boxBackgroundColor="@color/surface">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/btn_search"
+                app:tint="@color/primary" />
+
+            <EditText
                 android:id="@+id/editTextSearchQuery"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:background="@null"
                 android:hint="@string/hint_search_movie"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="15sp"
                 android:inputType="textCapWords"
                 android:imeOptions="actionSearch"
-                android:maxLines="1"
-                android:textSize="15sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:maxLines="1" />
 
-        <Button
-            android:id="@+id/buttonPerformSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="@string/btn_search"
-            android:backgroundTint="@color/primary"
-            android:textColor="@color/surface"
-            android:textSize="14sp" />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonPerformSearch"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="@string/btn_search"
+                android:textSize="13sp"
+                android:textColor="@color/surface"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="20dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- Loading Indicator -->
     <ProgressBar
@@ -80,19 +99,27 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_gravity="center"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:visibility="gone" />
 
     <!-- Status / Empty State Message -->
-    <TextView
-        android:id="@+id/textViewSearchStatus"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp"
-        android:text="@string/status_search_initial"
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp" />
+        android:padding="32dp">
+
+        <TextView
+            android:id="@+id/textViewSearchStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/status_search_initial"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp"
+            android:lineSpacingExtra="4dp" />
+    </LinearLayout>
 
     <!-- Results Recycler View -->
     <androidx.recyclerview.widget.RecyclerView

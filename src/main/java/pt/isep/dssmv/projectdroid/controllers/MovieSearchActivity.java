@@ -28,7 +28,7 @@ import retrofit2.Response;
 
 public class MovieSearchActivity extends AppCompatActivity {
 
-    private Button buttonBack;
+    private View buttonBack;
     private EditText editTextSearchQuery;
     private Button buttonPerformSearch;
     private ProgressBar progressBarSearch;
