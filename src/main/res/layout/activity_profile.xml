@@ -14,14 +14,15 @@
         android:gravity="center_vertical"
         android:paddingStart="12dp"
         android:paddingEnd="16dp"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        android:elevation="4dp">
 
         <ImageButton
             android:id="@+id/buttonBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_arrow_back"
             android:contentDescription="@string/btn_back"
             app:tint="@color/surface" />
 
@@ -29,17 +30,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:text="@string/title_profile"
             android:textColor="@color/surface"
-            android:textSize="20sp"
+            android:textSize="19sp"
             android:textStyle="bold" />
 
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,36 +50,189 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
-            <!-- Avatar / User Icon -->
-            <ImageView
-                android:id="@+id/imageViewAvatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/badge_background"
-                android:padding="16dp"
-                android:src="@android:drawable/ic_menu_myplaces"
-                android:contentDescription="Avatar"
-                app:tint="@color/primary" />
-
-            <!-- Email Display -->
-            <TextView
-                android:id="@+id/textViewProfileEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Account Details Card -->
+            <!-- Hero User Profile Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E8EAF6"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="20dp">
+
+                    <!-- Avatar Icon -->
+                    <ImageView
+                        android:id="@+id/imageViewAvatar"
+                        android:layout_width="84dp"
+                        android:layout_height="84dp"
+                        android:background="@drawable/badge_background"
+                        android:backgroundTint="#E8EAF6"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_profile"
+                        android:contentDescription="Avatar"
+                        app:tint="@color/primary" />
+
+                    <!-- User Display Name -->
+                    <TextView
+                        android:id="@+id/textViewProfileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <!-- User Email -->
+                    <TextView
+                        android:id="@+id/textViewProfileEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                    <!-- Auth Badge -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/badge_background"
+                        android:backgroundTint="#E8F5E9"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="3dp"
+                        android:text="Firebase Auth Active"
+                        android:textColor="#2E7D32"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Dashboard Stats Row (2 Cards) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Stat 1: Total Lists -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E8EAF6"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_movie_folder"
+                            android:contentDescription="@string/label_total_lists"
+                            app:tint="@color/primary" />
+
+                        <TextView
+                            android:id="@+id/textViewProfileTotalLists"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="0 lists"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_total_lists"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarProfileStats"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginTop="4dp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Stat 2: Member Since -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E8EAF6"
+                    app:cardBackgroundColor="@color/surface">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_my_calendar"
+                            android:contentDescription="@string/label_member_since"
+                            app:tint="@color/accent" />
+
+                        <TextView
+                            android:id="@+id/textViewProfileMemberSince"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="N/A"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_member_since"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Account Details Card (UID with Copy action) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E8EAF6"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -93,9 +248,8 @@
                         android:textColor="@color/primary"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="8dp" />
 
-                    <!-- User UID -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -103,40 +257,49 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 
-                    <TextView
-                        android:id="@+id/textViewProfileUid"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="12dp"
-                        android:textIsSelectable="true" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp">
 
-                    <!-- Member Since -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_member_since"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        <TextView
+                            android:id="@+id/textViewProfileUid"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:fontFamily="monospace"
+                            android:textIsSelectable="true" />
 
-                    <TextView
-                        android:id="@+id/textViewProfileMemberSince"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
+                        <ImageButton
+                            android:id="@+id/buttonCopyUid"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@android:drawable/ic_menu_share"
+                            android:contentDescription="Copy UID"
+                            app:tint="@color/primary" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Activity Statistics Card -->
+            <!-- Preferences Shortcut Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardProfilePreferences"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="12dp"
+                android:layout_marginBottom="16dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E8EAF6"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -146,41 +309,103 @@
                     android:gravity="center_vertical"
                     android:padding="16dp">
 
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/badge_background"
+                        android:backgroundTint="#E8EAF6"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_settings"
+                        android:contentDescription="@string/btn_preferences"
+                        app:tint="@color/primary" />
+
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:layout_marginStart="14dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_total_lists"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:text="Preferências e Filtros"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/textViewProfileTotalLists"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="0 lists"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
+                            android:text="Raio do mapa, streaming e sensibilidade shake"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
-                    <ProgressBar
-                        android:id="@+id/progressBarProfileStats"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:visibility="gone" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_forward"
+                        android:contentDescription="Open preferences"
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- App Credits / Academic Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E8EAF6"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sobre o CineTrack"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CineTrack v1.0 — Projeto M1 (DSSMV)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="LETI — ISEP (2026)"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Autores: André Silva (1240567) &amp; Afonso Ferreira (1241013)"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Logout Button -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonProfileLogout"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
@@ -188,7 +413,12 @@
                 android:text="@string/btn_logout"
                 android:textColor="@color/error"
                 android:textSize="15sp"
-                app:strokeColor="@color/error" />
+                app:cornerRadius="26dp"
+                app:strokeColor="@color/error"
+                app:strokeWidth="1.5dp"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:iconTint="@color/error"
+                app:iconGravity="textStart" />
 
         </LinearLayout>
     </ScrollView>
