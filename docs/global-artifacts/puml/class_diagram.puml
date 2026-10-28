@@ -28,6 +28,15 @@ package "pt.isep.dssmv.projectdroid.model" {
         FAVORITE
     }
 
+    enum SavedMovieSortOption {
+        TITLE_ASC
+        TITLE_DESC
+        RATING_DESC
+        RATING_ASC
+        YEAR_DESC
+        YEAR_ASC
+    }
+
     class User {
         - userId : String
         - name : String
@@ -69,6 +78,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - releaseYear : int
         - overview : String
         - status : WatchStatus
+        - rating : Rating
         + SavedMovie(internalId : String, tmdbId : int, title : String)
         + getInternalId() : String
         + getTmdbId() : int
@@ -81,6 +91,8 @@ package "pt.isep.dssmv.projectdroid.model" {
         + setOverview(overview : String) : void
         + getStatus() : WatchStatus
         + setStatus(status : WatchStatus) : void
+        + getRating() : Rating
+        + setRating(rating : Rating) : void
         + toString() : String
         + equals(o : Object) : boolean
         + hashCode() : int
@@ -139,13 +151,46 @@ package "pt.isep.dssmv.projectdroid.model" {
     class UserPreferences {
         - cinemaRadiusKm : int
         - defaultRegion : String
+        - minRating : float
+        - minReleaseYear : int
+        - streamingProviders : Set<String>
+        - shakeThreshold : float
         + UserPreferences()
         + UserPreferences(cinemaRadiusKm : int, defaultRegion : String)
+        + UserPreferences(cinemaRadiusKm : int, defaultRegion : String, minRating : float, minYear : int, providers : Set<String>, threshold : float)
         + getCinemaRadiusKm() : int
         + setCinemaRadiusKm(cinemaRadiusKm : int) : void
         + getDefaultRegion() : String
         + setDefaultRegion(defaultRegion : String) : void
+        + getMinRating() : float
+        + setMinRating(minRating : float) : void
+        + getMinReleaseYear() : int
+        + setMinReleaseYear(minReleaseYear : int) : void
+        + getStreamingProviders() : Set<String>
+        + setStreamingProviders(streamingProviders : Set<String>) : void
+        + getShakeThreshold() : float
+        + setShakeThreshold(shakeThreshold : float) : void
+        + getFormattedWatchProviders() : String
         + toString() : String
+    }
+
+    class SavedMovieFilterSorter <<utility>> {
+        + {static} COMPARATOR_TITLE_ASC : Comparator<SavedMovie>
+        + {static} COMPARATOR_TITLE_DESC : Comparator<SavedMovie>
+        + {static} COMPARATOR_RATING_DESC : Comparator<SavedMovie>
+        + {static} COMPARATOR_RATING_ASC : Comparator<SavedMovie>
+        + {static} COMPARATOR_YEAR_DESC : Comparator<SavedMovie>
+        + {static} COMPARATOR_YEAR_ASC : Comparator<SavedMovie>
+        + {static} getComparator(option : SavedMovieSortOption) : Comparator<SavedMovie>
+        + {static} filter(movies : List<SavedMovie>, status : WatchStatus, query : String) : List<SavedMovie>
+        + {static} sort(movies : List<SavedMovie>, option : SavedMovieSortOption) : List<SavedMovie>
+        + {static} filterAndSort(movies : List<SavedMovie>, status : WatchStatus, query : String, option : SavedMovieSortOption) : List<SavedMovie>
+    }
+
+    class MovieShareFormatter <<utility>> {
+        + {static} format(movie : SavedMovie) : String
+        + {static} format(title : String, releaseYear : int, overview : String, tmdbId : int) : String
+        + {static} formatDetails(title : String, releaseYear : int, overview : String, tmdbId : int, score : Float, comment : String, status : WatchStatus) : String
     }
 }
 
@@ -153,7 +198,12 @@ User ..> InvalidDataException : throws
 MovieList ..> InvalidDataException : throws
 SavedMovie ..> InvalidDataException : throws
 Rating ..> InvalidRatingException : throws
+UserPreferences ..> InvalidDataException : throws
 
 SavedMovie --> WatchStatus
+SavedMovie "1" o-- "0..1" Rating : rating
+SavedMovieFilterSorter ..> SavedMovie : sorts & filters
+SavedMovieFilterSorter ..> SavedMovieSortOption : uses
+MovieShareFormatter ..> SavedMovie : formats
 
 @enduml

@@ -92,6 +92,8 @@ Demonstração da interação do utilizador durante o fluxo de autenticação e 
 3. **Retrofit 2 com Gson:** Abstração de chamadas REST assíncronas com tratamento tipado de respostas JSON.
 4. **Foursquare Places API:** Pesquisa geoespacial de salas de cinema que dispensa a obrigatoriedade de cartão de crédito para developers, ao contrário da Google Places API.
 5. **Acelerómetro com Gestão do Ciclo de Vida:** O registo do listener do sensor em `onResume()` e respetiva desativação em `onPause()` protege a integridade da bateria do dispositivo móvel.
+6. **Mutações REST com HTTP POST e DELETE no TMDB:** Para além do consumo de catálogo via GET, a aplicação implementa mutações REST com submissão de avaliações via `POST /3/movie/{id}/rating` (com corpo JSON `@Body` serializado por Gson) e remoção via `DELETE`, recorrendo a *Guest Sessions* geridas automaticamente em `SharedPrefManager`.
+7. **Comparadores Funcionais Java 21 e Implicit Intents:** Implementação de filtragem e ordenação em memória no Modelo puro (`SavedMovieFilterSorter`) com resposta em $0\text{ ms}$ sem tráfego de dados, e partilha social via *Implicit Intent* (`ACTION_SEND` com `Intent.createChooser()`).
 
 ---
 

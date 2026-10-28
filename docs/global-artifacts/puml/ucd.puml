@@ -46,6 +46,7 @@ UC03 ..> Firebase : persiste avaliações (Firestore)
 UC07 ..> Firebase : encerra sessão
 
 UC04 ..> TMDB : consome catálogo e providers
+UC03 ..> TMDB : sincroniza avaliações (REST POST/DELETE)
 UC10 ..> TMDB : obtém chave do trailer
 
 UC05 ..> Foursquare : pesquisa cinemas próximos
