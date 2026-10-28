@@ -25,6 +25,7 @@ public class SharedPrefManager {
     public static final String KEY_MIN_RELEASE_YEAR = "pref_min_release_year";
     public static final String KEY_STREAMING_PROVIDERS = "pref_streaming_providers";
     public static final String KEY_SHAKE_THRESHOLD = "pref_shake_threshold";
+    public static final String KEY_THEME_MODE = "pref_theme_mode";
     public static final String KEY_TMDB_GUEST_SESSION_ID = "pref_tmdb_guest_session_id";
 
     private static SharedPrefManager instance;
@@ -52,9 +53,10 @@ public class SharedPrefManager {
         int minYear = sharedPreferences.getInt(KEY_MIN_RELEASE_YEAR, UserPreferences.DEFAULT_MIN_YEAR);
         Set<String> providers = sharedPreferences.getStringSet(KEY_STREAMING_PROVIDERS, new HashSet<>());
         float threshold = sharedPreferences.getFloat(KEY_SHAKE_THRESHOLD, UserPreferences.DEFAULT_SHAKE_THRESHOLD);
+        String themeMode = sharedPreferences.getString(KEY_THEME_MODE, UserPreferences.DEFAULT_THEME_MODE);
 
         try {
-            return new UserPreferences(radius, region, minRating, minYear, providers, threshold);
+            return new UserPreferences(radius, region, minRating, minYear, providers, threshold, themeMode);
         } catch (InvalidDataException e) {
             return new UserPreferences();
         }
@@ -76,7 +78,10 @@ public class SharedPrefManager {
                 .putInt(KEY_MIN_RELEASE_YEAR, preferences.getMinReleaseYear())
                 .putStringSet(KEY_STREAMING_PROVIDERS, preferences.getStreamingProviders())
                 .putFloat(KEY_SHAKE_THRESHOLD, preferences.getShakeThreshold())
+                .putString(KEY_THEME_MODE, preferences.getThemeMode())
                 .apply();
+
+        applyThemeMode(preferences.getThemeMode());
     }
 
     public int getCinemaRadiusKm() {
@@ -99,6 +104,27 @@ public class SharedPrefManager {
         sharedPreferences.edit()
                 .putString(KEY_TMDB_GUEST_SESSION_ID, sessionId)
                 .apply();
+    }
+
+    public void applyThemeMode(String themeMode) {
+        if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(themeMode)) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(themeMode)) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+    }
+
+    public void setThemeMode(String themeMode) {
+        sharedPreferences.edit()
+                .putString(KEY_THEME_MODE, themeMode)
+                .apply();
+        applyThemeMode(themeMode);
+    }
+
+    public String getThemeMode() {
+        return sharedPreferences.getString(KEY_THEME_MODE, UserPreferences.DEFAULT_THEME_MODE);
     }
 
     public void clear() {

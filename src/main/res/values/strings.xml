@@ -197,4 +197,11 @@
     <!-- Movie Sharing (US11) -->
     <string name="btn_share_movie">Share Movie</string>
     <string name="share_movie_chooser_title">Share Movie via</string>
+
+    <!-- Theme Selection (Light / Dark / Device System) -->
+    <string name="label_theme_mode">App Theme</string>
+    <string name="theme_system">Device Theme (System Default)</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="dialog_title_choose_theme">Choose App Theme</string>
 </resources>

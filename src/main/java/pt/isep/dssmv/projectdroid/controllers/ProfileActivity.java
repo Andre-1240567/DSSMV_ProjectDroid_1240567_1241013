@@ -49,6 +49,8 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewProfileTotalLists;
     private ProgressBar progressBarProfileStats;
     private View cardProfilePreferences;
+    private View cardProfileTheme;
+    private TextView textViewProfileThemeSubtitle;
     private Button buttonProfileLogout;
 
     private FirebaseAuthManager authManager;
@@ -75,6 +77,12 @@ public class ProfileActivity extends AppCompatActivity {
         setupListeners();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateThemeSubtitle();
+    }
+
     private void initViews() {
         buttonBack = findViewById(R.id.buttonBack);
         textViewProfileName = findViewById(R.id.textViewProfileName);
@@ -85,6 +93,8 @@ public class ProfileActivity extends AppCompatActivity {
         textViewProfileTotalLists = findViewById(R.id.textViewProfileTotalLists);
         progressBarProfileStats = findViewById(R.id.progressBarProfileStats);
         cardProfilePreferences = findViewById(R.id.cardProfilePreferences);
+        cardProfileTheme = findViewById(R.id.cardProfileTheme);
+        textViewProfileThemeSubtitle = findViewById(R.id.textViewProfileThemeSubtitle);
         buttonProfileLogout = findViewById(R.id.buttonProfileLogout);
     }
 
@@ -122,6 +132,20 @@ public class ProfileActivity extends AppCompatActivity {
             textViewProfileMemberSince.setText(sdf.format(new Date(metadata.getCreationTimestamp())));
         } else {
             textViewProfileMemberSince.setText("N/A");
+        }
+
+        updateThemeSubtitle();
+    }
+
+    private void updateThemeSubtitle() {
+        if (textViewProfileThemeSubtitle == null) return;
+        String mode = prefManager.getThemeMode();
+        if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(mode)) {
+            textViewProfileThemeSubtitle.setText(R.string.theme_light);
+        } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(mode)) {
+            textViewProfileThemeSubtitle.setText(R.string.theme_dark);
+        } else {
+            textViewProfileThemeSubtitle.setText(R.string.theme_system);
         }
     }
 
@@ -167,7 +191,45 @@ public class ProfileActivity extends AppCompatActivity {
             cardProfilePreferences.setOnClickListener(v -> showPreferencesDialog());
         }
 
+        if (cardProfileTheme != null) {
+            cardProfileTheme.setOnClickListener(v -> showThemeChooserDialog());
+        }
+
         buttonProfileLogout.setOnClickListener(v -> confirmLogout());
+    }
+
+    private void showThemeChooserDialog() {
+        String[] themes = new String[]{
+                getString(R.string.theme_system),
+                getString(R.string.theme_light),
+                getString(R.string.theme_dark)
+        };
+
+        String currentMode = prefManager.getThemeMode();
+        int checkedItem = 0;
+        if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(currentMode)) {
+            checkedItem = 1;
+        } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(currentMode)) {
+            checkedItem = 2;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_choose_theme)
+                .setSingleChoiceItems(themes, checkedItem, (dialog, which) -> {
+                    String newMode;
+                    if (which == 1) {
+                        newMode = UserPreferences.THEME_LIGHT;
+                    } else if (which == 2) {
+                        newMode = UserPreferences.THEME_DARK;
+                    } else {
+                        newMode = UserPreferences.THEME_SYSTEM;
+                    }
+                    prefManager.setThemeMode(newMode);
+                    updateThemeSubtitle();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
     }
 
     private void showPreferencesDialog() {
@@ -184,6 +246,7 @@ public class ProfileActivity extends AppCompatActivity {
         CheckBox checkboxAppleTv = dialogView.findViewById(R.id.checkboxAppleTv);
 
         Spinner spinnerSensitivity = dialogView.findViewById(R.id.spinnerShakeSensitivity);
+        Spinner spinnerThemeMode = dialogView.findViewById(R.id.spinnerThemeMode);
 
         String[] sensitivities = new String[]{
                 getString(R.string.sensitivity_normal),
@@ -192,6 +255,16 @@ public class ProfileActivity extends AppCompatActivity {
         };
         ArrayAdapter<String> sensitivityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sensitivities);
         spinnerSensitivity.setAdapter(sensitivityAdapter);
+
+        if (spinnerThemeMode != null) {
+            String[] themeOptions = new String[]{
+                    getString(R.string.theme_system),
+                    getString(R.string.theme_light),
+                    getString(R.string.theme_dark)
+            };
+            ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, themeOptions);
+            spinnerThemeMode.setAdapter(themeAdapter);
+        }
 
         UserPreferences currentPrefs = prefManager.getUserPreferences();
         editTextRadius.setText(String.valueOf(currentPrefs.getCinemaRadiusKm()));
@@ -213,6 +286,17 @@ public class ProfileActivity extends AppCompatActivity {
             spinnerSensitivity.setSelection(2);
         } else {
             spinnerSensitivity.setSelection(0);
+        }
+
+        if (spinnerThemeMode != null) {
+            String curTheme = currentPrefs.getThemeMode();
+            if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(1);
+            } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(2);
+            } else {
+                spinnerThemeMode.setSelection(0);
+            }
         }
 
         new AlertDialog.Builder(this)
@@ -242,8 +326,19 @@ public class ProfileActivity extends AppCompatActivity {
                             selectedThreshold = 3.2f;
                         }
 
-                        UserPreferences newPrefs = new UserPreferences(radius, region, minRating, minYear, selectedProviders, selectedThreshold);
+                        String selectedTheme = UserPreferences.THEME_SYSTEM;
+                        if (spinnerThemeMode != null) {
+                            int themePos = spinnerThemeMode.getSelectedItemPosition();
+                            if (themePos == 1) {
+                                selectedTheme = UserPreferences.THEME_LIGHT;
+                            } else if (themePos == 2) {
+                                selectedTheme = UserPreferences.THEME_DARK;
+                            }
+                        }
+
+                        UserPreferences newPrefs = new UserPreferences(radius, region, minRating, minYear, selectedProviders, selectedThreshold, selectedTheme);
                         prefManager.saveUserPreferences(newPrefs);
+                        updateThemeSubtitle();
                         Toast.makeText(ProfileActivity.this, R.string.preferences_saved_success, Toast.LENGTH_SHORT).show();
                     } catch (NumberFormatException e) {
                         Toast.makeText(ProfileActivity.this, "Por favor verifique os valores numéricos", Toast.LENGTH_SHORT).show();

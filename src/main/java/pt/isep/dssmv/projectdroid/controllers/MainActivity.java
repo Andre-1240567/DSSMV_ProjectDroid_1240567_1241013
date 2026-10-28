@@ -582,6 +582,7 @@ public class MainActivity extends AppCompatActivity {
         CheckBox checkboxAppleTv = dialogView.findViewById(R.id.checkboxAppleTv);
 
         Spinner spinnerSensitivity = dialogView.findViewById(R.id.spinnerShakeSensitivity);
+        Spinner spinnerThemeMode = dialogView.findViewById(R.id.spinnerThemeMode);
 
         String[] sensitivities = new String[]{
                 getString(R.string.sensitivity_normal),
@@ -590,6 +591,16 @@ public class MainActivity extends AppCompatActivity {
         };
         ArrayAdapter<String> sensitivityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sensitivities);
         spinnerSensitivity.setAdapter(sensitivityAdapter);
+
+        if (spinnerThemeMode != null) {
+            String[] themeOptions = new String[]{
+                    getString(R.string.theme_system),
+                    getString(R.string.theme_light),
+                    getString(R.string.theme_dark)
+            };
+            ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, themeOptions);
+            spinnerThemeMode.setAdapter(themeAdapter);
+        }
 
         UserPreferences currentPrefs = prefManager.getUserPreferences();
         editTextRadius.setText(String.valueOf(currentPrefs.getCinemaRadiusKm()));
@@ -611,6 +622,17 @@ public class MainActivity extends AppCompatActivity {
             spinnerSensitivity.setSelection(2); // Low
         } else {
             spinnerSensitivity.setSelection(0); // Normal
+        }
+
+        if (spinnerThemeMode != null) {
+            String curTheme = currentPrefs.getThemeMode();
+            if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(1);
+            } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(2);
+            } else {
+                spinnerThemeMode.setSelection(0);
+            }
         }
 
         new AlertDialog.Builder(this)
@@ -636,13 +658,27 @@ public class MainActivity extends AppCompatActivity {
                         if (checkboxPrimeVideo.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_PRIME_VIDEO);
                         if (checkboxAppleTv.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_APPLE_TV);
 
-                        float threshold = switch (spinnerSensitivity.getSelectedItemPosition()) {
-                            case 1 -> 2.7f;
-                            case 2 -> 3.8f;
-                            default -> 3.2f;
-                        };
+                        float threshold;
+                        int selectedSensPos = spinnerSensitivity.getSelectedItemPosition();
+                        if (selectedSensPos == 1) {
+                            threshold = 2.7f;
+                        } else if (selectedSensPos == 2) {
+                            threshold = 3.8f;
+                        } else {
+                            threshold = 3.2f;
+                        }
 
-                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr, minRating, minYear, selectedProviders, threshold);
+                        String selectedTheme = UserPreferences.THEME_SYSTEM;
+                        if (spinnerThemeMode != null) {
+                            int themePos = spinnerThemeMode.getSelectedItemPosition();
+                            if (themePos == 1) {
+                                selectedTheme = UserPreferences.THEME_LIGHT;
+                            } else if (themePos == 2) {
+                                selectedTheme = UserPreferences.THEME_DARK;
+                            }
+                        }
+
+                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr, minRating, minYear, selectedProviders, threshold, selectedTheme);
                         prefManager.saveUserPreferences(updatedPrefs);
                         if (shakeDetector != null) {
                             shakeDetector.setThreshold(threshold);
