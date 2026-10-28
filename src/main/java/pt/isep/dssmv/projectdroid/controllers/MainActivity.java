@@ -26,12 +26,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -53,6 +55,7 @@ import pt.isep.dssmv.projectdroid.network.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.TmdbPagedResponse;
 import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
+import pt.isep.dssmv.projectdroid.utils.NetworkMonitor;
 import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
 import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
@@ -120,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isPrefetchingRecommendations = false;
     private int recommendationConfigVersion = 0;
 
+    // Real-time network connectivity monitor
+    private NetworkMonitor networkMonitor;
+    private Snackbar offlineSnackbar;
+    private View coordinatorLayoutMain;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         authManager = FirebaseAuthManager.getInstance();
         firestoreManager = FirestoreManager.getInstance();
         prefManager = SharedPrefManager.getInstance(this);
+        networkMonitor = new NetworkMonitor(this, this::handleConnectivityChanged);
 
         if (!authManager.isUserLoggedIn()) {
             redirectToLogin();
@@ -174,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
         if (authManager.isUserLoggedIn()) {
             attachListsListener();
         }
+        if (networkMonitor != null) {
+            networkMonitor.startMonitoring();
+            if (!networkMonitor.isCurrentlyConnected()) {
+                handleConnectivityChanged(false);
+            }
+        }
     }
 
     @Override
@@ -195,9 +210,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         detachListsListener();
+        if (networkMonitor != null) {
+            networkMonitor.stopMonitoring();
+        }
+        if (offlineSnackbar != null && offlineSnackbar.isShown()) {
+            offlineSnackbar.dismiss();
+        }
+    }
+
+    private void handleConnectivityChanged(boolean isConnected) {
+        View targetView = (coordinatorLayoutMain != null) ? coordinatorLayoutMain : findViewById(android.R.id.content);
+        if (targetView == null) return;
+
+        if (!isConnected) {
+            if (offlineSnackbar == null || !offlineSnackbar.isShown()) {
+                offlineSnackbar = Snackbar.make(targetView, R.string.warning_offline_mode, Snackbar.LENGTH_INDEFINITE)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.primary_dark))
+                        .setTextColor(ContextCompat.getColor(this, R.color.surface))
+                        .setAction(R.string.dismiss, v -> {
+                            if (offlineSnackbar != null) offlineSnackbar.dismiss();
+                        })
+                        .setActionTextColor(ContextCompat.getColor(this, R.color.accent));
+                offlineSnackbar.show();
+            }
+        } else {
+            if (offlineSnackbar != null && offlineSnackbar.isShown()) {
+                offlineSnackbar.dismiss();
+                Snackbar.make(targetView, R.string.info_connection_restored, Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.primary))
+                        .setTextColor(ContextCompat.getColor(this, R.color.surface))
+                        .show();
+            }
+        }
     }
 
     private void initViews() {
+        coordinatorLayoutMain = findViewById(R.id.coordinatorLayoutMain);
         buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
         buttonNearbyCinemas = findViewById(R.id.buttonNearbyCinemas);

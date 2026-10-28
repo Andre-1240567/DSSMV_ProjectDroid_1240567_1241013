@@ -211,4 +211,10 @@
     <string name="theme_light">Light Theme</string>
     <string name="theme_dark">Dark Theme</string>
     <string name="dialog_title_choose_theme">Choose App Theme</string>
+
+    <!-- Network Connectivity & Offline Mode -->
+    <string name="warning_offline_mode">No internet connection. Displaying cached data.</string>
+    <string name="info_connection_restored">Internet connection restored.</string>
+    <string name="warning_search_offline">Cannot search movies without an internet connection.</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
