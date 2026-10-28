@@ -1,5 +1,6 @@
 package pt.isep.dssmv.projectdroid.model;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -75,23 +76,7 @@ public final class MovieShareFormatter {
 
         // 📌 Watch Status
         if (status != null) {
-            String statusText;
-            switch (status) {
-                case WATCHING:
-                    statusText = "Watching";
-                    break;
-                case WATCHED:
-                    statusText = "Watched";
-                    break;
-                case FAVORITE:
-                    statusText = "Favorite";
-                    break;
-                case PLAN_TO_WATCH:
-                default:
-                    statusText = "Plan to Watch";
-                    break;
-            }
-            sb.append("📌 Status: ").append(statusText).append("\n");
+            sb.append("📌 Status: ").append(formatStatusLabel(status)).append("\n");
         }
 
         // 📖 Synopsis
@@ -113,5 +98,73 @@ public final class MovieShareFormatter {
         sb.append("\nShared via CineTrack 🍿");
 
         return sb.toString();
+    }
+
+    /**
+     * Formats an entire movie list into a formatted social message.
+     */
+    public static String formatList(String listName, String listDescription, List<SavedMovie> movies) {
+        String effectiveListName = (listName != null && !listName.trim().isEmpty())
+                ? listName.trim()
+                : "CineTrack List";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("🎬 ").append(effectiveListName).append("\n");
+
+        if (listDescription != null && !listDescription.trim().isEmpty()) {
+            sb.append("📝 ").append(listDescription.trim()).append("\n");
+        }
+
+        int count = (movies != null) ? movies.size() : 0;
+        sb.append("🍿 Total: ").append(count).append(count == 1 ? " movie" : " movies").append("\n\n");
+
+        if (movies == null || movies.isEmpty()) {
+            sb.append("(No movies in this list yet)\n");
+        } else {
+            for (int i = 0; i < movies.size(); i++) {
+                SavedMovie movie = movies.get(i);
+                if (movie == null) continue;
+
+                sb.append(i + 1).append(". ");
+                String title = (movie.getTitle() != null && !movie.getTitle().trim().isEmpty())
+                        ? movie.getTitle().trim()
+                        : "Untitled";
+                sb.append(title);
+
+                if (movie.getReleaseYear() > 0) {
+                    sb.append(" (").append(movie.getReleaseYear()).append(")");
+                }
+
+                if (movie.getRating() != null && movie.getRating().getScore() > 0) {
+                    sb.append(String.format(Locale.US, " - ⭐ %.1f/5.0", movie.getRating().getScore()));
+                }
+
+                if (movie.getStatus() != null) {
+                    sb.append(" [").append(formatStatusLabel(movie.getStatus())).append("]");
+                }
+
+                sb.append("\n");
+            }
+        }
+
+        sb.append("\nShared via CineTrack 🍿");
+        return sb.toString();
+    }
+
+    public static String formatStatusLabel(WatchStatus status) {
+        if (status == null) {
+            return "Plan to Watch";
+        }
+        switch (status) {
+            case WATCHING:
+                return "Watching";
+            case WATCHED:
+                return "Watched";
+            case FAVORITE:
+                return "Favorite";
+            case PLAN_TO_WATCH:
+            default:
+                return "Plan to Watch";
+        }
     }
 }

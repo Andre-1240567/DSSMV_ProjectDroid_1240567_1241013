@@ -59,6 +59,7 @@ public class ListDetailsActivity extends AppCompatActivity {
     private TextView textViewListTitle;
     private TextView textViewMovieCount;
     private ImageButton buttonBack;
+    private ImageButton buttonShareList;
     private ProgressBar progressBarMovies;
     private TextView textViewEmptyMovies;
     private RecyclerView recyclerViewMovies;
@@ -122,6 +123,7 @@ public class ListDetailsActivity extends AppCompatActivity {
         textViewListTitle = findViewById(R.id.textViewListTitle);
         textViewMovieCount = findViewById(R.id.textViewMovieCount);
         buttonBack = findViewById(R.id.buttonBack);
+        buttonShareList = findViewById(R.id.buttonShareList);
         progressBarMovies = findViewById(R.id.progressBarMovies);
         textViewEmptyMovies = findViewById(R.id.textViewEmptyMovies);
         recyclerViewMovies = findViewById(R.id.recyclerViewMovies);
@@ -154,8 +156,17 @@ public class ListDetailsActivity extends AppCompatActivity {
         ShareHelper.shareSavedMovie(this, movie);
     }
 
+    private void handleShareList() {
+        if (allMovies.isEmpty()) {
+            Toast.makeText(this, R.string.warning_share_list_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ShareHelper.shareMovieList(this, listName, null, allMovies);
+    }
+
     private void setupListeners() {
         buttonBack.setOnClickListener(v -> finish());
+        buttonShareList.setOnClickListener(v -> handleShareList());
         fabAddMovie.setOnClickListener(v -> showAddMovieMethodChooser());
         buttonSortMovies.setOnClickListener(v -> showSortDialog());
 

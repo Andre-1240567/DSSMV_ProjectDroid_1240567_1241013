@@ -197,6 +197,9 @@
     <!-- Movie Sharing (US11) -->
     <string name="btn_share_movie">Share Movie</string>
     <string name="share_movie_chooser_title">Share Movie via</string>
+    <string name="btn_share_list">Share List</string>
+    <string name="share_list_chooser_title">Share Movie List via</string>
+    <string name="warning_share_list_empty">This list has no movies to share yet.</string>
 
     <!-- Theme Selection (Light / Dark / Device System) -->
     <string name="label_theme_mode">App Theme</string>
