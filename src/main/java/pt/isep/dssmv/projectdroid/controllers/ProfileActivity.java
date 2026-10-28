@@ -1,9 +1,12 @@
 package pt.isep.dssmv.projectdroid.controllers;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +20,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
@@ -31,6 +36,7 @@ import pt.isep.dssmv.projectdroid.model.MovieList;
 import pt.isep.dssmv.projectdroid.model.SavedMovie;
 import pt.isep.dssmv.projectdroid.model.UserMovieStats;
 import pt.isep.dssmv.projectdroid.model.UserPreferences;
+import pt.isep.dssmv.projectdroid.utils.NotificationHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 
 import java.text.SimpleDateFormat;
@@ -59,6 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ProgressBar progressBarProfileStats;
     private View cardProfilePreferences;
     private View cardProfileTheme;
+    private View cardProfileNotification;
     private TextView textViewProfileThemeSubtitle;
     private Button buttonProfileLogout;
 
@@ -107,6 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
         progressBarProfileStats = findViewById(R.id.progressBarProfileStats);
         cardProfilePreferences = findViewById(R.id.cardProfilePreferences);
         cardProfileTheme = findViewById(R.id.cardProfileTheme);
+        cardProfileNotification = findViewById(R.id.cardProfileNotification);
         textViewProfileThemeSubtitle = findViewById(R.id.textViewProfileThemeSubtitle);
         buttonProfileLogout = findViewById(R.id.buttonProfileLogout);
     }
@@ -276,7 +284,54 @@ public class ProfileActivity extends AppCompatActivity {
             cardProfileTheme.setOnClickListener(v -> showThemeChooserDialog());
         }
 
+        if (cardProfileNotification != null) {
+            cardProfileNotification.setOnClickListener(v -> handleSendTestNotification());
+        }
+
         buttonProfileLogout.setOnClickListener(v -> confirmLogout());
+    }
+
+    private static final int REQUEST_CODE_NOTIFICATIONS = 301;
+
+    private void handleSendTestNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!NotificationHelper.hasNotificationPermission(this)) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        REQUEST_CODE_NOTIFICATIONS
+                );
+                return;
+            }
+        }
+        dispatchRecommendationNotification();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchRecommendationNotification();
+            } else {
+                Toast.makeText(this, R.string.toast_notification_permission_needed, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void dispatchRecommendationNotification() {
+        boolean sent = NotificationHelper.showMovieRecommendationNotification(
+                this,
+                "Interstellar",
+                "Mankind was born on Earth. It was never meant to die here. A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+                157336
+        );
+
+        if (sent) {
+            Toast.makeText(this, R.string.toast_notification_sent, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.toast_notification_permission_needed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showThemeChooserDialog() {

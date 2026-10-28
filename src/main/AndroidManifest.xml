@@ -12,6 +12,9 @@
     <!-- Haptic feedback for shake detection (US6) -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- System Notifications for movie recommendations and reminders (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".CineTrackApplication"
         android:allowBackup="true"

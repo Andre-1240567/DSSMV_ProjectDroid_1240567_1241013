@@ -217,4 +217,16 @@
     <string name="info_connection_restored">Internet connection restored.</string>
     <string name="warning_search_offline">Cannot search movies without an internet connection.</string>
     <string name="dismiss">Dismiss</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_name">CineTrack Recommendations</string>
+    <string name="notification_channel_description">Movie suggestions and reminders from CineTrack</string>
+    <string name="notification_recommendation_title">🎬 CineTrack • Movie of the Day</string>
+    <string name="notification_recommendation_body">How about watching \"%1$s\" tonight? Tap to see details!</string>
+    <string name="notification_watchlist_title">🎬 CineTrack • Watchlist Updated</string>
+    <string name="notification_watchlist_body">\"%1$s\" was added to \"%2$s\". Don\'t forget to watch it!</string>
+    <string name="card_notifications_title">Movie Notifications</string>
+    <string name="card_notifications_subtitle">Tap to receive a cinema recommendation</string>
+    <string name="toast_notification_sent">Notification sent! Check your notification drawer.</string>
+    <string name="toast_notification_permission_needed">Please enable notification permissions in device settings.</string>
 </resources>

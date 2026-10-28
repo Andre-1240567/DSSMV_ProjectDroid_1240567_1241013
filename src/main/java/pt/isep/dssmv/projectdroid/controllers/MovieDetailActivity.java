@@ -42,6 +42,7 @@ import pt.isep.dssmv.projectdroid.network.dto.TmdbCountryProvidersDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbProviderItemDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbVideosResponse;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbWatchProvidersResponse;
+import pt.isep.dssmv.projectdroid.utils.NotificationHelper;
 import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
@@ -411,6 +412,9 @@ public class MovieDetailActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     Toast.makeText(MovieDetailActivity.this, getString(R.string.movie_added_to_list_success, targetList.getName()), Toast.LENGTH_SHORT).show();
+
+                    // Notify user with rich system notification
+                    NotificationHelper.showWatchlistAddedNotification(MovieDetailActivity.this, targetList.getName(), safeTitle, validTmdbId);
 
                     // HTTP POST rating to TMDB REST API if rated
                     if (score >= 1.0f && validTmdbId > 0) {
