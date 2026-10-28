@@ -168,6 +168,10 @@
     <string name="label_uid">Firebase UID</string>
     <string name="label_member_since">Member Since</string>
     <string name="label_total_lists">Movie Lists Created</string>
+    <string name="label_total_movies">Total Movies Saved</string>
+    <string name="label_average_rating">Average Rating</string>
+    <string name="label_favorites_stat">Favorites</string>
+    <string name="label_watched_stat">Watched</string>
     <string name="dialog_title_logout">Log Out</string>
     <string name="dialog_message_logout">Are you sure you want to log out of CineTrack?</string>
 

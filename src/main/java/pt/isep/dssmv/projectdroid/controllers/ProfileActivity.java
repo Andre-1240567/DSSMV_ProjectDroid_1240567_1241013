@@ -28,15 +28,20 @@ import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
 import pt.isep.dssmv.projectdroid.firebase.FirebaseAuthManager;
 import pt.isep.dssmv.projectdroid.firebase.FirestoreManager;
 import pt.isep.dssmv.projectdroid.model.MovieList;
+import pt.isep.dssmv.projectdroid.model.SavedMovie;
+import pt.isep.dssmv.projectdroid.model.UserMovieStats;
 import pt.isep.dssmv.projectdroid.model.UserPreferences;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -47,6 +52,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageButton buttonCopyUid;
     private TextView textViewProfileMemberSince;
     private TextView textViewProfileTotalLists;
+    private TextView textViewProfileTotalMovies;
+    private TextView textViewProfileWatchBreakdown;
+    private TextView textViewProfileAverageRating;
+    private TextView textViewProfileRatedCount;
     private ProgressBar progressBarProfileStats;
     private View cardProfilePreferences;
     private View cardProfileTheme;
@@ -91,6 +100,10 @@ public class ProfileActivity extends AppCompatActivity {
         buttonCopyUid = findViewById(R.id.buttonCopyUid);
         textViewProfileMemberSince = findViewById(R.id.textViewProfileMemberSince);
         textViewProfileTotalLists = findViewById(R.id.textViewProfileTotalLists);
+        textViewProfileTotalMovies = findViewById(R.id.textViewProfileTotalMovies);
+        textViewProfileWatchBreakdown = findViewById(R.id.textViewProfileWatchBreakdown);
+        textViewProfileAverageRating = findViewById(R.id.textViewProfileAverageRating);
+        textViewProfileRatedCount = findViewById(R.id.textViewProfileRatedCount);
         progressBarProfileStats = findViewById(R.id.progressBarProfileStats);
         cardProfilePreferences = findViewById(R.id.cardProfilePreferences);
         cardProfileTheme = findViewById(R.id.cardProfileTheme);
@@ -156,18 +169,86 @@ public class ProfileActivity extends AppCompatActivity {
         progressBarProfileStats.setVisibility(View.VISIBLE);
         firestoreManager.getUserMovieLists(currentUser.getUid(), new FirestoreManager.FirestoreCallback<List<MovieList>>() {
             @Override
-            public void onSuccess(List<MovieList> result) {
-                progressBarProfileStats.setVisibility(View.GONE);
-                int count = (result != null) ? result.size() : 0;
+            public void onSuccess(List<MovieList> lists) {
+                int count = (lists != null) ? lists.size() : 0;
                 textViewProfileTotalLists.setText(count == 1 ? "1 list" : count + " lists");
+
+                if (lists == null || lists.isEmpty()) {
+                    progressBarProfileStats.setVisibility(View.GONE);
+                    applyUserMovieStats(new UserMovieStats(Collections.emptyList()));
+                    return;
+                }
+
+                List<SavedMovie> allMovies = Collections.synchronizedList(new ArrayList<>());
+                AtomicInteger pending = new AtomicInteger(lists.size());
+
+                for (MovieList list : lists) {
+                    firestoreManager.getMoviesInList(currentUser.getUid(), list.getListId(), new FirestoreManager.FirestoreCallback<List<SavedMovie>>() {
+                        @Override
+                        public void onSuccess(List<SavedMovie> movies) {
+                            if (movies != null) {
+                                allMovies.addAll(movies);
+                            }
+                            if (pending.decrementAndGet() == 0) {
+                                runOnUiThread(() -> {
+                                    progressBarProfileStats.setVisibility(View.GONE);
+                                    applyUserMovieStats(new UserMovieStats(allMovies));
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            if (pending.decrementAndGet() == 0) {
+                                runOnUiThread(() -> {
+                                    progressBarProfileStats.setVisibility(View.GONE);
+                                    applyUserMovieStats(new UserMovieStats(allMovies));
+                                });
+                            }
+                        }
+                    });
+                }
             }
 
             @Override
             public void onFailure(String errorMessage) {
                 progressBarProfileStats.setVisibility(View.GONE);
                 textViewProfileTotalLists.setText("0 lists");
+                applyUserMovieStats(new UserMovieStats(Collections.emptyList()));
             }
         });
+    }
+
+    private void applyUserMovieStats(UserMovieStats stats) {
+        if (textViewProfileTotalMovies != null) {
+            int total = stats.getTotalMovies();
+            textViewProfileTotalMovies.setText(total == 1 ? "1 movie" : total + " movies");
+        }
+
+        if (textViewProfileWatchBreakdown != null) {
+            int favs = stats.getFavoritesCount();
+            int watched = stats.getWatchedCount();
+            if (favs > 0 || watched > 0) {
+                textViewProfileWatchBreakdown.setText(String.format(Locale.getDefault(), "★ %d favs • ✓ %d watched", favs, watched));
+                textViewProfileWatchBreakdown.setVisibility(View.VISIBLE);
+            } else {
+                textViewProfileWatchBreakdown.setVisibility(View.GONE);
+            }
+        }
+
+        if (textViewProfileAverageRating != null) {
+            textViewProfileAverageRating.setText(stats.getFormattedAverageRating());
+        }
+
+        if (textViewProfileRatedCount != null) {
+            int rated = stats.getTotalRatedCount();
+            if (rated > 0) {
+                textViewProfileRatedCount.setText(String.format(Locale.getDefault(), "%d rated", rated));
+                textViewProfileRatedCount.setVisibility(View.VISIBLE);
+            } else {
+                textViewProfileRatedCount.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void setupListeners() {
