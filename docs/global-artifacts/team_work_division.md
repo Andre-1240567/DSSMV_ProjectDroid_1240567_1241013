@@ -61,7 +61,8 @@ Em conformidade com as normas de avaliação da unidade curricular e as diretriz
 * **US3 — Adicionar Filmes às Listas e Submeter Avaliações:**
   * Documentação: `docs/Use Cases/US3/US3.md` e SSD.
   * Controllers: Diálogo para seleção de lista de destino e submissão de nota ($[1.0, 5.0]$) e comentário.
-  * Views: Componente visual de estrelas (`RatingBar`) e exibição de média na `MovieDetailActivity`.
+  * Views: Componente visual de estrelas (`RatingBar`), exibição de poster e review no cartão da lista e no diálogo de avaliação.
+  * Backend / REST API: Integração assíncrona do endpoint `POST /3/movie/{id}/rating` (com `@Body` JSON) e `DELETE` do TMDB via Retrofit com gestão de sessão de convidado (`TmdbRatingManager`), satisfazendo o requisito de mutações REST.
 * **US7 — Gestão de Perfil e Terminar Sessão:**
   * Documentação: `docs/Use Cases/US7/US7.md`.
   * Controllers/Views: `ProfileActivity.java` e `activity_profile.xml` com apresentação de metadados da conta e botão de logout seguro (`FirebaseAuth.signOut()`).

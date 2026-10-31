@@ -55,6 +55,15 @@
                     android:alpha="0.8" />
             </LinearLayout>
 
+            <ImageButton
+                android:id="@+id/buttonShareList"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_share"
+                android:contentDescription="@string/btn_share_list"
+                app:tint="@color/surface" />
+
         </LinearLayout>
 
         <!-- US9: Search and Sort Control Bar -->

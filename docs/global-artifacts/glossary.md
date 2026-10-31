@@ -15,7 +15,8 @@ Este glossário estabelece a terminologia oficial e os conceitos concetuais e t�
 | **Rating** | Avaliação / Crítica | Classificação quantitativa de um filme com nota estritamente compreendida entre 1.0 e 5.0 estrelas e comentário qualitativo textual opcional. |
 | **WatchProvider** | Fornecedor de Streaming | Plataforma digital licenciada de distribuição de streaming disponível na região portuguesa (ex.: Netflix, HBO Max, Disney+), obtida via TMDB API. |
 | **Cinema** | Sala de Cinema / POI | Ponto de interesse geográfico nas imediações do utilizador, caracterizado por latitude, longitude, endereço e distância linear, obtido via Foursquare API. |
-| **UserPreferences** | Preferências do Utilizador | Conjunto de definições leves locais (raio de pesquisa de cinemas em km e região padrão de streaming) persistidas em `SharedPreferences`. |
+| **UserPreferences** | Preferências do Utilizador | Conjunto de definições leves locais (raio de pesquisa de cinemas em km, país padrão, nota mínima, ano mínimo de lançamento, fornecedores selecionados e limiar do acelerómetro) persistidas em `SharedPreferences`. |
+| **SavedMovieSortOption** | Critério de Ordenação | Enumeração que define a estratégia de ordenação da coleção local: `TITLE_ASC`, `TITLE_DESC`, `RATING_DESC`, `RATING_ASC`, `YEAR_DESC`, `YEAR_ASC`, `DATE_ADDED_DESC`. |
 
 ---
 

@@ -168,6 +168,10 @@
     <string name="label_uid">Firebase UID</string>
     <string name="label_member_since">Member Since</string>
     <string name="label_total_lists">Movie Lists Created</string>
+    <string name="label_total_movies">Total Movies Saved</string>
+    <string name="label_average_rating">Average Rating</string>
+    <string name="label_favorites_stat">Favorites</string>
+    <string name="label_watched_stat">Watched</string>
     <string name="dialog_title_logout">Log Out</string>
     <string name="dialog_message_logout">Are you sure you want to log out of CineTrack?</string>
 
@@ -193,4 +197,36 @@
     <string name="sort_year_asc">Oldest Year</string>
     <string name="empty_filtered_movies">No movies match the selected filter.</string>
     <string name="hint_search_list">Search in this list…</string>
+
+    <!-- Movie Sharing (US11) -->
+    <string name="btn_share_movie">Share Movie</string>
+    <string name="share_movie_chooser_title">Share Movie via</string>
+    <string name="btn_share_list">Share List</string>
+    <string name="share_list_chooser_title">Share Movie List via</string>
+    <string name="warning_share_list_empty">This list has no movies to share yet.</string>
+
+    <!-- Theme Selection (Light / Dark / Device System) -->
+    <string name="label_theme_mode">App Theme</string>
+    <string name="theme_system">Device Theme (System Default)</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="dialog_title_choose_theme">Choose App Theme</string>
+
+    <!-- Network Connectivity & Offline Mode -->
+    <string name="warning_offline_mode">No internet connection. Displaying cached data.</string>
+    <string name="info_connection_restored">Internet connection restored.</string>
+    <string name="warning_search_offline">Cannot search movies without an internet connection.</string>
+    <string name="dismiss">Dismiss</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_name">CineTrack Recommendations</string>
+    <string name="notification_channel_description">Movie suggestions and reminders from CineTrack</string>
+    <string name="notification_recommendation_title">🎬 CineTrack • Movie of the Day</string>
+    <string name="notification_recommendation_body">How about watching \"%1$s\" tonight? Tap to see details!</string>
+    <string name="notification_watchlist_title">🎬 CineTrack • Watchlist Updated</string>
+    <string name="notification_watchlist_body">\"%1$s\" was added to \"%2$s\". Don\'t forget to watch it!</string>
+    <string name="card_notifications_title">Movie Notifications</string>
+    <string name="card_notifications_subtitle">Tap to receive a cinema recommendation</string>
+    <string name="toast_notification_sent">Notification sent! Check your notification drawer.</string>
+    <string name="toast_notification_permission_needed">Please enable notification permissions in device settings.</string>
 </resources>

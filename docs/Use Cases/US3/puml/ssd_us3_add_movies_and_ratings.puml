@@ -8,6 +8,7 @@ skinparam defaultFontSize 12
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":Cloud Firestore" as Firestore
+participant ":TMDB REST API" as TMDB
 
 autonumber
 
@@ -72,6 +73,13 @@ else [Valid rating]
         Firestore --> System : successCallback()
         System -> System : updateMovieInAdapterAndRefresh()
         System --> User : showSuccessToast("Rating submitted successfully")
+        
+        opt [movie linked to TMDB (tmdbId > 0)]
+            System -> TMDB : postMovieRating(tmdbId, guestSessionId, {"value": score * 2.0})
+            activate TMDB
+            TMDB --> System : 201 Created (success: true)
+            deactivate TMDB
+        end
     else [Failure]
         Firestore --> System : failureCallback(exception)
         System --> User : showErrorMessage("Failed to submit rating")
@@ -94,6 +102,13 @@ alt [Success]
     Firestore --> System : successCallback()
     System -> System : removeMovieFromAdapterAndRefresh()
     System --> User : showSuccessToast("Movie removed from list")
+    
+    opt [movie was rated and has tmdbId > 0]
+        System -> TMDB : deleteMovieRating(tmdbId, guestSessionId)
+        activate TMDB
+        TMDB --> System : 200 OK (success: true)
+        deactivate TMDB
+    end
 else [Failure]
     Firestore --> System : failureCallback(exception)
     System --> User : showErrorMessage("Failed to delete movie")

@@ -41,31 +41,50 @@ RegisterActivity --> MainActivity : [Registration Success] (Clear Task Stack)
 
 state MainActivity {
     [*] --> ViewDashboard
-    ViewDashboard --> MovieListDetail : Select custom list
-    ViewDashboard --> SearchMovies : Enter search keyword
+    ViewDashboard --> CreateList : Tap FAB "Create List"
     ViewDashboard --> ShakeSuggestion : Physical shake (Accelerometer)
 }
 
-MainActivity --> MovieDetailActivity : Select movie (Explicit Intent)
-MainActivity --> CinemaMapActivity : Click "Nearby Cinemas" (Explicit Intent)
+MainActivity --> MovieSearchActivity : Tap Search (Explicit Intent)
+MainActivity --> ListDetailsActivity : Select custom list (Explicit Intent)
+MainActivity --> CinemasActivity : Click "Nearby Cinemas" (Explicit Intent)
 MainActivity --> ProfileActivity : Click "Profile" icon (Explicit Intent)
+
+state MovieSearchActivity {
+    [*] --> DisplaySearchBar
+    DisplaySearchBar --> QueryTmdb : Enter query (Debounce 400ms)
+    QueryTmdb --> DisplaySearchResults : Results loaded
+}
+
+MovieSearchActivity --> MovieDetailActivity : Select movie (Explicit Intent)
+
+state ListDetailsActivity {
+    [*] --> LoadSavedMovies
+    LoadSavedMovies --> DisplaySavedMovies : Firestore loaded
+    DisplaySavedMovies --> FilterAndSort : Apply WatchStatus / Sort
+    DisplaySavedMovies --> QuickRateMovie : Submit Rating (1.0 - 5.0)
+    DisplaySavedMovies --> DeleteMovie : Remove from list
+}
+
+ListDetailsActivity --> MovieSearchActivity : Tap "Add Movie" (Explicit Intent)
+ListDetailsActivity --> MovieDetailActivity : Tap movie item (Explicit Intent)
 
 state MovieDetailActivity {
     [*] --> DisplayDetails
-    DisplayDetails --> AddToList : "Add to List"
-    DisplayDetails --> SubmitRating : "Rate Movie" (1.0 - 5.0 stars)
+    DisplayDetails --> AddToList : "Add to List" (Firestore)
+    DisplayDetails --> SubmitRating : "Rate Movie" (Firestore & TMDB REST)
 }
 
-state CinemaMapActivity {
+state CinemasActivity {
     [*] --> CheckLocationPermission
     CheckLocationPermission --> RequestGPS : Permission granted
     RequestGPS --> FetchFoursquareCinemas : Coords acquired
-    FetchFoursquareCinemas --> DisplayMapPins : Cinemas loaded
+    FetchFoursquareCinemas --> DisplayCinemaList : Display RecyclerView / Open Map
 }
 
 state ProfileActivity {
     [*] --> DisplayProfile
-    DisplayProfile --> SavePreferences : Update radius/country (SharedPreferences .apply())
+    DisplayProfile --> SavePreferences : Update preferences (SharedPreferences .apply())
 }
 
 ProfileActivity --> LoginActivity : "Logout" (FirebaseAuth.signOut(), Clear Task Stack)
@@ -79,6 +98,6 @@ state "External Apps (Implicit Intents)" as ExternalApps {
 
 MovieDetailActivity --> YouTubeApp : "Watch Trailer"
 MovieDetailActivity --> SocialShare : "Share Movie"
-CinemaMapActivity --> GoogleMaps : Click marker "Directions"
+CinemasActivity --> GoogleMaps : Click cinema "Open Map / Directions"
 
 @enduml

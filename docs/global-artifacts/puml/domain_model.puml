@@ -74,6 +74,10 @@ package "CineTrack Domain" <<Rectangle>> {
     class UserPreferences {
         - cinemaRadiusKm : Integer
         - defaultRegion : String
+        - minRating : Float
+        - minReleaseYear : Integer
+        - streamingProviders : Set<String>
+        - shakeThreshold : Float
     }
 
 }

@@ -15,6 +15,7 @@ Como um utilizador autenticado no CineTrack, pretendo aceder aos detalhes de uma
 * **AC05 — Avaliação e Classificação Numérica (Rate):** Cada filme guardado dispõe de uma opção para submeter ou atualizar a avaliação. O diálogo apresenta um componente visual `RatingBar` ($[1.0, 5.0]$ estrelas com incrementos de $0.5$) e um campo de texto para comentário, gravando a avaliação na base de dados e recalculando a média ou nota atribuída.
 * **AC06 — Remoção de Filme (Delete):** Cada item permite a remoção do filme da lista mediante confirmação prévia num diálogo de alerta, eliminando o respetivo documento no Firestore e atualizando o `RecyclerView`.
 * **AC07 — UI Thread Desimpedida:** Todas as operações de leitura, escrita e remoção no Cloud Firestore são estritamente assíncronas através de *listeners*, mantendo a interface reativa e fluida.
+* **AC08 — Mutações REST com Retrofit (HTTP POST e DELETE):** Sempre que uma avaliação é registada num filme associado ao TMDB (`tmdbId > 0`), o `TmdbRatingManager` submete um pedido HTTP `POST /3/movie/{movie_id}/rating` com o corpo JSON `{"value": score * 2.0}` (`@Body` serializado por Gson) via Retrofit assíncrono, utilizando uma sessão de convidado gerida automaticamente. Caso um filme avaliado seja removido, é acionado o respetivo HTTP `DELETE`.
 
 ---
 
@@ -69,4 +70,5 @@ Ficheiro PlantUML fonte: [`puml/ssd_us3_add_movies_and_ratings.puml`](puml/ssd_u
 * **View:** `res/layout/activity_list_details.xml`, `res/layout/item_saved_movie.xml`, `res/layout/dialog_add_movie.xml` e `res/layout/dialog_rate_movie.xml` com dimensões rigorosamente em `dp` e tipografia em `sp`.
 * **Adapter:** `SavedMovieAdapter.java` no pacote `pt.isep.dssmv.projectdroid.adapters`.
 * **Backend / BaaS:** `FirestoreManager.java` no pacote `pt.isep.dssmv.projectdroid.firebase`.
+* **REST Network (Mutações):** `TmdbRatingManager.java` e `TmdbApiService.java` (`POST` e `DELETE`) no pacote `pt.isep.dssmv.projectdroid.network`.
 * **Controller:** `ListDetailsActivity.java` no pacote `pt.isep.dssmv.projectdroid.controllers`.

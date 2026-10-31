@@ -1,0 +1,56 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":System\n(Activity)" as System
+participant ":Domain\n(MovieShareFormatter)" as Formatter
+participant ":Android OS\n(Intent Chooser)" as AndroidOS
+participant ":External App\n(WhatsApp / SMS / etc.)" as ExternalApp
+
+autonumber
+
+== Scenario 1: Share Movie from Detail View ==
+
+User -> System : tapShareButton()
+activate System
+
+System -> Formatter : format(title, year, overview, tmdbId)
+activate Formatter
+Formatter --> System : formattedShareText
+deactivate Formatter
+
+System -> System : createIntent(ACTION_SEND, "text/plain", formattedShareText)
+System -> AndroidOS : startActivity(Intent.createChooser(sendIntent, title))
+activate AndroidOS
+AndroidOS --> User : displayAppChooserDialog()
+
+User -> AndroidOS : selectExternalApp(appChoice)
+AndroidOS -> ExternalApp : launchWithExtraText(formattedShareText)
+activate ExternalApp
+ExternalApp --> User : openShareDraft(formattedShareText)
+deactivate ExternalApp
+deactivate AndroidOS
+deactivate System
+
+== Scenario 2: Share Saved Movie from List ==
+
+User -> System : tapShareMovieInList(movie)
+activate System
+
+System -> Formatter : format(savedMovieWithRating)
+activate Formatter
+Formatter --> System : formattedShareTextWithReview
+deactivate Formatter
+
+System -> System : createIntent(ACTION_SEND, "text/plain", formattedShareTextWithReview)
+System -> AndroidOS : startActivity(Intent.createChooser(sendIntent, title))
+activate AndroidOS
+AndroidOS --> User : displayAppChooserDialog()
+deactivate AndroidOS
+deactivate System
+
+@enduml
