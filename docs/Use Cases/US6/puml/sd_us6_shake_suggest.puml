@@ -1,0 +1,110 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MainActivity" as Activity
+participant ":SensorManager" as SensorMgr
+participant ":ShakeDetector" as ShakeDet
+participant ":Vibrator" as Vibrator
+participant ":SharedPrefManager" as PrefMgr
+participant "domain:\nUserPreferences" as DomainPrefs
+participant ":RetrofitClient" as Retrofit
+participant ":TmdbApiService" as TmdbApi
+participant ":Call<TmdbSearchResponse>" as CallDiscover
+participant ":AlertDialog" as Dialog
+participant ":MovieDetailActivity" as DetailActivity
+
+autonumber
+
+== Lifecycle: Sensor Registration in onResume() ==
+
+User -> Activity : bringActivityToForeground()
+activate Activity
+
+Activity -> Activity : onResume()
+Activity -> SensorMgr : registerListener(shakeDetector, accelerometer, SENSOR_DELAY_UI)
+activate SensorMgr
+SensorMgr --> Activity : true
+deactivate SensorMgr
+
+== Scenario 1: Device Shake Detection & Haptic Feedback ==
+
+User -> Activity : shakeDeviceBrusquely()
+SensorMgr -> ShakeDet : onSensorChanged(sensorEvent)
+activate ShakeDet
+
+ShakeDet -> ShakeDet : calculateAccelerationVector(gX, gY, gZ)
+alt [vectorG > shakeThresholdG && multiPeakConditionMet]
+    ShakeDet -> Activity : handleDeviceShake()
+    activate Activity
+    
+    Activity -> Vibrator : vibrate(VibrationEffect.createOneShot(100ms))
+    activate Vibrator
+    Vibrator --> User : hapticFeedbackPulse()
+    deactivate Vibrator
+    
+    Activity -> Activity : triggerShakeSuggestion()
+end
+deactivate ShakeDet
+
+== Scenario 2: Fetch Movie Recommendation & Present Dialog ==
+
+Activity -> PrefMgr : getUserPreferences()
+activate PrefMgr
+PrefMgr -> DomainPrefs : getMinRating(), getMinReleaseYear(), getFormattedWatchProviders()
+activate DomainPrefs
+DomainPrefs --> Activity : filterCriteria (e.g., rating>=7.0, year>=2020, Netflix)
+deactivate DomainPrefs
+deactivate PrefMgr
+
+Activity -> Retrofit : getInstance().getTmdbApiService()
+activate Retrofit
+Retrofit --> Activity : tmdbApiService
+deactivate Retrofit
+
+Activity -> TmdbApi : discoverMovies(language, "vote_average.desc", 300, minRating, minDate, region, providers, page)
+activate TmdbApi
+TmdbApi --> Activity : callDiscover
+deactivate TmdbApi
+
+Activity -> CallDiscover : enqueue(Callback<TmdbSearchResponse>)
+activate CallDiscover
+
+CallDiscover --> Activity : onResponse(call, response)
+deactivate CallDiscover
+
+Activity -> Activity : pickRandomUnseenMovie(response.body().getResults())
+
+Activity -> Dialog : showShakeDialog(suggestedMovie)
+activate Dialog
+Dialog --> User : displayMovieSuggestionModal(title, poster, rating, overview)
+
+alt [User Taps "View Details"]
+    User -> Dialog : clickPositiveButton(R.string.btn_shake_details)
+    Dialog -> Activity : openMovieDetail(suggestedMovie)
+    deactivate Dialog
+    Activity -> DetailActivity : startActivity(intentWithMovieData)
+    activate DetailActivity
+    DetailActivity --> User : renderMovieDetails()
+    deactivate DetailActivity
+else [User Taps "Shake Again"]
+    User -> Dialog : clickNegativeButton(R.string.btn_shake_again)
+    Dialog -> Activity : triggerShakeSuggestion()
+end
+
+== Lifecycle: Battery Preservation in onPause() ==
+
+User -> Activity : leaveActivityOrTurnScreenOff()
+Activity -> Activity : onPause()
+Activity -> SensorMgr : unregisterListener(shakeDetector)
+activate SensorMgr
+SensorMgr --> Activity : void
+deactivate SensorMgr
+Activity -> Dialog : dismiss() if showing
+deactivate Activity
+
+@enduml

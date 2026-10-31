@@ -46,11 +46,17 @@ Como um utilizador autenticado no CineTrack, pretendo criar, visualizar e elimin
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
+## 6. Diagramas de Sequência
 
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us2_manage_lists.puml`](puml/ssd_us2_manage_lists.puml)
 
 ![Diagrama de Sequência de Sistema - US2](svg/ssd_us2_manage_lists.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us2_manage_lists.puml`](puml/sd_us2_manage_lists.puml)
+
+![Diagrama de Sequência de Realização - US2](svg/sd_us2_manage_lists.svg)
 
 ---
 

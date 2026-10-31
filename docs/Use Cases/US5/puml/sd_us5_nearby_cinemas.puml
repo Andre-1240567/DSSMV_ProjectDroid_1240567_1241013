@@ -1,0 +1,126 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":CinemasActivity" as Activity
+participant ":LocationHelper" as LocHelper
+participant ":SharedPrefManager" as PrefMgr
+participant ":MapView\n(OSMDroid)" as MapView
+participant ":Polygon" as CircleOverlay
+participant ":Marker" as PinMarker
+participant ":RetrofitClient" as Retrofit
+participant ":FoursquareApiService" as FsqApi
+participant ":Call<FsqPlacesResponse>" as CallFsq
+participant "domain:\nCinema" as DomainCinema
+participant ":CinemaAdapter" as Adapter
+participant ":Intent" as ImplicitIntent
+
+autonumber
+
+== Scenario 1: Permissions, Map Setup & Foursquare Query ==
+
+User -> Activity : openNearbyCinemas()
+activate Activity
+
+Activity -> Activity : checkPermissionsAndLoadCinemas()
+alt [Location Permission Missing]
+    Activity -> Activity : ActivityCompat.requestPermissions(ACCESS_FINE_LOCATION)
+    User --> Activity : onRequestPermissionsResult(GRANTED)
+end
+
+Activity -> PrefMgr : getCinemaRadiusKm()
+activate PrefMgr
+PrefMgr --> Activity : radiusKm (e.g., 15)
+deactivate PrefMgr
+
+Activity -> LocHelper : getCurrentLocation(context, callback)
+activate LocHelper
+LocHelper --> Activity : onLocationResult(lat, lon)
+deactivate LocHelper
+
+Activity -> Activity : centerMapAndDrawRadius(userPoint, radiusKm)
+activate Activity
+Activity -> MapView : getController().setZoom(adaptiveZoom)
+Activity -> MapView : getController().setCenter(userPoint)
+
+Activity -> CircleOverlay : new Polygon(mapView)
+Activity -> CircleOverlay : setPoints(Polygon.pointsAsCircle(userPoint, radiusMeters))
+Activity -> CircleOverlay : setFillColor(0x262196F3) & setStrokeColor(0xFF2196F3)
+Activity -> MapView : getOverlays().add(circle)
+
+Activity -> PinMarker : new Marker(mapView)
+Activity -> PinMarker : setPosition(userPoint) & setIcon(ic_my_location)
+Activity -> MapView : getOverlays().add(userMarker)
+deactivate Activity
+
+Activity -> Retrofit : getInstance().getFoursquareApiService()
+activate Retrofit
+Retrofit --> Activity : foursquareApiService
+deactivate Retrofit
+
+Activity -> FsqApi : searchNearbyCinemas(latLng, "cinema", "10024", radiusMeters, "DISTANCE", 20)
+activate FsqApi
+FsqApi --> Activity : call
+deactivate FsqApi
+
+Activity -> CallFsq : enqueue(Callback<FsqPlacesResponse>)
+activate CallFsq
+
+CallFsq --> Activity : onResponse(call, response)
+deactivate CallFsq
+
+Activity -> Activity : mapToDomainCinemas(response.body().getResults())
+loop each FsqPlaceDto
+    Activity -> DomainCinema : new Cinema(fsqId, name, lat, lon)
+    activate DomainCinema
+    DomainCinema -> DomainCinema : setAddress(formattedAddress)
+    DomainCinema -> DomainCinema : setDistanceMeters(distance)
+    DomainCinema --> Activity : cinema
+    deactivate DomainCinema
+end
+
+Activity -> Activity : plotCinemaMarkersOnMap(domainCinemas)
+loop each cinema
+    Activity -> PinMarker : new Marker(mapView)
+    Activity -> PinMarker : setPosition(cinemaGeoPoint) & setIcon(ic_cinema_pin)
+    Activity -> PinMarker : setTitle(name) & setSnippet(distance + address)
+    Activity -> MapView : getOverlays().add(marker)
+end
+
+Activity -> Adapter : setCinemas(domainCinemas)
+activate Adapter
+Adapter --> Activity : notifyDataSetChanged()
+deactivate Adapter
+
+Activity --> User : displaySplitView(interactiveMap + cinemaList)
+
+== Scenario 2: Synchronized List Selection & Navigation Intent ==
+
+User -> Adapter : clickCinemaItem(cinema)
+activate Adapter
+Adapter -> Activity : onCinemaSelectedFromList(cinema)
+deactivate Adapter
+
+Activity -> MapView : getController().animateTo(cinemaMarker.getPosition())
+Activity -> PinMarker : showInfoWindow()
+PinMarker --> User : displayPopupBubble(name, distance, address)
+
+User -> Adapter : clickDirections(cinema)
+activate Adapter
+Adapter -> Activity : openCinemaNavigation(cinema)
+deactivate Adapter
+
+Activity -> ImplicitIntent : new Intent(ACTION_VIEW, "geo:lat,lon?q=CinemaName")
+activate ImplicitIntent
+ImplicitIntent --> Activity : mapIntent
+deactivate ImplicitIntent
+
+Activity -> Activity : startActivity(mapIntent)
+Activity --> User : launchGoogleMapsNavigation(directionsRoute)
+deactivate Activity
+
+@enduml

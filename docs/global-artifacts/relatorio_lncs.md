@@ -78,10 +78,16 @@ Mapeamento dos ecrãs da aplicação, transições de estado e disparo de Intent
 
 ![UI Flow Diagram](svg/ui_flow.svg)
 
-### 3.5. Diagrama de Sequência de Sistema (SSD — US1)
-Demonstração da interação do utilizador durante o fluxo de autenticação e comunicação assíncrona com o Firebase Auth:
+### 3.5. Diagramas de Sequência (Análise e Realização Técnica)
+A modelação temporal e comportamental foi decomposta em dois níveis complementares:
+1. **Diagramas de Sequência de Sistema (SSD):** Perspetiva de caixa negra (*Black-box*) especificando os eventos do ator e as respostas do sistema em cada caso de uso.
+2. **Diagramas de Sequência de Realização (SD):** Perspetiva de caixa branca (*White-box*) detalhando as interações entre as camadas do padrão MVC, chamadas assíncronas via Retrofit/Firestore, mapeamentos para entidades de domínio em Java 21 e disparo de Intents explícitos/implícitos.
 
-![SSD US1](../Use%20Cases/US1/svg/ssd_us1_auth.svg)
+A título demonstrativo, o diagrama seguinte ilustra a realização técnica do caso de uso **US5 (Mapeamento Geoespacial de Cinemas com GPS, Foursquare e OSMDroid)**:
+
+![SD US5](../Use%20Cases/US5/svg/sd_us5_nearby_cinemas.svg)
+
+*(Os diagramas SSD e SD de todos os casos de uso encontram-se disponíveis nas respetivas pastas em [`../Use Cases/`](../Use%20Cases/) e a terminologia técnica em [`glossary.md`](glossary.md)).*
 
 ---
 

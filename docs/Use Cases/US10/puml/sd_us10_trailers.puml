@@ -1,0 +1,85 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MovieDetailActivity" as Activity
+participant ":RetrofitClient" as Retrofit
+participant ":TmdbApiService" as TmdbApi
+participant ":Call<TmdbVideosResponse>" as CallVideos
+participant "response:\nTmdbVideosResponse" as ResponseBody
+participant ":Intent\n(App Intent)" as AppIntent
+participant ":Intent\n(Web Fallback)" as WebIntent
+participant ":External App\n(YouTube / Browser)" as TargetApp
+
+autonumber
+
+== Scenario: Fetch Video Metadata & Launch Video Player ==
+
+User -> Activity : clickWatchTrailerButton()
+activate Activity
+
+Activity -> Activity : setButtonEnabled(false)
+
+Activity -> Retrofit : getInstance().getTmdbApiService()
+activate Retrofit
+Retrofit --> Activity : tmdbApiService
+deactivate Retrofit
+
+Activity -> TmdbApi : getMovieVideos(tmdbId)
+activate TmdbApi
+TmdbApi --> Activity : callVideos
+deactivate TmdbApi
+
+Activity -> CallVideos : enqueue(Callback<TmdbVideosResponse>)
+activate CallVideos
+
+note over CallVideos: Asynchronous HTTP GET /movie/{id}/videos
+CallVideos --> Activity : onResponse(call, response)
+deactivate CallVideos
+
+Activity -> Activity : setButtonEnabled(true)
+
+alt [Response Successful && body != null]
+    Activity -> ResponseBody : findOfficialYouTubeTrailerKey()
+    activate ResponseBody
+    note over ResponseBody: Filters site="YouTube" & type="Trailer" & official=true
+    ResponseBody --> Activity : videoKey (e.g. "YoHD9XEInc0")
+    deactivate ResponseBody
+    
+    Activity -> Activity : openYouTubeVideo(videoKey)
+    activate Activity
+    
+    Activity -> AppIntent : new Intent(ACTION_VIEW, "vnd.youtube:YoHD9XEInc0")
+    activate AppIntent
+    AppIntent --> Activity : appIntent
+    deactivate AppIntent
+    
+    alt [YouTube Native App Installed]
+        Activity -> Activity : startActivity(appIntent)
+        Activity -> TargetApp : resolveActivity() & startNativePlayback()
+        activate TargetApp
+        TargetApp --> User : renderNativeYouTubePlayer()
+        deactivate TargetApp
+    else [ActivityNotFoundException (No YouTube App)]
+        Activity -> WebIntent : new Intent(ACTION_VIEW, "https://www.youtube.com/watch?v=YoHD9XEInc0")
+        activate WebIntent
+        WebIntent --> Activity : webIntent
+        deactivate WebIntent
+        Activity -> Activity : startActivity(webIntent)
+        Activity -> TargetApp : openWebBrowser()
+        activate TargetApp
+        TargetApp --> User : renderBrowserPlayback()
+        deactivate TargetApp
+    end
+    deactivate Activity
+else [No Trailer Available / Error]
+    Activity --> User : showToast(R.string.error_no_trailer)
+end
+
+deactivate Activity
+
+@enduml

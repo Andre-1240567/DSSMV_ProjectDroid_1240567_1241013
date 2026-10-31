@@ -1,0 +1,75 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MainActivity" as Activity
+participant ":FirestoreManager" as FirestoreMgr
+participant "domain:\nMovieList" as DomainList
+participant ":FirebaseFirestore" as Firestore
+participant ":MovieListAdapter" as Adapter
+
+autonumber
+
+== Scenario 1: Realtime Synchronization of User Lists ==
+
+User -> Activity : navigateToMyListsTab()
+activate Activity
+
+Activity -> FirestoreMgr : attachMovieListsListener(userId, callback)
+activate FirestoreMgr
+
+FirestoreMgr -> Firestore : collection("users").document(userId).collection("lists").addSnapshotListener()
+activate Firestore
+Firestore --> FirestoreMgr : onEvent(snapshots, error)
+deactivate Firestore
+
+loop each DocumentSnapshot
+    FirestoreMgr -> DomainList : new MovieList(id, name, createdAt)
+    activate DomainList
+    DomainList --> FirestoreMgr : movieList
+    deactivate DomainList
+end
+
+FirestoreMgr --> Activity : onSuccess(movieLists)
+deactivate FirestoreMgr
+
+Activity -> Adapter : setMovieLists(movieLists)
+activate Adapter
+Adapter --> Activity : notifyDataSetChanged()
+deactivate Adapter
+
+Activity --> User : displayMovieLists(count, cards)
+
+== Scenario 2: Create New Movie List ==
+
+User -> Activity : clickAddListButton()
+Activity --> User : showCreateListDialog()
+
+User -> Activity : enterListName("Sci-Fi Classics") & clickCreate()
+
+Activity -> DomainList : new MovieList(UUID.randomUUID(), "Sci-Fi Classics")
+activate DomainList
+DomainList --> Activity : newList
+deactivate DomainList
+
+Activity -> FirestoreMgr : createMovieList(userId, newList, callback)
+activate FirestoreMgr
+
+FirestoreMgr -> Firestore : collection("users").document(userId).collection("lists").document(id).set(data)
+activate Firestore
+Firestore --> FirestoreMgr : onSuccess()
+deactivate Firestore
+
+FirestoreMgr --> Activity : onSuccess(null)
+deactivate FirestoreMgr
+
+note over Activity, Firestore: Realtime Snapshot Listener automatically\ntriggers onEvent() to update UI smoothly
+
+Activity --> User : showToast(R.string.list_created_success)
+deactivate Activity
+
+@enduml

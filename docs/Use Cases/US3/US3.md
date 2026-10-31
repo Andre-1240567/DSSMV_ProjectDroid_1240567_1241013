@@ -56,11 +56,17 @@ Como um utilizador autenticado no CineTrack, pretendo aceder aos detalhes de uma
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
+## 6. Diagramas de Sequência
 
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us3_add_movies_and_ratings.puml`](puml/ssd_us3_add_movies_and_ratings.puml)
 
 ![Diagrama de Sequência de Sistema - US3](svg/ssd_us3_add_movies_and_ratings.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us3_add_movies_and_ratings.puml`](puml/sd_us3_add_movies_and_ratings.puml)
+
+![Diagrama de Sequência de Realização - US3](svg/sd_us3_add_movies_and_ratings.svg)
 
 ---
 

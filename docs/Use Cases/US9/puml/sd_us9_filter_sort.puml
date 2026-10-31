@@ -1,0 +1,46 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":ListDetailsActivity" as Activity
+participant "domain:\nSavedMovieFilterSorter" as FilterSorter
+participant "domain:\nSavedMovieSortOption" as SortOption
+participant ":SavedMovieAdapter" as Adapter
+
+autonumber
+
+== Scenario: Filter by Status & Sort by Rating ==
+
+User -> Activity : selectStatusFilter(WatchStatus.WATCHED)
+activate Activity
+
+Activity -> Activity : applyFilterAndSort()
+
+User -> Activity : selectSortOption(RATING_DESC)
+
+Activity -> FilterSorter : filterAndSort(allMovies, WatchStatus.WATCHED, "Inter", RATING_DESC)
+activate FilterSorter
+
+FilterSorter -> FilterSorter : filterByStatus(allMovies, WATCHED)
+FilterSorter -> FilterSorter : filterBySearchQuery(statusFiltered, "Inter")
+FilterSorter -> FilterSorter : getComparator(RATING_DESC)
+
+note over FilterSorter: Uses pure Java 21 Comparator:\nComparator.comparingDouble(rating).reversed()\n.thenComparing(COMPARATOR_TITLE_ASC)
+
+FilterSorter -> FilterSorter : filteredList.sort(comparator)
+FilterSorter --> Activity : sortedFilteredMovies
+deactivate FilterSorter
+
+Activity -> Adapter : setMovies(sortedFilteredMovies)
+activate Adapter
+Adapter --> Activity : notifyDataSetChanged()
+deactivate Adapter
+
+Activity --> User : renderFilteredList(matchedMoviesCount, orderedCards)
+deactivate Activity
+
+@enduml

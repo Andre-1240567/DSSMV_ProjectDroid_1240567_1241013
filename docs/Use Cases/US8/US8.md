@@ -47,11 +47,17 @@ Como um utilizador do CineTrack, pretendo configurar e persistir localmente as m
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
+## 6. Diagramas de Sequência
 
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us8_preferences.puml`](puml/ssd_us8_preferences.puml)
 
 ![Diagrama de Sequência de Sistema - US8](svg/ssd_us8_preferences.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us8_preferences.puml`](puml/sd_us8_preferences.puml)
+
+![Diagrama de Sequência de Realização - US8](svg/sd_us8_preferences.svg)
 
 ---
 

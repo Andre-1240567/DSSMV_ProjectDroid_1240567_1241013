@@ -1,0 +1,68 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MovieDetailActivity" as Activity
+participant "domain:\nSavedMovie" as DomainMovie
+participant "domain:\nRating" as DomainRating
+participant ":FirestoreManager" as FirestoreMgr
+participant ":FirebaseFirestore" as Firestore
+participant ":TmdbRatingManager" as TmdbRatingMgr
+
+autonumber
+
+== Scenario: Add Movie to List with Custom Rating ==
+
+User -> Activity : clickAddMovieToListButton()
+activate Activity
+
+Activity -> FirestoreMgr : getUserMovieLists(userId, callback)
+activate FirestoreMgr
+FirestoreMgr --> Activity : onSuccess(userLists)
+deactivate FirestoreMgr
+
+Activity --> User : showAddMovieToListDialog(userLists)
+
+User -> Activity : selectList("Favorites"), status=WATCHED, score=4.5, comment="Masterpiece!" & clickAdd()
+
+Activity -> DomainMovie : new SavedMovie(UUID, tmdbId, title, year, poster)
+activate DomainMovie
+DomainMovie -> DomainMovie : setStatus(WatchStatus.WATCHED)
+
+Activity -> DomainRating : new Rating(UUID, 4.5f, "Masterpiece!")
+activate DomainRating
+note over DomainRating: Validates score in [1.0, 5.0]\nThrows InvalidRatingException if out of bounds
+DomainRating --> Activity : rating
+deactivate DomainRating
+
+DomainMovie -> DomainMovie : setRating(rating)
+DomainMovie --> Activity : savedMovie
+deactivate DomainMovie
+
+Activity -> FirestoreMgr : addMovieToList(userId, listId, savedMovie, callback)
+activate FirestoreMgr
+
+FirestoreMgr -> Firestore : collection("users").document(userId)\n.collection("lists").document(listId)\n.collection("movies").document(internalId).set(data)
+activate Firestore
+Firestore --> FirestoreMgr : onSuccess()
+deactivate Firestore
+
+FirestoreMgr --> Activity : onSuccess(null)
+deactivate FirestoreMgr
+
+opt [User entered a rating score > 0]
+    Activity -> TmdbRatingMgr : getInstance().postRating(tmdbId, 4.5f, callback)
+    activate TmdbRatingMgr
+    note over TmdbRatingMgr: Synchronizes rating with TMDB API via Guest Session
+    TmdbRatingMgr --> Activity : onRatingSuccess()
+    deactivate TmdbRatingMgr
+end
+
+Activity --> User : showToast(R.string.movie_added_success)
+deactivate Activity
+
+@enduml

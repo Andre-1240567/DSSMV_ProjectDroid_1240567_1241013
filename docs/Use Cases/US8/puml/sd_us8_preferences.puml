@@ -1,0 +1,91 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MainActivity" as Activity
+participant ":SharedPrefManager" as PrefMgr
+participant "domain:\nUserPreferences" as DomainPrefs
+participant ":SharedPreferences" as SharedPreferences
+participant ":SharedPreferences.Editor" as PrefEditor
+participant ":ShakeDetector" as ShakeDet
+
+autonumber
+
+== Scenario 1: Load Existing Preferences into Dialog ==
+
+User -> Activity : clickPreferencesButton()
+activate Activity
+
+Activity -> PrefMgr : getUserPreferences()
+activate PrefMgr
+
+PrefMgr -> SharedPreferences : getInt(KEY_CINEMA_RADIUS_KM, 15)
+activate SharedPreferences
+SharedPreferences --> PrefMgr : radiusKm
+PrefMgr -> SharedPreferences : getString(KEY_DEFAULT_REGION, "PT")
+SharedPreferences --> PrefMgr : defaultRegion
+PrefMgr -> SharedPreferences : getFloat(KEY_MIN_RATING, 0.0f)
+SharedPreferences --> PrefMgr : minRating
+PrefMgr -> SharedPreferences : getInt(KEY_MIN_RELEASE_YEAR, 0)
+SharedPreferences --> PrefMgr : minYear
+PrefMgr -> SharedPreferences : getStringSet(KEY_STREAMING_PROVIDERS, emptySet)
+SharedPreferences --> PrefMgr : streamingProviders
+PrefMgr -> SharedPreferences : getFloat(KEY_SHAKE_THRESHOLD, 3.2f)
+SharedPreferences --> PrefMgr : shakeThreshold
+deactivate SharedPreferences
+
+PrefMgr -> DomainPrefs : new UserPreferences(radius, region, minRating, minYear, providers, threshold)
+activate DomainPrefs
+DomainPrefs --> PrefMgr : userPreferences
+deactivate DomainPrefs
+
+PrefMgr --> Activity : currentPrefs
+deactivate PrefMgr
+
+Activity --> User : displayPreferencesDialog(fieldsPrePopulated)
+
+== Scenario 2: Save Updated Preferences Asynchronously ==
+
+User -> Activity : updateFields(radius=25, minRating=7.5, Netflix, threshold=2.7g) & clickSave()
+
+Activity -> DomainPrefs : new UserPreferences(25, "PT", 7.5f, 2020, providers, 2.7f)
+activate DomainPrefs
+note over DomainPrefs: Pure Java 21 Domain Validation\n(Radius [1, 100], Rating [0.0, 10.0])
+DomainPrefs --> Activity : updatedPrefs
+deactivate DomainPrefs
+
+Activity -> PrefMgr : saveUserPreferences(updatedPrefs)
+activate PrefMgr
+
+PrefMgr -> SharedPreferences : edit()
+activate SharedPreferences
+SharedPreferences --> PrefMgr : editor
+deactivate SharedPreferences
+
+PrefMgr -> PrefEditor : putInt(KEY_CINEMA_RADIUS_KM, 25)
+activate PrefEditor
+PrefMgr -> PrefEditor : putString(KEY_DEFAULT_REGION, "PT")
+PrefMgr -> PrefEditor : putFloat(KEY_MIN_RATING, 7.5f)
+PrefMgr -> PrefEditor : putInt(KEY_MIN_RELEASE_YEAR, 2020)
+PrefMgr -> PrefEditor : putStringSet(KEY_STREAMING_PROVIDERS, providers)
+PrefMgr -> PrefEditor : putFloat(KEY_SHAKE_THRESHOLD, 2.7f)
+
+note over PrefEditor: Mandatory non-blocking asynchronous persistence\n(Rule RNF05: .apply() strictly required over .commit())
+PrefMgr -> PrefEditor : apply()
+deactivate PrefEditor
+deactivate PrefMgr
+
+Activity -> ShakeDet : setThreshold(2.7f)
+activate ShakeDet
+ShakeDet --> Activity : void
+deactivate ShakeDet
+
+Activity -> Activity : prefetchRecommendations()
+Activity --> User : showToast(R.string.preferences_saved_success)
+deactivate Activity
+
+@enduml

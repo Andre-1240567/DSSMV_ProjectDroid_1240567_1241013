@@ -1,0 +1,77 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":LoginActivity" as LoginAct
+participant ":FirebaseAuthManager" as AuthMgr
+participant ":FirebaseAuth" as FirebaseAuth
+participant ":Task<AuthResult>" as AuthTask
+participant ":FirebaseUser" as FirebaseUser
+participant ":Intent" as Intent
+participant ":MainActivity" as MainAct
+
+autonumber
+
+== Scenario: User Sign-In with Email & Password ==
+
+User -> LoginAct : enterCredentials(email, password) & clickLogin()
+activate LoginAct
+
+LoginAct -> LoginAct : validateEmailAndPassword()
+LoginAct -> LoginAct : setLoading(true)
+
+LoginAct -> AuthMgr : getInstance().login(email, password, callback)
+activate AuthMgr
+
+AuthMgr -> FirebaseAuth : signInWithEmailAndPassword(email, password)
+activate FirebaseAuth
+FirebaseAuth --> AuthMgr : task
+deactivate FirebaseAuth
+
+AuthMgr -> AuthTask : addOnCompleteListener(listener)
+activate AuthTask
+
+note over AuthTask: Asynchronous Authentication with Firebase Cloud
+AuthTask --> AuthMgr : onComplete(task)
+deactivate AuthTask
+
+alt [Task is Successful]
+    AuthMgr -> FirebaseAuth : getCurrentUser()
+    activate FirebaseAuth
+    FirebaseAuth --> AuthMgr : firebaseUser
+    deactivate FirebaseAuth
+    
+    AuthMgr -> FirebaseUser : getUid(), getEmail()
+    activate FirebaseUser
+    FirebaseUser --> AuthMgr : uid, email
+    deactivate FirebaseUser
+    
+    AuthMgr --> LoginAct : onSuccess(userId, email)
+    
+    LoginAct -> LoginAct : setLoading(false)
+    LoginAct -> Intent : new Intent(LoginActivity, MainActivity)
+    activate Intent
+    LoginAct -> Intent : setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK)
+    Intent --> LoginAct : intent
+    deactivate Intent
+    
+    LoginAct -> MainAct : startActivity(intent)
+    LoginAct -> LoginAct : finish()
+    deactivate LoginAct
+    activate MainAct
+    MainAct --> User : renderMainDashboard()
+    deactivate MainAct
+else [Task Failed / Invalid Credentials]
+    AuthMgr --> LoginAct : onFailure(task.getException().getMessage())
+    deactivate AuthMgr
+    activate LoginAct
+    LoginAct -> LoginAct : setLoading(false)
+    LoginAct --> User : displayToastError(errorMessage)
+    deactivate LoginAct
+end
+
+@enduml

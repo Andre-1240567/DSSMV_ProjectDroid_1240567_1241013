@@ -1,0 +1,107 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+actor "User" as User
+participant ":MovieSearchActivity" as Activity
+participant ":SharedPrefManager" as PrefMgr
+participant ":RetrofitClient" as Retrofit
+participant ":TmdbApiService" as TmdbApi
+participant ":Call<TmdbSearchResponse>" as CallSearch
+participant ":MovieSearchAdapter" as SearchAdapter
+participant ":MovieDetailActivity" as DetailActivity
+participant ":Call<TmdbWatchProvidersResponse>" as CallProviders
+participant "domain:\nWatchProvider" as DomainProvider
+participant ":WatchProviderAdapter" as ProviderAdapter
+
+autonumber
+
+== Scenario 1: Search Movies via TMDB ==
+
+User -> Activity : enterQuery("Inception") & clickSearch()
+activate Activity
+
+Activity -> Activity : hideKeyboard() & showProgressBar(true)
+
+Activity -> PrefMgr : getInstance(context).getDefaultRegion()
+activate PrefMgr
+PrefMgr --> Activity : region ("PT")
+deactivate PrefMgr
+
+Activity -> Retrofit : getInstance().getTmdbApiService()
+activate Retrofit
+Retrofit --> Activity : tmdbApiService
+deactivate Retrofit
+
+Activity -> TmdbApi : searchMovies("Inception", "pt-PT", 1)
+activate TmdbApi
+TmdbApi --> Activity : call
+deactivate TmdbApi
+
+Activity -> CallSearch : enqueue(Callback<TmdbSearchResponse>)
+activate CallSearch
+
+note over CallSearch: Asynchronous Network Request on Worker Thread
+CallSearch --> Activity : onResponse(call, response)
+deactivate CallSearch
+
+alt [Response Successful && body != null]
+    Activity -> Activity : response.body().getResults()
+    Activity -> SearchAdapter : setMovies(results)
+    activate SearchAdapter
+    SearchAdapter --> Activity : notifyDataSetChanged()
+    deactivate SearchAdapter
+    Activity -> Activity : showProgressBar(false)
+    Activity --> User : displayMovieList(posters, titles, years)
+else [Empty Results / Failure]
+    Activity -> Activity : showEmptyMessage(R.string.status_no_results)
+    Activity --> User : displayFeedback("No movies found")
+end
+
+== Scenario 2: Select Movie & Load Streaming Providers ==
+
+User -> SearchAdapter : selectMovie(tmdbMovieDto)
+activate SearchAdapter
+SearchAdapter -> Activity : onMovieSelected(dto)
+deactivate SearchAdapter
+
+Activity -> DetailActivity : startActivity(intentWithTmdbId)
+deactivate Activity
+activate DetailActivity
+
+DetailActivity -> PrefMgr : getDefaultRegion()
+activate PrefMgr
+PrefMgr --> DetailActivity : region ("PT")
+deactivate PrefMgr
+
+DetailActivity -> TmdbApi : getWatchProviders(tmdbId)
+activate TmdbApi
+TmdbApi --> DetailActivity : callProviders
+deactivate TmdbApi
+
+DetailActivity -> CallProviders : enqueue(Callback<TmdbWatchProvidersResponse>)
+activate CallProviders
+
+CallProviders --> DetailActivity : onResponse(call, response)
+deactivate CallProviders
+
+DetailActivity -> DetailActivity : mapToDomainProviders(dto.getProvidersForCountry("PT"))
+loop each provider in flatrate / rent / buy
+    DetailActivity -> DomainProvider : new WatchProvider(id, name, logoPath, type)
+    activate DomainProvider
+    DomainProvider --> DetailActivity : domainProvider
+    deactivate DomainProvider
+end
+
+DetailActivity -> ProviderAdapter : setProviders(domainProvidersList)
+activate ProviderAdapter
+ProviderAdapter --> DetailActivity : notifyDataSetChanged()
+deactivate ProviderAdapter
+
+DetailActivity --> User : displayStreamingProviders(Netflix, HBO, Disney+, etc.)
+deactivate DetailActivity
+
+@enduml
