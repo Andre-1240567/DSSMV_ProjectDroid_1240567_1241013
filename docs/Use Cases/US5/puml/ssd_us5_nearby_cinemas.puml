@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US5 - Locate Nearby Cinemas on Interactive Map (SSD)
+
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":LocationManager\n(GPS Sensor)" as GPS

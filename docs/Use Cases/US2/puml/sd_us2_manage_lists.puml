@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US2 - Create and Manage Movie Lists
+
 actor "User" as User
 participant ":MainActivity" as Activity
 participant ":FirestoreManager" as FirestoreMgr

@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US4 - Search Movies and Streaming Watch Providers
+
 actor "User" as User
 participant ":MovieSearchActivity" as Activity
 participant ":SharedPrefManager" as PrefMgr

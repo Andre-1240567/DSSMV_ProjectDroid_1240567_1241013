@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US4 - Search Movies and Streaming Watch Providers (SSD)
+
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":TmdbApiService\n(Retrofit)" as TmdbApi

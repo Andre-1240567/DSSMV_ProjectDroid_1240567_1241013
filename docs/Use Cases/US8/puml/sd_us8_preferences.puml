@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US8 - Configure Local Preferences
+
 actor "User" as User
 participant ":MainActivity" as Activity
 participant ":SharedPrefManager" as PrefMgr

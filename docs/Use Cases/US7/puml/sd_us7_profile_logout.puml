@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US7 - User Profile and Session Logout
+
 actor "User" as User
 participant ":ProfileActivity" as ProfileAct
 participant ":FirebaseAuthManager" as AuthMgr

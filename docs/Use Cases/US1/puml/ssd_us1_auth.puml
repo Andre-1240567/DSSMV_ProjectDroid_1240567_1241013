@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US1 - User Registration and Sign-In (SSD)
+
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":Firebase Auth" as FirebaseAuth

@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US2 - Create and Manage Movie Lists (SSD)
+
 actor "User" as User
 participant ":System\n(CineTrack)" as System
 participant ":Cloud Firestore" as Firestore

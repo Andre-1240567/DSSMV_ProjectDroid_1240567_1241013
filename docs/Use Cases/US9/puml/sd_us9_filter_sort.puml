@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US9 - Filter and Sort Local Movie Collection
+
 actor "User" as User
 participant ":ListDetailsActivity" as Activity
 participant "domain:\nSavedMovieFilterSorter" as FilterSorter

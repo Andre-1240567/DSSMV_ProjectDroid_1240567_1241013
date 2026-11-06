@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US11 - External Movie Card Sharing
+
 actor "User" as User
 participant ":MovieDetailActivity" as Activity
 participant "domain:\nSavedMovie" as Movie

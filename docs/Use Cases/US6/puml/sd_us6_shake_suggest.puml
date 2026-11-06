@@ -4,6 +4,8 @@ skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 
+title US6 - Shake to Suggest Random Movie
+
 actor "User" as User
 participant ":MainActivity" as Activity
 participant ":SensorManager" as SensorMgr
