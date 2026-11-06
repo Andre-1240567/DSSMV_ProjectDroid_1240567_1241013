@@ -1,0 +1,76 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Utilizador Não Autenticado" as Guest
+actor "Utilizador Registado" as AuthUser
+actor "Firebase Authentication" as FbAuth <<BaaS>>
+actor "Cloud Firestore" as Firestore <<NoSQL DB>>
+actor "TMDB API" as TMDB <<REST API>>
+actor "Apps de Mensagens / Redes" as SocialApps <<Partilha Externa>>
+
+AuthUser -up-|> Guest
+
+rectangle "Subsistema de Identidade, Listas e Avaliações" {
+    package "Gestão de Identidade" {
+        usecase "UC01: Registar Nova Conta" as UC01
+        usecase "UC02: Iniciar Sessão (Login)" as UC02
+        usecase "UC07: Visualizar Perfil e Terminar Sessão" as UC07
+    }
+    
+    package "Gestão de Catálogo Pessoal e Avaliações" {
+        usecase "UC02_L: Criar e Gerir Listas de Filmes" as UC02_L
+        usecase "UC02_L1: Sincronizar Listas em Tempo Real" as UC02_L1
+        usecase "UC03: Adicionar Filme à Lista" as UC03
+        usecase "UC03_R: Avaliar Filme (1.0 - 5.0 Estrelas)" as UC03_R
+        usecase "UC03_T: Sincronizar Rating no TMDB" as UC03_T
+        usecase "UC09: Filtrar e Ordenar Filmes na Lista" as UC09
+        usecase "UC11: Partilhar Resumo do Filme" as UC11
+    }
+}
+
+' Acessos de Utilizador
+Guest --> UC01
+Guest --> UC02
+
+AuthUser --> UC07
+AuthUser --> UC02_L
+AuthUser --> UC03
+AuthUser --> UC09
+AuthUser --> UC11
+
+' Relações Internas
+UC02_L ..> UC02_L1 : <<include>>
+UC03 <.. UC03_R : <<extend>>
+UC03_R ..> UC03_T : <<include>>
+
+' Integrações com Sistemas Externos
+UC01 ..> FbAuth : createUserWithEmailAndPassword()
+UC02 ..> FbAuth : signInWithEmailAndPassword()
+UC07 ..> FbAuth : signOut()
+
+UC02_L ..> Firestore : coleção "users/{uid}/lists"
+UC02_L1 ..> Firestore : addSnapshotListener()
+UC03 ..> Firestore : subcoleção "lists/{id}/movies"
+UC03_T ..> TMDB : POST /movie/{id}/rating (Guest Session)
+
+UC11 ..> SocialApps : Intent.createChooser(ACTION_SEND)
+
+@enduml

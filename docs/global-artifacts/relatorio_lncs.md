@@ -61,12 +61,18 @@ O Modelo de Domínio define as entidades conceptuais nucleares do sistema e a su
 
 *(Ver documentação detalhada e invariantes em [`domain_model.md`](domain_model.md) e Glossário em [`glossary.md`](glossary.md)).*
 
-### 3.2. Diagrama Global de Casos de Uso (UCD)
-O diagrama reflete a interação do ator principal (*Utilizador*) com as funcionalidades do CineTrack e as ligações com os serviços externos:
+### 3.2. Diagramas de Casos de Uso (UCD)
+A modelação dos casos de uso encontra-se estruturada em dois níveis:
+1. **Diagrama Global de Casos de Uso (Overview):** Sintetiza os quatro módulos nucleares do sistema (*Identidade e Sessão*, *Catálogo e Multimédia*, *Listas Pessoais e Avaliações*, *Geolocalização e Cinemas*) e o relacionamento com os serviços externos na nuvem (Firebase Auth, Cloud Firestore, TMDB, Foursquare Places API, sensores GPS/acelerómetro e aplicações externas via Intents):
 
 ![Casos de Uso CineTrack](svg/ucd.svg)
 
-*(Ver fichas completas e SSDs na pasta [`../Use Cases/`](../Use%20Cases/) e requisitos em [`requirements.md`](requirements.md)).*
+2. **Diagramas Modulares Detalhados de Casos de Uso:** Decomposição funcional por subsistema com explicitação das relações de inclusão (`<<include>>`) e extensão (`<<extend>>`):
+   * **Catálogo, Descoberta e Multimédia (US4, US6, US10):** [`svg/ucd_discovery_multimedia.svg`](svg/ucd_discovery_multimedia.svg)
+   * **Geolocalização, Cinemas e Mapas OSMDroid (US5, US8):** [`svg/ucd_cinemas_mapping.svg`](svg/ucd_cinemas_mapping.svg)
+   * **Identidade, Listas e Avaliações Firestore (US1, US2, US3, US7, US9, US11):** [`svg/ucd_lists_auth.svg`](svg/ucd_lists_auth.svg)
+
+*(Ver fichas completas, especificações e diagramas comportamentais SSD/SD na pasta [`../Use Cases/`](../Use%20Cases/) e requisitos em [`requirements.md`](requirements.md)).*
 
 ### 3.3. Diagrama de Classes de Implementação (Model Layer)
 Estrutura detalhada do pacote `pt.isep.dssmv.projectdroid.model` e exceções checadas:

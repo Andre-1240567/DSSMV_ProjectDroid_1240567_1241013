@@ -1,0 +1,69 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Utilizador" as User
+actor "TMDB REST API" as TMDB <<REST API>>
+actor "Acelerómetro\n(SensorManager)" as Sensor <<Hardware>>
+actor "Reprodutor de Vídeo\n(YouTube / Browser)" as VideoPlayer <<App Externa>>
+
+rectangle "Subsistema de Catálogo, Descoberta e Multimédia" {
+    usecase "UC04: Pesquisar Filmes no Catálogo" as UC04
+    usecase "UC04.1: Consultar Detalhes e Sinopse" as UC04_1
+    usecase "UC04.2: Consultar Serviços de Streaming (PT)" as UC04_2
+    
+    usecase "UC10: Visualizar Trailer Oficial" as UC10
+    usecase "UC10.1: Obter Chave de Vídeo (/videos)" as UC10_1
+    usecase "UC10.2: Reproduzir via Implicit Intent (vnd.youtube)" as UC10_2
+    
+    usecase "UC06: Sugestão Aleatória (Shake to Suggest)" as UC06
+    usecase "UC06.1: Detetar Agitação Multi-Peak (>2.7g)" as UC06_1
+    usecase "UC06.2: Pré-carregar Recomendações (Discover)" as UC06_2
+    usecase "UC06.3: Emitir Feedback Háptico (Vibração)" as UC06_3
+}
+
+' Interações do Utilizador
+User --> UC04
+User --> UC04_1
+User --> UC10
+User --> UC06
+
+' Relações de Inclusão e Extensão
+UC04 <.. UC04_1 : <<extend>>
+UC04_1 <.. UC04_2 : <<include>>
+UC04_1 <.. UC10 : <<extend>>
+
+UC10 ..> UC10_1 : <<include>>
+UC10 ..> UC10_2 : <<include>>
+
+UC06 ..> UC06_1 : <<include>>
+UC06 ..> UC06_2 : <<include>>
+UC06 ..> UC06_3 : <<include>>
+
+' Interações com Serviços Externos
+UC04 ..> TMDB : GET /search/movie
+UC04_2 ..> TMDB : GET /watch/providers
+UC10_1 ..> TMDB : GET /movie/{id}/videos
+UC06_2 ..> TMDB : GET /discover/movie
+
+UC06_1 ..> Sensor : escuta Sensor.TYPE_ACCELEROMETER
+UC10_2 ..> VideoPlayer : startActivity(ACTION_VIEW)
+
+@enduml

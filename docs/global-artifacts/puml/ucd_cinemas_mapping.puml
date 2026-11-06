@@ -1,0 +1,67 @@
+@startuml
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Utilizador" as User
+actor "GPS / Localização\n(LocationManager)" as GPS <<Hardware>>
+actor "Foursquare Places API" as FSQ <<REST API>>
+actor "Google Maps / Waze" as ExtMaps <<App de Navegação>>
+
+rectangle "Subsistema de Geolocalização, Cinemas e Mapas" {
+    usecase "UC05: Localizar Cinemas Próximos" as UC05
+    usecase "UC05.1: Verificar Permissão Runtime\n(ACCESS_FINE_LOCATION)" as UC05_1
+    usecase "UC05.2: Obter Posição GPS Nativa" as UC05_2
+    usecase "UC05.3: Pesquisar POIs de Cinema (Cat. 10024)" as UC05_3
+    
+    usecase "UC05.4: Apresentar Mapa Interativo (OSMDroid)" as UC05_4
+    usecase "UC05.5: Traçar Circunferência Translúcida do Raio" as UC05_5
+    usecase "UC05.6: Exibir Marcadores Clicáveis com Pop-up" as UC05_6
+    usecase "UC05.7: Alternar Layout (Both / Map / List)" as UC05_7
+    
+    usecase "UC05.8: Disparar Rota de Navegação (geo: Intent)" as UC05_8
+    usecase "UC08: Configurar Raio e Preferências Locais" as UC08
+}
+
+' Relações com o Utilizador
+User --> UC05
+User --> UC05_7
+User --> UC05_8
+User --> UC08
+
+' Relações de Inclusão e Extensão
+UC05 ..> UC05_1 : <<include>>
+UC05 ..> UC05_2 : <<include>>
+UC05 ..> UC05_3 : <<include>>
+UC05 <.. UC05_4 : <<include>>
+
+UC05_4 ..> UC05_5 : <<include>>
+UC05_4 ..> UC05_6 : <<include>>
+
+UC05 <.. UC05_7 : <<extend>>
+UC05 <.. UC05_8 : <<extend>>
+UC08 ..> UC05 : <<influencia raio>>
+
+' Interações Externas
+UC05_1 ..> GPS : ActivityCompat.requestPermissions()
+UC05_2 ..> GPS : getLastKnownLocation()
+UC05_3 ..> FSQ : GET /places/search (Bearer Token)
+UC05_8 ..> ExtMaps : startActivity(ACTION_VIEW, "geo:lat,lng")
+
+@enduml

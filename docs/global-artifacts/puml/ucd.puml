@@ -6,51 +6,99 @@ skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 skinparam packageStyle rectangle
 
-actor "Utilizador" as User
-actor "Sistema Externo: Firebase" as Firebase <<Sistema>>
-actor "Sistema Externo: TMDB" as TMDB <<Sistema>>
-actor "Sistema Externo: Foursquare" as Foursquare <<Sistema>>
-actor "Hardware / Sensores" as Sensores <<Dispositivo>>
-
-rectangle "CineTrack (ProjectDroid)" {
-    usecase "UC01: Registar e Autenticar" as UC01
-    usecase "UC02: Criar e Gerir Listas" as UC02
-    usecase "UC03: Adicionar Filmes e Avaliar" as UC03
-    usecase "UC04: Pesquisar Filmes e Streaming" as UC04
-    usecase "UC05: Localizar Cinemas no Mapa" as UC05
-    usecase "UC06: Sugestão Aleatória (Shake)" as UC06
-    usecase "UC07: Consultar Perfil e Logout" as UC07
-    usecase "UC08: Configurar Preferências Locais" as UC08
-    usecase "UC09: Filtrar e Ordenar Coleção" as UC09
-    usecase "UC10: Visualizar Trailer Oficial" as UC10
-    usecase "UC11: Partilhar Ficha de Filme" as UC11
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
 }
 
-' Relações com o Utilizador
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+' Atores Principais e Secundários
+actor "Utilizador" as User
+
+actor "Firebase\n(Auth & Firestore)" as Firebase <<BaaS>>
+actor "TMDB API" as TMDB <<REST API>>
+actor "Foursquare Places API" as FSQ <<REST API>>
+actor "Sensores do Dispositivo\n(GPS & Acelerómetro)" as Sensors <<Hardware>>
+actor "Aplicações Externas\n(YouTube & Google Maps)" as ExtApps <<Sistema Externo>>
+
+rectangle "CineTrack — Sistema Android (ProjectDroid)" {
+
+    package "Módulo 1: Identidade e Sessão" {
+        usecase "UC01: Registar Utilizador" as UC01
+        usecase "UC02: Autenticar Sessão" as UC02
+        usecase "UC03: Consultar Perfil e Logout" as UC03
+    }
+
+    package "Módulo 2: Catálogo e Multimédia" {
+        usecase "UC04: Pesquisar Filmes no Catálogo" as UC04
+        usecase "UC05: Consultar Disponibilidade de Streaming" as UC05
+        usecase "UC06: Visualizar Trailer Oficial" as UC06
+        usecase "UC07: Recomendar Filme por Agitação (Shake)" as UC07
+    }
+
+    package "Módulo 3: Listas Pessoais e Avaliações" {
+        usecase "UC08: Gerir Listas Personalizadas" as UC08
+        usecase "UC09: Adicionar Filme a Lista" as UC09
+        usecase "UC10: Classificar e Comentar Filme (Rating)" as UC10
+        usecase "UC11: Filtrar e Ordenar Coleção Local" as UC11
+        usecase "UC12: Partilhar Ficha de Filme" as UC12
+    }
+
+    package "Módulo 4: Geolocalização e Cinemas" {
+        usecase "UC13: Localizar Cinemas Próximos" as UC13
+        usecase "UC14: Visualizar Mapa Interativo e Raio" as UC14
+        usecase "UC15: Obter Direções de Navegação" as UC15
+        usecase "UC16: Configurar Preferências Locais" as UC16
+    }
+}
+
+' Relações do Utilizador com os Casos de Uso
 User --> UC01
 User --> UC02
 User --> UC03
 User --> UC04
-User --> UC05
 User --> UC06
 User --> UC07
 User --> UC08
 User --> UC09
-User --> UC10
 User --> UC11
+User --> UC12
+User --> UC13
+User --> UC16
 
-' Relações com Sistemas Externos / Serviços
-UC01 ..> Firebase : autentica
-UC02 ..> Firebase : sincroniza listas (Firestore)
-UC03 ..> Firebase : persiste avaliações (Firestore)
-UC07 ..> Firebase : encerra sessão
+' Relações Internas (include / extend)
+UC04 <.. UC05 : <<include>>
+UC04 <.. UC06 : <<extend>>
+UC09 <.. UC10 : <<extend>>
+UC13 <.. UC14 : <<include>>
+UC13 <.. UC15 : <<extend>>
 
-UC04 ..> TMDB : consome catálogo e providers
-UC10 ..> TMDB : obtém chave do trailer
+' Integrações com Sistemas Externos / Nuvem
+UC01 ..> Firebase : cria conta
+UC02 ..> Firebase : valida credenciais
+UC03 ..> Firebase : encerra sessão
+UC08 ..> Firebase : sincroniza listas (Firestore)
+UC09 ..> Firebase : guarda filme na lista
+UC10 ..> Firebase : persiste avaliação
 
-UC05 ..> Foursquare : pesquisa cinemas próximos
-UC05 ..> Sensores : obtém coordenadas GPS
+UC04 ..> TMDB : pesquisa títulos e metadados
+UC05 ..> TMDB : obtém watch providers por região
+UC06 ..> TMDB : recolhe chave de vídeo
+UC07 ..> TMDB : consulta filmes populares/discover
+UC10 ..> TMDB : submete rating (Guest Session)
 
-UC06 ..> Sensores : deteta aceleração brusca
+UC06 ..> ExtApps : abre app YouTube via Intent
+UC15 ..> ExtApps : abre rota Google Maps via geo: Intent
+
+UC13 ..> FSQ : pesquisa POIs de cinemas (10024)
+UC13 ..> Sensors : lê coordenadas (GPS)
+UC07 ..> Sensors : monitoriza aceleração (>2.7g)
 
 @enduml
