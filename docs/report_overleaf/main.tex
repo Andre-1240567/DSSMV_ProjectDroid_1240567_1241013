@@ -7,6 +7,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
@@ -148,8 +149,8 @@ The domain model enforces several essential business invariants:
 \begin{itemize}
     \item \textbf{User and MovieList Ownership:} A \texttt{User} uniquely owns zero or more \texttt{MovieList} entities. Each list contains an arbitrary number of \texttt{SavedMovie} instances.
     \item \textbf{WatchStatus Progression:} Every saved movie is categorized under a strict enumeration: \texttt{PLAN\_TO\_WATCH}, \texttt{WATCHING}, \texttt{WATCHED}, or \texttt{FAVORITE}.
-    \item \textbf{Rating Interval:} A \texttt{Rating} score must strictly satisfy $1.0 \le \text{score} \le 5.0$. Values outside this range throw checked \texttt{InvalidRatingException} instances.
-    \item \textbf{Geospatial Radius Bounds:} The user's search radius for cinemas must lie within $1 \le \text{radius} \le 100$ kilometers.
+    \item \textbf{Rating Interval:} A \texttt{Rating} score must strictly satisfy $1.0 \le \mathrm{score} \le 5.0$. Values outside this range throw checked \texttt{InvalidRatingException} instances.
+    \item \textbf{Geospatial Radius Bounds:} The user's search radius for cinemas must lie within $1 \le \mathrm{radius} \le 100$ kilometers.
 \end{itemize}
 
 \newpage
@@ -777,7 +778,7 @@ This section presents representative excerpts from the CineTrack Java~21 codebas
 \subsection{Pure Java 21 Domain Model and Validation}
 Listing \ref{lst:cinema-model} shows the pure Java~21 \texttt{Cinema} domain entity. Notice the defensive validation checks and absence of Android SDK imports.
 
-\begin{lstlisting}[style=javastyle,caption={Pure Java 21 Cinema Domain Entity (Cinema.java)}]
+\begin{lstlisting}[style=javastyle,caption={Pure Java 21 Cinema Domain Entity (Cinema.java)},label={lst:cinema-model}]
 package pt.isep.dssmv.projectdroid.model;
 
 import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
@@ -828,7 +829,7 @@ public class Cinema {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[style=javastyle,caption={JUnit 5 Automated Domain Tests (CinemaTest.java)}]
+\begin{lstlisting}[style=javastyle,caption={JUnit 5 Automated Domain Tests (CinemaTest.java)},label={lst:cinema-test}]
 package pt.isep.dssmv.projectdroid.model;
 
 import org.junit.jupiter.api.Test;
@@ -868,7 +869,7 @@ public class CinemaTest {
 \subsection{Geospatial Mapping: Foursquare REST API and OSMDroid Map}
 Listing \ref{lst:cinemas-activity} shows the integration of modern Foursquare Places API (Bearer authentication and version header \texttt{2025-06-17}) and OSMDroid polygon rendering for search radius visualization.
 
-\begin{lstlisting}[style=javastyle,caption={OSMDroid Radius and Cinema Markers (CinemasActivity.java)}]
+\begin{lstlisting}[style=javastyle,caption={OSMDroid Radius and Cinema Markers (CinemasActivity.java)},label={lst:cinemas-activity}]
 private void centerMapAndDrawRadius(GeoPoint userPoint, int radiusKm) {
     mapView.getController().setZoom(computeZoomLevel(radiusKm));
     mapView.getController().setCenter(userPoint);
@@ -924,7 +925,7 @@ private void queryFoursquareCinemas(double lat, double lon, int radiusKm) {
 \subsection{Hardware Sensor Lifecycle: Accelerometer Shake Detection}
 Listing \ref{lst:shake-lifecycle} demonstrates battery preservation rules by registering the sensor listener in \texttt{onResume()} and immediately unregistering in \texttt{onPause()}.
 
-\begin{lstlisting}[style=javastyle,caption={Accelerometer Lifecycle Discipline (MainActivity.java)}]
+\begin{lstlisting}[style=javastyle,caption={Accelerometer Lifecycle Discipline (MainActivity.java)},label={lst:shake-lifecycle}]
 @Override
 protected void onResume() {
     super.onResume();
@@ -948,7 +949,7 @@ protected void onPause() {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[style=javastyle,caption={Multi-Peak Shake Detection Algorithm (ShakeDetector.java)}]
+\begin{lstlisting}[style=javastyle,caption={Multi-Peak Shake Detection Algorithm (ShakeDetector.java)},label={lst:shake-detector}]
 @Override
 public void onSensorChanged(SensorEvent event) {
     if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
@@ -981,7 +982,7 @@ public void onSensorChanged(SensorEvent event) {
 \subsection{Pure Java 21 Collection Sorting and Filtering}
 Listing \ref{lst:filter-sorter} shows the functional comparator implementation used in US9.
 
-\begin{lstlisting}[style=javastyle,caption={Functional Comparator Implementation (SavedMovieFilterSorter.java)}]
+\begin{lstlisting}[style=javastyle,caption={Functional Comparator Implementation (SavedMovieFilterSorter.java)},label={lst:filter-sorter}]
 public final class SavedMovieFilterSorter {
     public static final Comparator<SavedMovie> COMPARATOR_TITLE_ASC =
         Comparator.comparing((SavedMovie m) -> m.getTitle() == null ? "" : m.getTitle(), String.CASE_INSENSITIVE_ORDER);
