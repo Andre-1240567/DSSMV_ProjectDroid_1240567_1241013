@@ -46,6 +46,14 @@ Como um utilizador autenticado no CineTrack, pretendo criar, visualizar e elimin
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us2.puml`](puml/ucd_us2.puml)
+
+![Diagrama de Caso de Uso - US2](svg/ucd_us2.svg)
+
+---
+
 ## 6. Diagramas de Sequência
 
 ### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

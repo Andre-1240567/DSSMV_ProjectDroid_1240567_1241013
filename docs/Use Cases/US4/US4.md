@@ -45,6 +45,14 @@ Como um utilizador do CineTrack, pretendo pesquisar filmes por título através 
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us4.puml`](puml/ucd_us4.puml)
+
+![Diagrama de Caso de Uso - US4](svg/ucd_us4.svg)
+
+---
+
 ## 6. Diagramas de Sequência
 
 ### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

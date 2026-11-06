@@ -47,6 +47,14 @@ Como um utilizador do CineTrack, pretendo configurar e persistir localmente as m
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us8.puml`](puml/ucd_us8.puml)
+
+![Diagrama de Caso de Uso - US8](svg/ucd_us8.svg)
+
+---
+
 ## 6. Diagramas de Sequência
 
 ### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

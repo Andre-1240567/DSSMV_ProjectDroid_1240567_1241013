@@ -36,6 +36,14 @@ Como um utilizador autenticado no CineTrack, pretendo filtrar os filmes de uma l
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us9.puml`](puml/ucd_us9.puml)
+
+![Diagrama de Caso de Uso - US9](svg/ucd_us9.svg)
+
+---
+
 ## 5. Diagramas de Sequência
 
 ### 5.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

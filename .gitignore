@@ -48,3 +48,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+.idea/.name
+.idea/codeStyles/
+

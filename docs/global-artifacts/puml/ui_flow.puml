@@ -1,5 +1,4 @@
 @startuml
-skinparam handwritten false
 skinparam monochrome false
 skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
@@ -47,7 +46,7 @@ state MainActivity {
 }
 
 MainActivity --> MovieDetailActivity : Select movie (Explicit Intent)
-MainActivity --> CinemaMapActivity : Click "Nearby Cinemas" (Explicit Intent)
+MainActivity --> CinemasActivity : Click "Nearby Cinemas" (Explicit Intent)
 MainActivity --> ProfileActivity : Click "Profile" icon (Explicit Intent)
 
 state MovieDetailActivity {

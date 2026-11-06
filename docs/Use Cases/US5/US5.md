@@ -61,6 +61,14 @@ Como um utilizador do CineTrack, pretendo localizar salas de cinema nas minhas i
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us5.puml`](puml/ucd_us5.puml)
+
+![Diagrama de Caso de Uso - US5](svg/ucd_us5.svg)
+
+---
+
 ## 6. Diagramas de Sequência
 
 ### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

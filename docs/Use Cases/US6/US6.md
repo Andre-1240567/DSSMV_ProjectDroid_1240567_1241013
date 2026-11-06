@@ -52,6 +52,14 @@ Como um utilizador do CineTrack indeciso sobre que filme assistir, pretendo agit
 
 ---
 
+
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us6.puml`](puml/ucd_us6.puml)
+
+![Diagrama de Caso de Uso - US6](svg/ucd_us6.svg)
+
+---
+
 ## 6. Diagramas de Sequência
 
 ### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)

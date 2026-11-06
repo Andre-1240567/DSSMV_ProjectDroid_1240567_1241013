@@ -217,51 +217,16 @@ Figure \ref{fig:ui-flow} illustrates the screen transitions and navigation flow 
 
 \newpage
 
-\subsection{Use Case Diagrams}
-Figure \ref{fig:ucd-global} provides the global Use Case Diagram, decomposing CineTrack into four functional subsystems and illustrating connections to supporting cloud services, hardware sensors, and external applications.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/global-artifacts/UCD_Global.pdf}
-    \caption{Global System Use Case Diagram}
-    \label{fig:ucd-global}
-\end{figure}
-
-Figures \ref{fig:ucd-discovery}, \ref{fig:ucd-cinemas}, and \ref{fig:ucd-lists} detail the modular subsystems, highlighting internal \texttt{<<include>>} and \texttt{<<extend>>} relationships.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/global-artifacts/UCD_Discovery.pdf}
-    \caption{UCD: Catalog, Discovery and Multimedia Subsystem}
-    \label{fig:ucd-discovery}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/global-artifacts/UCD_Cinemas.pdf}
-    \caption{UCD: Geospatial Mapping and Cinemas Subsystem}
-    \label{fig:ucd-cinemas}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/global-artifacts/UCD_Lists.pdf}
-    \caption{UCD: Identity, Movie Lists and Ratings Subsystem}
-    \label{fig:ucd-lists}
-\end{figure}
+\subsection{Use Case Analysis and Design Realization}
+Rather than grouping all system requirements into a single monolithic diagram, CineTrack decomposes each functional requirement into an independent, modular Use Case. To ensure complete architectural traceability and modular team distribution, each Use Case is presented individually below with its formal specification table, dedicated Use Case Diagram (UCD), and Design Sequence Diagram (SD). All underlying documentation assets are organized into dedicated per-use-case directories (\texttt{figures/Use\_Cases/UC1/} through \texttt{figures/Use\_Cases/UC11/}).
 
 \newpage
-
-\subsection{Sequence Diagrams}
 
 % --------------------------------------------------------------------
 % UC1
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 1: User Registration and Authentication}}
-\vspace{0.2cm}
-
-The specification for UC1 is detailed in Table \ref{tab:uc1}, and its execution flow is represented in Figure \ref{fig:uc1-sd}.
+\subsubsection{Use Case 1: User Registration and Sign-In}
+Table \ref{tab:uc1} details the functional specification of UC1. Figure \ref{fig:uc1-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc1-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -290,7 +255,16 @@ The specification for UC1 is detailed in Table \ref{tab:uc1}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC1-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC1/UC1-UCD.pdf}
+    \caption{UC1: User Registration and Sign-In Use Case Diagram}
+    \label{fig:uc1-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC1/UC1-SD.pdf}
     \caption{UC1: User Authentication Design Sequence Diagram}
     \label{fig:uc1-sd}
 \end{figure}
@@ -300,11 +274,8 @@ The specification for UC1 is detailed in Table \ref{tab:uc1}, and its execution 
 % --------------------------------------------------------------------
 % UC2
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 2: Create and Manage Movie Lists}}
-\vspace{0.2cm}
-
-The specification for UC2 is detailed in Table \ref{tab:uc2}, and its execution flow is represented in Figure \ref{fig:uc2-sd}.
+\subsubsection{Use Case 2: Create and Manage Movie Lists}
+Table \ref{tab:uc2} details the functional specification of UC2. Figure \ref{fig:uc2-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc2-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -334,7 +305,16 @@ The specification for UC2 is detailed in Table \ref{tab:uc2}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC2-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC2/UC2-UCD.pdf}
+    \caption{UC2: Create and Manage Movie Lists Use Case Diagram}
+    \label{fig:uc2-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC2/UC2-SD.pdf}
     \caption{UC2: Manage Lists Design Sequence Diagram}
     \label{fig:uc2-sd}
 \end{figure}
@@ -344,11 +324,8 @@ The specification for UC2 is detailed in Table \ref{tab:uc2}, and its execution 
 % --------------------------------------------------------------------
 % UC3
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 3: Add Movie to List and Submit Rating}}
-\vspace{0.2cm}
-
-The specification for UC3 is detailed in Table \ref{tab:uc3}, and its execution flow is represented in Figure \ref{fig:uc3-sd}.
+\subsubsection{Use Case 3: Add Movie to List and Submit Rating}
+Table \ref{tab:uc3} details the functional specification of UC3. Figure \ref{fig:uc3-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc3-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -378,7 +355,16 @@ The specification for UC3 is detailed in Table \ref{tab:uc3}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC3-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC3/UC3-UCD.pdf}
+    \caption{UC3: Add Movie and Rate Use Case Diagram}
+    \label{fig:uc3-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC3/UC3-SD.pdf}
     \caption{UC3: Add Movie and Rating Design Sequence Diagram}
     \label{fig:uc3-sd}
 \end{figure}
@@ -388,11 +374,8 @@ The specification for UC3 is detailed in Table \ref{tab:uc3}, and its execution 
 % --------------------------------------------------------------------
 % UC4
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 4: Search Movies and Streaming Watch Providers}}
-\vspace{0.2cm}
-
-The specification for UC4 is detailed in Table \ref{tab:uc4}, and its execution flow is represented in Figure \ref{fig:uc4-sd}.
+\subsubsection{Use Case 4: Search Movies and Streaming Watch Providers}
+Table \ref{tab:uc4} details the functional specification of UC4. Figure \ref{fig:uc4-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc4-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -422,7 +405,16 @@ The specification for UC4 is detailed in Table \ref{tab:uc4}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC4-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC4/UC4-UCD.pdf}
+    \caption{UC4: Search TMDB Catalog Use Case Diagram}
+    \label{fig:uc4-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC4/UC4-SD.pdf}
     \caption{UC4: TMDB Search and Watch Providers Design Sequence Diagram}
     \label{fig:uc4-sd}
 \end{figure}
@@ -432,11 +424,8 @@ The specification for UC4 is detailed in Table \ref{tab:uc4}, and its execution 
 % --------------------------------------------------------------------
 % UC5
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 5: Locate Nearby Cinemas (GPS + Foursquare + OSMDroid)}}
-\vspace{0.2cm}
-
-The specification for UC5 is detailed in Table \ref{tab:uc5}, and its execution flow is represented in Figure \ref{fig:uc5-sd}.
+\subsubsection{Use Case 5: Locate Nearby Cinemas (GPS, Foursquare and OSMDroid)}
+Table \ref{tab:uc5} details the functional specification of UC5. Figure \ref{fig:uc5-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc5-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -467,7 +456,16 @@ The specification for UC5 is detailed in Table \ref{tab:uc5}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC5-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC5/UC5-UCD.pdf}
+    \caption{UC5: Locate Nearby Cinemas Use Case Diagram}
+    \label{fig:uc5-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC5/UC5-SD.pdf}
     \caption{UC5: Nearby Cinemas and OSMDroid Map Design Sequence Diagram}
     \label{fig:uc5-sd}
 \end{figure}
@@ -477,11 +475,8 @@ The specification for UC5 is detailed in Table \ref{tab:uc5}, and its execution 
 % --------------------------------------------------------------------
 % UC6
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 6: Shake to Suggest Recommendation (Accelerometer)}}
-\vspace{0.2cm}
-
-The specification for UC6 is detailed in Table \ref{tab:uc6}, and its execution flow is represented in Figure \ref{fig:uc6-sd}.
+\subsubsection{Use Case 6: Shake to Suggest Recommendation (Accelerometer)}
+Table \ref{tab:uc6} details the functional specification of UC6. Figure \ref{fig:uc6-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc6-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -511,7 +506,16 @@ The specification for UC6 is detailed in Table \ref{tab:uc6}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC6-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC6/UC6-UCD.pdf}
+    \caption{UC6: Shake to Suggest Movie Use Case Diagram}
+    \label{fig:uc6-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC6/UC6-SD.pdf}
     \caption{UC6: Shake to Suggest Design Sequence Diagram}
     \label{fig:uc6-sd}
 \end{figure}
@@ -521,11 +525,8 @@ The specification for UC6 is detailed in Table \ref{tab:uc6}, and its execution 
 % --------------------------------------------------------------------
 % UC7
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 7: User Profile and Session Logout}}
-\vspace{0.2cm}
-
-The specification for UC7 is detailed in Table \ref{tab:uc7}, and its execution flow is represented in Figure \ref{fig:uc7-sd}.
+\subsubsection{Use Case 7: User Profile and Session Logout}
+Table \ref{tab:uc7} details the functional specification of UC7. Figure \ref{fig:uc7-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc7-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -555,7 +556,16 @@ The specification for UC7 is detailed in Table \ref{tab:uc7}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC7-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC7/UC7-UCD.pdf}
+    \caption{UC7: Profile and Logout Use Case Diagram}
+    \label{fig:uc7-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC7/UC7-SD.pdf}
     \caption{UC7: Profile and Logout Design Sequence Diagram}
     \label{fig:uc7-sd}
 \end{figure}
@@ -565,11 +575,8 @@ The specification for UC7 is detailed in Table \ref{tab:uc7}, and its execution 
 % --------------------------------------------------------------------
 % UC8
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 8: Configure Local Preferences (SharedPreferences)}}
-\vspace{0.2cm}
-
-The specification for UC8 is detailed in Table \ref{tab:uc8}, and its execution flow is represented in Figure \ref{fig:uc8-sd}.
+\subsubsection{Use Case 8: Configure Local Preferences (SharedPreferences)}
+Table \ref{tab:uc8} details the functional specification of UC8. Figure \ref{fig:uc8-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc8-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -599,7 +606,16 @@ The specification for UC8 is detailed in Table \ref{tab:uc8}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC8-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC8/UC8-UCD.pdf}
+    \caption{UC8: Local Preferences Use Case Diagram}
+    \label{fig:uc8-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC8/UC8-SD.pdf}
     \caption{UC8: Local Preferences Design Sequence Diagram}
     \label{fig:uc8-sd}
 \end{figure}
@@ -609,11 +625,8 @@ The specification for UC8 is detailed in Table \ref{tab:uc8}, and its execution 
 % --------------------------------------------------------------------
 % UC9
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 9: Filter and Sort Local Movie Collection}}
-\vspace{0.2cm}
-
-The specification for UC9 is detailed in Table \ref{tab:uc9}, and its execution flow is represented in Figure \ref{fig:uc9-sd}.
+\subsubsection{Use Case 9: Filter and Sort Local Movie Collection}
+Table \ref{tab:uc9} details the functional specification of UC9. Figure \ref{fig:uc9-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc9-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -642,7 +655,16 @@ The specification for UC9 is detailed in Table \ref{tab:uc9}, and its execution 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC9-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC9/UC9-UCD.pdf}
+    \caption{UC9: Filter and Sort Collection Use Case Diagram}
+    \label{fig:uc9-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC9/UC9-SD.pdf}
     \caption{UC9: Collection Filter and Sort Design Sequence Diagram}
     \label{fig:uc9-sd}
 \end{figure}
@@ -652,11 +674,8 @@ The specification for UC9 is detailed in Table \ref{tab:uc9}, and its execution 
 % --------------------------------------------------------------------
 % UC10
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 10: Play Official YouTube Video Trailers}}
-\vspace{0.2cm}
-
-The specification for UC10 is detailed in Table \ref{tab:uc10}, and its execution flow is represented in Figure \ref{fig:uc10-sd}.
+\subsubsection{Use Case 10: Play Official YouTube Video Trailers}
+Table \ref{tab:uc10} details the functional specification of UC10. Figure \ref{fig:uc10-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc10-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -685,7 +704,16 @@ The specification for UC10 is detailed in Table \ref{tab:uc10}, and its executio
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC10-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC10/UC10-UCD.pdf}
+    \caption{UC10: Play Official Trailers Use Case Diagram}
+    \label{fig:uc10-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC10/UC10-SD.pdf}
     \caption{UC10: Official Video Trailers Design Sequence Diagram}
     \label{fig:uc10-sd}
 \end{figure}
@@ -695,11 +723,8 @@ The specification for UC10 is detailed in Table \ref{tab:uc10}, and its executio
 % --------------------------------------------------------------------
 % UC11
 % --------------------------------------------------------------------
-\vspace{0.2cm}
-\noindent{\Large \textbf{Use Case 11: External Movie Card Sharing}}
-\vspace{0.2cm}
-
-The specification for UC11 is detailed in Table \ref{tab:uc11}, and its execution flow is represented in Figure \ref{fig:uc11-sd}.
+\subsubsection{Use Case 11: External Movie Card Sharing}
+Table \ref{tab:uc11} details the functional specification of UC11. Figure \ref{fig:uc11-ucd} presents the dedicated Use Case Diagram, and Figure \ref{fig:uc11-sd} illustrates its runtime design realization.
 
 \begin{center}
     \small
@@ -728,13 +753,21 @@ The specification for UC11 is detailed in Table \ref{tab:uc11}, and its executio
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Use_Cases/UC11-SD.pdf}
+    \includegraphics[width=0.72\textwidth]{figures/Use_Cases/UC11/UC11-UCD.pdf}
+    \caption{UC11: External Social Sharing Use Case Diagram}
+    \label{fig:uc11-ucd}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{figures/Use_Cases/UC11/UC11-SD.pdf}
     \caption{UC11: External Social Sharing Design Sequence Diagram}
     \label{fig:uc11-sd}
 \end{figure}
 
 \newpage
-
 % ====================================================================
 \section{Implementation and Testing}
 % ====================================================================

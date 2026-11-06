@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Cloud Firestore" as Firestore <<NoSQL DB>>
+
+rectangle "CineTrack - UC2: Create and Manage Movie Lists" {
+    usecase "UC03: Create Movie List" as UC03
+    usecase "UC04: View User Lists" as UC04
+    usecase "UC05: Delete Movie List" as UC05
+    usecase "Validate List Name" as UC_Val
+    usecase "Realtime Snapshot Sync" as UC_Sync
+}
+
+User --> UC03
+User --> UC04
+User --> UC05
+
+UC03 ..> UC_Val : <<include>>
+UC04 ..> UC_Sync : <<include>>
+
+UC03 ..> Firestore : setDocument(users/{uid}/lists)
+UC_Sync ..> Firestore : addSnapshotListener()
+UC05 ..> Firestore : deleteDocument(users/{uid}/lists/{id})
+@enduml
