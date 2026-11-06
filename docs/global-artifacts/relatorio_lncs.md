@@ -93,7 +93,10 @@ Demonstração da interação do utilizador durante o fluxo de autenticação e 
 4. **Foursquare Places API:** Pesquisa geoespacial de salas de cinema que dispensa a obrigatoriedade de cartão de crédito para developers, ao contrário da Google Places API.
 5. **Acelerómetro com Gestão do Ciclo de Vida:** O registo do listener do sensor em `onResume()` e respetiva desativação em `onPause()` protege a integridade da bateria do dispositivo móvel.
 6. **Mutações REST com HTTP POST e DELETE no TMDB:** Para além do consumo de catálogo via GET, a aplicação implementa mutações REST com submissão de avaliações via `POST /3/movie/{id}/rating` (com corpo JSON `@Body` serializado por Gson) e remoção via `DELETE`, recorrendo a *Guest Sessions* geridas automaticamente em `SharedPrefManager`.
-7. **Comparadores Funcionais Java 21 e Implicit Intents:** Implementação de filtragem e ordenação em memória no Modelo puro (`SavedMovieFilterSorter`) com resposta em $0\text{ ms}$ sem tráfego de dados, e partilha social via *Implicit Intent* (`ACTION_SEND` com `Intent.createChooser()`).
+7. **Comparadores Funcionais Java 21 e Implicit Intents:** Implementação de filtragem e ordenação em memória no Modelo puro (`SavedMovieFilterSorter`) com resposta em $0\text{ ms}$ sem tráfego de dados, e partilha social via *Implicit Intent* (`ACTION_SEND` com `Intent.createChooser()`) para filmes individuais e listas completas.
+8. **Gestão de Conectividade em Tempo Real e Resiliência Offline:** Monitorização ativa de conectividade através da API moderna `ConnectivityManager.NetworkCallback` (evitando `BroadcastReceiver` depreciados), emitindo alertas não-bloqueantes (`Snackbar`) e prevenindo chamadas de rede supérfluas quando o dispositivo se encontra sem Internet.
+9. **Canais de Notificação do Sistema e Permissões Android 13+:** Implementação de `NotificationChannel` e `NotificationCompat.Builder` com `PendingIntent` imutável (`FLAG_IMMUTABLE`) para recomendações e lembretes de filmes na watchlist, com verificação estrita da permissão em runtime `POST_NOTIFICATIONS`.
+10. **Internacionalização e Temas Dinâmicos:** Suporte completo a Dark Mode, Light Mode e modo de sistema com tokens semânticos de cor em `res/values-night/` e persistência assíncrona imediata via `SharedPreferences`.
 
 ---
 

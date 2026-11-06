@@ -191,6 +191,29 @@ package "pt.isep.dssmv.projectdroid.model" {
         + {static} format(movie : SavedMovie) : String
         + {static} format(title : String, releaseYear : int, overview : String, tmdbId : int) : String
         + {static} formatDetails(title : String, releaseYear : int, overview : String, tmdbId : int, score : Float, comment : String, status : WatchStatus) : String
+        + {static} formatList(listName : String, listDescription : String, movies : List<SavedMovie>) : String
+        + {static} formatStatusLabel(status : WatchStatus) : String
+    }
+
+    class UserMovieStats {
+        - totalMovies : int
+        - uniqueMoviesCount : int
+        - favoritesCount : int
+        - watchedCount : int
+        - planToWatchCount : int
+        - watchingCount : int
+        - totalRatedCount : int
+        - averageRating : float
+        + UserMovieStats(movies : Collection<SavedMovie>)
+        + getTotalMovies() : int
+        + getUniqueMoviesCount() : int
+        + getFavoritesCount() : int
+        + getWatchedCount() : int
+        + getPlanToWatchCount() : int
+        + getWatchingCount() : int
+        + getTotalRatedCount() : int
+        + getAverageRating() : float
+        + getFormattedAverageRating() : String
     }
 }
 
@@ -205,5 +228,6 @@ SavedMovie "1" o-- "0..1" Rating : rating
 SavedMovieFilterSorter ..> SavedMovie : sorts & filters
 SavedMovieFilterSorter ..> SavedMovieSortOption : uses
 MovieShareFormatter ..> SavedMovie : formats
+UserMovieStats ..> SavedMovie : aggregates
 
 @enduml
