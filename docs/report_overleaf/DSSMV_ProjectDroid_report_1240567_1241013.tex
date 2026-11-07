@@ -744,6 +744,7 @@ Rather than grouping all system requirements into a single monolithic diagram, C
 
 This section presents representative implementation excerpts from the CineTrack Java~21 and Android codebase. The excerpts demonstrate how the system enforces Model purity, maintains asynchronous UI Thread responsiveness, manages hardware sensors, and handles real-time network and system notification events.
 
+\clearpage
 \subsection{Pure Java 21 Domain Model and Defensive Validation}
 Listing \ref{lst:cinema-model} shows the pure Java~21 \texttt{Cinema} domain entity. Notice the defensive validation checks, strict interval enforcement, and complete absence of Android SDK imports.
 
@@ -1027,6 +1028,7 @@ public class CinemaTest {
 }
 \end{lstlisting}
 
+\clearpage
 \begin{lstlisting}[style=javastyle,caption={JUnit 5 Social Share Formatter Tests (MovieShareFormatterTest.java)},label={lst:share-test}]
 package pt.isep.dssmv.projectdroid.model;
 
