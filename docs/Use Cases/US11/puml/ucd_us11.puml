@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "Android OS\n(Share Sheet)" as AndroidOS <<System>>
+
+rectangle "CineTrack - UC11: Social Share Movie" {
+    usecase "UC18: Share Movie Card" as UC18
+    usecase "Format Movie Summary Text" as UC_Format
+    usecase "Trigger ACTION_SEND Intent Chooser" as UC_Share
+}
+
+User --> UC18
+
+UC18 ..> UC_Format : <<include>>
+UC18 ..> UC_Share : <<include>>
+
+UC_Share ..> AndroidOS : Intent.createChooser()
+@enduml

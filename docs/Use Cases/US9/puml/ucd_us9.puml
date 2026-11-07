@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Java 21 Comparator Engine" as Comp <<Memory>>
+
+rectangle "CineTrack - UC9: Filter & Sort Collection" {
+    usecase "UC15: Sort Movies by Title, Date, Rating" as UC15
+    usecase "UC16: Filter Movies by Decade or Provider" as UC16
+    usecase "Execute In-Memory Comparison" as UC_SortLogic
+    usecase "Refresh MovieListAdapter Dataset" as UC_Refresh
+}
+
+User --> UC15
+User --> UC16
+
+UC15 ..> UC_SortLogic : <<include>>
+UC16 ..> UC_SortLogic : <<include>>
+
+UC_SortLogic ..> Comp : Collections.sort(list, comparator)
+UC_SortLogic ..> UC_Refresh : <<include>>
+@enduml

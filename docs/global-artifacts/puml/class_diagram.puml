@@ -1,17 +1,43 @@
 @startuml
-skinparam handwritten false
+set namespaceSeparator none
 skinparam monochrome false
 skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 11
+skinparam classFontSize 12
+skinparam classStereotypeFontSize 10
+skinparam packageFontSize 12
 skinparam classAttributeIconSize 0
 
+skinparam class {
+    BackgroundColor #FFFFFF
+    ArrowColor #1A237E
+    BorderColor #1A237E
+    BorderThickness 1.3
+    HeaderBackgroundColor #E8EAF6
+}
+
+skinparam enum {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    BorderThickness 1.3
+    HeaderBackgroundColor #E8EAF6
+}
+
+skinparam package {
+    BackgroundColor #FAFAFC
+    BorderColor #283593
+    BorderThickness 1.5
+    FontColor #1A237E
+    FontStyle bold
+}
+
 package "pt.isep.dssmv.projectdroid.exceptions" {
-    class InvalidDataException <<checked exception>> {
+    class InvalidDataException <<checked>> {
         + InvalidDataException(message : String)
     }
 
-    class InvalidRatingException <<checked exception>> {
+    class InvalidRatingException <<checked>> {
         + InvalidRatingException(message : String)
     }
 
@@ -35,6 +61,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         RATING_ASC
         YEAR_DESC
         YEAR_ASC
+        DATE_ADDED_DESC
     }
 
     class User {
@@ -42,6 +69,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - name : String
         - email : String
         - registrationDate : Date
+        --
         + User(userId : String, name : String, email : String)
         + User(userId : String, name : String, email : String, registrationDate : Date)
         + getUserId() : String
@@ -59,6 +87,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - listId : String
         - name : String
         - createdAt : Date
+        --
         + MovieList(listId : String, name : String)
         + MovieList(listId : String, name : String, createdAt : Date)
         + getListId() : String
@@ -79,6 +108,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - overview : String
         - status : WatchStatus
         - rating : Rating
+        --
         + SavedMovie(internalId : String, tmdbId : int, title : String)
         + getInternalId() : String
         + getTmdbId() : int
@@ -103,6 +133,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - score : float
         - comment : String
         - createdAt : Date
+        --
         + Rating(ratingId : String, score : float, comment : String)
         + Rating(ratingId : String, score : float, comment : String, createdAt : Date)
         + getRatingId() : String
@@ -123,7 +154,8 @@ package "pt.isep.dssmv.projectdroid.model" {
         - longitude : double
         - address : String
         - distanceMeters : int
-        + Cinema(fsqId : String, name : String, latitude : double, longitude : double)
+        --
+        + Cinema(fsqId : String, name : String, lat : double, lon : double)
         + getFsqId() : String
         + getName() : String
         + getLatitude() : double
@@ -140,6 +172,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - name : String
         - logoPath : String
         - accessType : String
+        --
         + WatchProvider(providerId : int, name : String, logoPath : String, accessType : String)
         + getProviderId() : int
         + getName() : String
@@ -155,6 +188,7 @@ package "pt.isep.dssmv.projectdroid.model" {
         - minReleaseYear : int
         - streamingProviders : Set<String>
         - shakeThreshold : float
+        --
         + UserPreferences()
         + UserPreferences(cinemaRadiusKm : int, defaultRegion : String)
         + UserPreferences(cinemaRadiusKm : int, defaultRegion : String, minRating : float, minYear : int, providers : Set<String>, threshold : float)
@@ -174,6 +208,26 @@ package "pt.isep.dssmv.projectdroid.model" {
         + toString() : String
     }
 
+    class UserMovieStats {
+        - totalMovies : int
+        - planToWatchCount : int
+        - watchingCount : int
+        - watchedCount : int
+        - favoriteCount : int
+        - ratedMoviesCount : int
+        - averageRating : double
+        --
+        + UserMovieStats(total : int, plan : int, watching : int, watched : int, fav : int, rated : int, avg : double)
+        + {static} calculate(movies : List<SavedMovie>) : UserMovieStats
+        + getTotalMovies() : int
+        + getPlanToWatchCount() : int
+        + getWatchingCount() : int
+        + getWatchedCount() : int
+        + getFavoriteCount() : int
+        + getRatedMoviesCount() : int
+        + getAverageRating() : double
+    }
+
     class SavedMovieFilterSorter <<utility>> {
         + {static} COMPARATOR_TITLE_ASC : Comparator<SavedMovie>
         + {static} COMPARATOR_TITLE_DESC : Comparator<SavedMovie>
@@ -190,44 +244,32 @@ package "pt.isep.dssmv.projectdroid.model" {
     class MovieShareFormatter <<utility>> {
         + {static} format(movie : SavedMovie) : String
         + {static} format(title : String, releaseYear : int, overview : String, tmdbId : int) : String
+        + {static} formatList(listTitle : String, movies : List<SavedMovie>) : String
         + {static} formatDetails(title : String, releaseYear : int, overview : String, tmdbId : int, score : Float, comment : String, status : WatchStatus) : String
-        + {static} formatList(listName : String, listDescription : String, movies : List<SavedMovie>) : String
-        + {static} formatStatusLabel(status : WatchStatus) : String
-    }
-
-    class UserMovieStats {
-        - totalMovies : int
-        - uniqueMoviesCount : int
-        - favoritesCount : int
-        - watchedCount : int
-        - planToWatchCount : int
-        - watchingCount : int
-        - totalRatedCount : int
-        - averageRating : float
-        + UserMovieStats(movies : Collection<SavedMovie>)
-        + getTotalMovies() : int
-        + getUniqueMoviesCount() : int
-        + getFavoritesCount() : int
-        + getWatchedCount() : int
-        + getPlanToWatchCount() : int
-        + getWatchingCount() : int
-        + getTotalRatedCount() : int
-        + getAverageRating() : float
-        + getFormattedAverageRating() : String
     }
 }
 
-User ..> InvalidDataException : throws
-MovieList ..> InvalidDataException : throws
-SavedMovie ..> InvalidDataException : throws
-Rating ..> InvalidRatingException : throws
-UserPreferences ..> InvalidDataException : throws
+' Domain Associations
+User "1" *-- "0..*" MovieList : owns >
+User "1" *-- "1" UserPreferences : configures >
+User ..> Cinema : queries >
 
-SavedMovie --> WatchStatus
-SavedMovie "1" o-- "0..1" Rating : rating
+MovieList "1" o-- "0..*" SavedMovie : contains >
+
+SavedMovie "1" *-- "0..1" Rating : rated by >
+SavedMovie --> "1" WatchStatus : status >
+SavedMovie "0..*" ..> "0..*" WatchProvider : references >
+
 SavedMovieFilterSorter ..> SavedMovie : sorts & filters
 SavedMovieFilterSorter ..> SavedMovieSortOption : uses
 MovieShareFormatter ..> SavedMovie : formats
-UserMovieStats ..> SavedMovie : aggregates
+UserMovieStats ..> SavedMovie : calculates stats
+
+User ..> InvalidDataException : <<throws>>
+MovieList ..> InvalidDataException : <<throws>>
+SavedMovie ..> InvalidDataException : <<throws>>
+Rating ..> InvalidRatingException : <<throws>>
+WatchProvider ..> InvalidDataException : <<throws>>
+UserPreferences ..> InvalidDataException : <<throws>>
 
 @enduml

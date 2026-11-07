@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "Android SharedPreferences" as Prefs <<Storage>>
+
+rectangle "CineTrack - UC8: Settings & Preferences" {
+    usecase "UC13: Configure Cinema Search Radius" as UC13
+    usecase "UC14: Set Distance Units (km / mi)" as UC14
+    usecase "Persist Preferences Asynchronously" as UC_Apply
+    usecase "Update Interactive Map Circle Radius" as UC_Notify
+}
+
+User --> UC13
+User --> UC14
+
+UC13 ..> UC_Apply : <<include>>
+UC14 ..> UC_Apply : <<include>>
+
+UC_Apply ..> Prefs : SharedPreferences.Editor.apply()
+UC13 ..> UC_Notify : <<extend>>
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "The Movie Database (TMDB)" as TMDB <<REST API>>
+
+rectangle "CineTrack - UC4: Search Catalog & Watch Providers" {
+    usecase "UC07: Search Movies by Title" as UC07
+    usecase "UC08: View Streaming Providers (PT)" as UC08
+    usecase "Debounce Search Input (300ms)" as UC_Debounce
+    usecase "View Movie Synopsis and Details" as UC_Details
+}
+
+User --> UC07
+UC07 ..> UC_Debounce : <<include>>
+UC07 ..> UC08 : <<include>>
+UC07 <.. UC_Details : <<extend>>
+
+UC07 ..> TMDB : GET /search/movie
+UC08 ..> TMDB : GET /movie/{id}/watch/providers
+UC_Details ..> TMDB : GET /movie/{id}
+@enduml

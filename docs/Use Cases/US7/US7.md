@@ -44,6 +44,13 @@ Como um utilizador autenticado no CineTrack, pretendo aceder a um ecrã dedicado
 
 ---
 
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us7.puml`](puml/ucd_us7.puml)
+
+![Diagrama de Caso de Uso - US7](svg/ucd_us7.svg)
+
+---
+
 ## 6. Diagrama de Sequência de Sistema (SSD)
 
 Ficheiro PlantUML fonte: [`puml/ssd_us7_profile_logout.puml`](puml/ssd_us7_profile_logout.puml)

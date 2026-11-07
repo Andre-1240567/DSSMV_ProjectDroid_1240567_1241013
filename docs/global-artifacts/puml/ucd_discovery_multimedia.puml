@@ -1,0 +1,68 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "TMDB REST API" as TMDB <<REST API>>
+actor "Accelerometer\n(SensorManager)" as Sensor <<Hardware>>
+actor "Video Player\n(YouTube / Browser)" as VideoPlayer <<External App>>
+
+rectangle "Catalog, Discovery and Multimedia Subsystem" {
+    usecase "UC04: Search Movie Catalog" as UC04
+    usecase "UC04.1: View Movie Details and Synopsis" as UC04_1
+    usecase "UC04.2: View Streaming Services (PT)" as UC04_2
+    
+    usecase "UC10: Play Official Trailer" as UC10
+    usecase "UC10.1: Fetch Video Key (/videos)" as UC10_1
+    usecase "UC10.2: Play via Implicit Intent (vnd.youtube)" as UC10_2
+    
+    usecase "UC06: Shake to Suggest Random Movie" as UC06
+    usecase "UC06.1: Detect Multi-Peak Shake (>2.7g)" as UC06_1
+    usecase "UC06.2: Preload Recommendations (Discover)" as UC06_2
+    usecase "UC06.3: Trigger Haptic Feedback (Vibration)" as UC06_3
+}
+
+' User Interactions
+User --> UC04
+User --> UC04_1
+User --> UC10
+User --> UC06
+
+' Inclusion and Extension Relationships
+UC04 <.. UC04_1 : <<extend>>
+UC04_1 <.. UC04_2 : <<include>>
+UC04_1 <.. UC10 : <<extend>>
+
+UC10 ..> UC10_1 : <<include>>
+UC10 ..> UC10_2 : <<include>>
+
+UC06 ..> UC06_1 : <<include>>
+UC06 ..> UC06_2 : <<include>>
+UC06 ..> UC06_3 : <<include>>
+
+' External Service Integrations
+UC04 ..> TMDB : GET /search/movie
+UC04_2 ..> TMDB : GET /watch/providers
+UC10_1 ..> TMDB : GET /movie/{id}/videos
+UC06_2 ..> TMDB : GET /discover/movie
+
+UC06_1 ..> Sensor : listens to Sensor.TYPE_ACCELEROMETER
+UC10_2 ..> VideoPlayer : startActivity(ACTION_VIEW)
+
+@enduml

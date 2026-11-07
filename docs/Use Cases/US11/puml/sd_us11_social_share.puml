@@ -1,0 +1,53 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+title US11 - External Movie Card Sharing
+
+actor "User" as User
+participant ":MovieDetailActivity" as Activity
+participant "domain:\nSavedMovie" as Movie
+participant ":Intent\n(Send Intent)" as SendIntent
+participant ":Intent\n(Chooser Intent)" as ChooserIntent
+participant ":External App\n(WhatsApp / Social)" as TargetApp
+
+autonumber
+
+== Scenario: Share Movie Card Externally ==
+
+User -> Activity : clickShareMovieButton()
+activate Activity
+
+Activity -> Movie : getTitle(), getReleaseYear(), getOverview()
+activate Movie
+Movie --> Activity : movieData
+deactivate Movie
+
+Activity -> Activity : buildFormattedShareText(title, year, overview, "Shared via CineTrack")
+
+Activity -> SendIntent : new Intent(Intent.ACTION_SEND)
+activate SendIntent
+SendIntent -> SendIntent : setType("text/plain")
+SendIntent -> SendIntent : putExtra(Intent.EXTRA_SUBJECT, title)
+SendIntent -> SendIntent : putExtra(Intent.EXTRA_TEXT, shareText)
+SendIntent --> Activity : sendIntent
+deactivate SendIntent
+
+Activity -> ChooserIntent : Intent.createChooser(sendIntent, "Share Movie via...")
+activate ChooserIntent
+ChooserIntent --> Activity : chooserIntent
+deactivate ChooserIntent
+
+Activity -> Activity : startActivity(chooserIntent)
+Activity --> User : displayNativeAppChooser(WhatsApp, Messages, Twitter, Email)
+
+User -> TargetApp : selectTargetApp("WhatsApp")
+activate TargetApp
+TargetApp --> User : openExternalShareDialog(formattedContent)
+deactivate TargetApp
+
+deactivate Activity
+
+@enduml

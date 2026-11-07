@@ -1,57 +1,103 @@
 @startuml
-skinparam handwritten false
 skinparam monochrome false
 skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
 skinparam packageStyle rectangle
 
-actor "Utilizador" as User
-actor "Sistema Externo: Firebase" as Firebase <<Sistema>>
-actor "Sistema Externo: TMDB" as TMDB <<Sistema>>
-actor "Sistema Externo: Foursquare" as Foursquare <<Sistema>>
-actor "Hardware / Sensores" as Sensores <<Dispositivo>>
-
-rectangle "CineTrack (ProjectDroid)" {
-    usecase "UC01: Registar e Autenticar" as UC01
-    usecase "UC02: Criar e Gerir Listas" as UC02
-    usecase "UC03: Adicionar Filmes e Avaliar" as UC03
-    usecase "UC04: Pesquisar Filmes e Streaming" as UC04
-    usecase "UC05: Localizar Cinemas no Mapa" as UC05
-    usecase "UC06: Sugestão Aleatória (Shake)" as UC06
-    usecase "UC07: Consultar Perfil e Logout" as UC07
-    usecase "UC08: Configurar Preferências Locais" as UC08
-    usecase "UC09: Filtrar e Ordenar Coleção" as UC09
-    usecase "UC10: Visualizar Trailer Oficial" as UC10
-    usecase "UC11: Partilhar Ficha de Filme" as UC11
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
 }
 
-' Relações com o Utilizador
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+' Primary and Secondary Actors
+actor "User" as User
+
+actor "Firebase\n(Auth & Firestore)" as Firebase <<BaaS>>
+actor "TMDB API" as TMDB <<REST API>>
+actor "Foursquare Places API" as FSQ <<REST API>>
+actor "Device Sensors\n(GPS & Accelerometer)" as Sensors <<Hardware>>
+actor "External Applications\n(YouTube & Google Maps)" as ExtApps <<External System>>
+
+rectangle "CineTrack - Android System (ProjectDroid)" {
+
+    package "Module 1: Identity and Session" {
+        usecase "UC01: Register User" as UC01
+        usecase "UC02: Authenticate Session" as UC02
+        usecase "UC03: View Profile and Sign Out" as UC03
+    }
+
+    package "Module 2: Catalog and Multimedia" {
+        usecase "UC04: Search Catalog Movies" as UC04
+        usecase "UC05: View Streaming Availability" as UC05
+        usecase "UC06: Play Official Trailer" as UC06
+        usecase "UC07: Recommend Movie by Shake" as UC07
+    }
+
+    package "Module 3: Personal Lists and Ratings" {
+        usecase "UC08: Manage Custom Lists" as UC08
+        usecase "UC09: Add Movie to List" as UC09
+        usecase "UC10: Rate Movie (1.0 - 5.0 Stars)" as UC10
+        usecase "UC11: Filter and Sort Local Collection" as UC11
+        usecase "UC12: Share Movie Card" as UC12
+    }
+
+    package "Module 4: Geolocation and Cinemas" {
+        usecase "UC13: Locate Nearby Cinemas" as UC13
+        usecase "UC14: View Interactive Map and Radius" as UC14
+        usecase "UC15: Get Turn-by-Turn Navigation" as UC15
+        usecase "UC16: Configure Local Preferences" as UC16
+    }
+}
+
+' User Relationships with Use Cases
 User --> UC01
 User --> UC02
 User --> UC03
 User --> UC04
-User --> UC05
 User --> UC06
 User --> UC07
 User --> UC08
 User --> UC09
-User --> UC10
 User --> UC11
+User --> UC12
+User --> UC13
+User --> UC16
 
-' Relações com Sistemas Externos / Serviços
-UC01 ..> Firebase : autentica
-UC02 ..> Firebase : sincroniza listas (Firestore)
-UC03 ..> Firebase : persiste avaliações (Firestore)
-UC07 ..> Firebase : encerra sessão
+' Internal Relationships (include / extend)
+UC04 <.. UC05 : <<include>>
+UC04 <.. UC06 : <<extend>>
+UC09 <.. UC10 : <<extend>>
+UC13 <.. UC14 : <<include>>
+UC13 <.. UC15 : <<extend>>
 
-UC04 ..> TMDB : consome catálogo e providers
-UC03 ..> TMDB : sincroniza avaliações (REST POST/DELETE)
-UC10 ..> TMDB : obtém chave do trailer
+' Cloud and External Integrations
+UC01 ..> Firebase : creates account
+UC02 ..> Firebase : validates credentials
+UC03 ..> Firebase : terminates session
+UC08 ..> Firebase : synchronizes lists (Firestore)
+UC09 ..> Firebase : persists movie in list
+UC10 ..> Firebase : stores user rating
 
-UC05 ..> Foursquare : pesquisa cinemas próximos
-UC05 ..> Sensores : obtém coordenadas GPS
+UC04 ..> TMDB : queries movie metadata
+UC05 ..> TMDB : fetches watch providers by region
+UC06 ..> TMDB : fetches video trailer key
+UC07 ..> TMDB : queries discover / popular movies
+UC10 ..> TMDB : submits guest rating
 
-UC06 ..> Sensores : deteta aceleração brusca
+UC06 ..> ExtApps : opens YouTube app via Intent
+UC15 ..> ExtApps : launches Google Maps via geo: Intent
+
+UC13 ..> FSQ : queries cinema POIs (10024)
+UC13 ..> Sensors : reads location coordinates (GPS)
+UC07 ..> Sensors : monitors acceleration (>2.7g)
 
 @enduml

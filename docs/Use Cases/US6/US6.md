@@ -52,11 +52,25 @@ Como um utilizador do CineTrack indeciso sobre que filme assistir, pretendo agit
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
 
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us6.puml`](puml/ucd_us6.puml)
+
+![Diagrama de Caso de Uso - US6](svg/ucd_us6.svg)
+
+---
+
+## 6. Diagramas de Sequência
+
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us6_shake_suggest.puml`](puml/ssd_us6_shake_suggest.puml)
 
 ![Diagrama de Sequência de Sistema - US6](svg/ssd_us6_shake_suggest.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us6_shake_suggest.puml`](puml/sd_us6_shake_suggest.puml)
+
+![Diagrama de Sequência de Realização - US6](svg/sd_us6_shake_suggest.svg)
 
 ---
 

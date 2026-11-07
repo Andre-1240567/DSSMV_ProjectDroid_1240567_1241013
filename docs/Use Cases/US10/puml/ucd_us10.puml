@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "TMDB Videos API" as TMDB <<REST API>>
+actor "External Video Player\n(YouTube / Browser)" as VideoApp <<External System>>
+
+rectangle "CineTrack - UC10: Play Official Trailer" {
+    usecase "UC17: Request Movie Trailer" as UC17
+    usecase "Fetch Video Keys (/movie/{id}/videos)" as UC_Fetch
+    usecase "Filter Official YouTube Trailer" as UC_Filter
+    usecase "Dispatch ACTION_VIEW Intent" as UC_Intent
+}
+
+User --> UC17
+
+UC17 ..> UC_Fetch : <<include>>
+UC_Fetch ..> UC_Filter : <<include>>
+UC17 ..> UC_Intent : <<include>>
+
+UC_Fetch ..> TMDB : GET /movie/{id}/videos
+UC_Intent ..> VideoApp : startActivity(Intent)
+@enduml

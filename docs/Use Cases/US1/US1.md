@@ -52,11 +52,25 @@ Como um utilizador do CineTrack, pretendo criar uma nova conta e autenticar-me n
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
 
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us1.puml`](puml/ucd_us1.puml)
+
+![Diagrama de Caso de Uso - US1](svg/ucd_us1.svg)
+
+---
+
+## 6. Diagramas de Sequência
+
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us1_auth.puml`](puml/ssd_us1_auth.puml)
 
 ![Diagrama de Sequência de Sistema - US1](svg/ssd_us1_auth.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us1_auth.puml`](puml/sd_us1_auth.puml)
+
+![Diagrama de Sequência de Realização - US1](svg/sd_us1_auth.svg)
 
 ---
 

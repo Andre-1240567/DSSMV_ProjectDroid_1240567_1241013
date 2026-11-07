@@ -36,11 +36,25 @@ Como um utilizador autenticado no CineTrack, pretendo filtrar os filmes de uma l
 
 ---
 
-## 5. Diagrama de Sequência de Sistema (SSD)
 
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us9.puml`](puml/ucd_us9.puml)
+
+![Diagrama de Caso de Uso - US9](svg/ucd_us9.svg)
+
+---
+
+## 5. Diagramas de Sequência
+
+### 5.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us9_filter_sort.puml`](puml/ssd_us9_filter_sort.puml)
 
 ![Diagrama de Sequência de Sistema - US9](svg/ssd_us9_filter_sort.svg)
+
+### 5.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us9_filter_sort.puml`](puml/sd_us9_filter_sort.puml)
+
+![Diagrama de Sequência de Realização - US9](svg/sd_us9_filter_sort.svg)
 
 ---
 
