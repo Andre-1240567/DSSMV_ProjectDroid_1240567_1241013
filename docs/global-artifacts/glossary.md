@@ -13,11 +13,11 @@ Este glossário estabelece a terminologia oficial e os conceitos concetuais e t�
 | **SavedMovie** | Filme Guardado | Instância local de um filme integrada numa lista do utilizador, sincronizada com o identificador numérico externo do TMDB, com estado de visualização e notas associadas. |
 | **WatchStatus** | Estado de Visualização | Enumeração representativa do progresso de consumo audiovisual do filme pelo utilizador: `PLAN_TO_WATCH`, `WATCHING`, `WATCHED`, `FAVORITE`. |
 | **Rating** | Avaliação / Crítica | Classificação quantitativa de um filme com nota estritamente compreendida entre 1.0 e 5.0 estrelas e comentário qualitativo textual opcional. |
-| **SavedMovieSortOption** | Opção de Ordenação | Critério de ordenação da coleção local: `TITLE_ASC` (alfabética), `RATING_DESC` (melhor avaliados), `YEAR_DESC` (mais recentes) ou `DATE_ADDED_DESC` (adicionados recentemente). |
+| **SavedMovieSortOption** | Critério / Opção de Ordenação | Enumeração que define a estratégia de ordenação da coleção local: `TITLE_ASC`, `TITLE_DESC`, `RATING_DESC`, `RATING_ASC`, `YEAR_DESC`, `YEAR_ASC`, `DATE_ADDED_DESC`. |
 | **SavedMovieFilterSorter**| Utilitário de Filtragem/Ordenação | Componente de domínio em Java 21 puro encarregue de aplicar comparadores (`Comparator<SavedMovie>`) e predicados de filtragem sem dependências do Android SDK. |
 | **WatchProvider** | Fornecedor de Streaming | Plataforma digital licenciada de distribuição de streaming disponível na região portuguesa (ex.: Netflix, HBO Max, Disney+, Prime Video, Apple TV+), obtida via TMDB API. |
 | **Cinema** | Sala de Cinema / POI | Ponto de interesse geográfico nas imediações do utilizador, caracterizado por identificador Foursquare, nome, latitude, longitude, endereço formatado e distância em metros. |
-| **UserPreferences** | Preferências do Utilizador | Conjunto de definições leves locais (raio de pesquisa de cinemas em km, região padrão, sensibilidade do acelerómetro e subscrições ativas) persistidas em `SharedPreferences`. |
+| **UserPreferences** | Preferências do Utilizador | Conjunto de definições leves locais (raio de pesquisa de cinemas em km, país/região padrão, nota mínima, ano mínimo de lançamento, fornecedores selecionados e limiar do acelerómetro) persistidas em `SharedPreferences`. |
 
 ---
 

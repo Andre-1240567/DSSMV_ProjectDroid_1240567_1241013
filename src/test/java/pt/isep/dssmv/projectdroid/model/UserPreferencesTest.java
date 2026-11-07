@@ -97,4 +97,26 @@ public class UserPreferencesTest {
             new UserPreferences(15, "PT", 7.0f, 2020, null, 1.0f);
         });
     }
+
+    @Test
+    public void testThemeModeDefaultAndCustom() throws InvalidDataException {
+        UserPreferences prefs = new UserPreferences();
+        assertEquals(UserPreferences.THEME_SYSTEM, prefs.getThemeMode());
+
+        prefs.setThemeMode(UserPreferences.THEME_LIGHT);
+        assertEquals(UserPreferences.THEME_LIGHT, prefs.getThemeMode());
+
+        prefs.setThemeMode("dark");
+        assertEquals(UserPreferences.THEME_DARK, prefs.getThemeMode());
+
+        UserPreferences customPrefs = new UserPreferences(20, "PT", 7.0f, 2010, null, 3.2f, UserPreferences.THEME_DARK);
+        assertEquals(UserPreferences.THEME_DARK, customPrefs.getThemeMode());
+    }
+
+    @Test
+    public void testInvalidThemeModeThrowsException() {
+        UserPreferences prefs = new UserPreferences();
+        assertThrows(InvalidDataException.class, () -> prefs.setThemeMode("BLUE"));
+        assertThrows(InvalidDataException.class, () -> prefs.setThemeMode(null));
+    }
 }

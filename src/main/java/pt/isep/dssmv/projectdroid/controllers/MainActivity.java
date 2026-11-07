@@ -26,12 +26,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -53,7 +55,9 @@ import pt.isep.dssmv.projectdroid.network.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.TmdbPagedResponse;
 import pt.isep.dssmv.projectdroid.network.TmdbRatingManager;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
+import pt.isep.dssmv.projectdroid.utils.NetworkMonitor;
 import pt.isep.dssmv.projectdroid.utils.ShakeDetector;
+import pt.isep.dssmv.projectdroid.utils.ShareHelper;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -119,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isPrefetchingRecommendations = false;
     private int recommendationConfigVersion = 0;
 
+    // Real-time network connectivity monitor
+    private NetworkMonitor networkMonitor;
+    private Snackbar offlineSnackbar;
+    private View coordinatorLayoutMain;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         authManager = FirebaseAuthManager.getInstance();
         firestoreManager = FirestoreManager.getInstance();
         prefManager = SharedPrefManager.getInstance(this);
+        networkMonitor = new NetworkMonitor(this, this::handleConnectivityChanged);
 
         if (!authManager.isUserLoggedIn()) {
             redirectToLogin();
@@ -173,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
         if (authManager.isUserLoggedIn()) {
             attachListsListener();
         }
+        if (networkMonitor != null) {
+            networkMonitor.startMonitoring();
+            if (!networkMonitor.isCurrentlyConnected()) {
+                handleConnectivityChanged(false);
+            }
+        }
     }
 
     @Override
@@ -194,9 +210,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         detachListsListener();
+        if (networkMonitor != null) {
+            networkMonitor.stopMonitoring();
+        }
+        if (offlineSnackbar != null && offlineSnackbar.isShown()) {
+            offlineSnackbar.dismiss();
+        }
+    }
+
+    private void handleConnectivityChanged(boolean isConnected) {
+        View targetView = (coordinatorLayoutMain != null) ? coordinatorLayoutMain : findViewById(android.R.id.content);
+        if (targetView == null) return;
+
+        if (!isConnected) {
+            if (offlineSnackbar == null || !offlineSnackbar.isShown()) {
+                offlineSnackbar = Snackbar.make(targetView, R.string.warning_offline_mode, Snackbar.LENGTH_INDEFINITE)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.primary_dark))
+                        .setTextColor(ContextCompat.getColor(this, R.color.surface))
+                        .setAction(R.string.dismiss, v -> {
+                            if (offlineSnackbar != null) offlineSnackbar.dismiss();
+                        })
+                        .setActionTextColor(ContextCompat.getColor(this, R.color.accent));
+                offlineSnackbar.show();
+            }
+        } else {
+            if (offlineSnackbar != null && offlineSnackbar.isShown()) {
+                offlineSnackbar.dismiss();
+                Snackbar.make(targetView, R.string.info_connection_restored, Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.primary))
+                        .setTextColor(ContextCompat.getColor(this, R.color.surface))
+                        .show();
+            }
+        }
     }
 
     private void initViews() {
+        coordinatorLayoutMain = findViewById(R.id.coordinatorLayoutMain);
         buttonSearchMovies = findViewById(R.id.buttonSearchMovies);
         buttonPreferences = findViewById(R.id.buttonPreferences);
         buttonNearbyCinemas = findViewById(R.id.buttonNearbyCinemas);
@@ -507,6 +556,17 @@ public class MainActivity extends AppCompatActivity {
         TextView textViewTitle = dialogView.findViewById(R.id.textViewShakeTitle);
         TextView textViewYear = dialogView.findViewById(R.id.textViewShakeYear);
         TextView textViewOverview = dialogView.findViewById(R.id.textViewShakeOverview);
+        ImageButton buttonShare = dialogView.findViewById(R.id.buttonShakeShare);
+
+        if (buttonShare != null) {
+            buttonShare.setOnClickListener(v -> ShareHelper.shareMovie(
+                    MainActivity.this,
+                    movie.getTitle(),
+                    movie.getReleaseYear(),
+                    movie.getOverview(),
+                    movie.getId()
+            ));
+        }
 
         textViewTitle.setText(movie.getTitle());
         if (movie.getReleaseYear() > 0) {
@@ -570,6 +630,7 @@ public class MainActivity extends AppCompatActivity {
         CheckBox checkboxAppleTv = dialogView.findViewById(R.id.checkboxAppleTv);
 
         Spinner spinnerSensitivity = dialogView.findViewById(R.id.spinnerShakeSensitivity);
+        Spinner spinnerThemeMode = dialogView.findViewById(R.id.spinnerThemeMode);
 
         String[] sensitivities = new String[]{
                 getString(R.string.sensitivity_normal),
@@ -578,6 +639,16 @@ public class MainActivity extends AppCompatActivity {
         };
         ArrayAdapter<String> sensitivityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sensitivities);
         spinnerSensitivity.setAdapter(sensitivityAdapter);
+
+        if (spinnerThemeMode != null) {
+            String[] themeOptions = new String[]{
+                    getString(R.string.theme_system),
+                    getString(R.string.theme_light),
+                    getString(R.string.theme_dark)
+            };
+            ArrayAdapter<String> themeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, themeOptions);
+            spinnerThemeMode.setAdapter(themeAdapter);
+        }
 
         UserPreferences currentPrefs = prefManager.getUserPreferences();
         editTextRadius.setText(String.valueOf(currentPrefs.getCinemaRadiusKm()));
@@ -599,6 +670,17 @@ public class MainActivity extends AppCompatActivity {
             spinnerSensitivity.setSelection(2); // Low
         } else {
             spinnerSensitivity.setSelection(0); // Normal
+        }
+
+        if (spinnerThemeMode != null) {
+            String curTheme = currentPrefs.getThemeMode();
+            if (UserPreferences.THEME_LIGHT.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(1);
+            } else if (UserPreferences.THEME_DARK.equalsIgnoreCase(curTheme)) {
+                spinnerThemeMode.setSelection(2);
+            } else {
+                spinnerThemeMode.setSelection(0);
+            }
         }
 
         new AlertDialog.Builder(this)
@@ -624,13 +706,27 @@ public class MainActivity extends AppCompatActivity {
                         if (checkboxPrimeVideo.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_PRIME_VIDEO);
                         if (checkboxAppleTv.isChecked()) selectedProviders.add(UserPreferences.PROVIDER_APPLE_TV);
 
-                        float threshold = switch (spinnerSensitivity.getSelectedItemPosition()) {
-                            case 1 -> 2.7f;
-                            case 2 -> 3.8f;
-                            default -> 3.2f;
-                        };
+                        float threshold;
+                        int selectedSensPos = spinnerSensitivity.getSelectedItemPosition();
+                        if (selectedSensPos == 1) {
+                            threshold = 2.7f;
+                        } else if (selectedSensPos == 2) {
+                            threshold = 3.8f;
+                        } else {
+                            threshold = 3.2f;
+                        }
 
-                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr, minRating, minYear, selectedProviders, threshold);
+                        String selectedTheme = UserPreferences.THEME_SYSTEM;
+                        if (spinnerThemeMode != null) {
+                            int themePos = spinnerThemeMode.getSelectedItemPosition();
+                            if (themePos == 1) {
+                                selectedTheme = UserPreferences.THEME_LIGHT;
+                            } else if (themePos == 2) {
+                                selectedTheme = UserPreferences.THEME_DARK;
+                            }
+                        }
+
+                        UserPreferences updatedPrefs = new UserPreferences(radius, regionStr, minRating, minYear, selectedProviders, threshold, selectedTheme);
                         prefManager.saveUserPreferences(updatedPrefs);
                         if (shakeDetector != null) {
                             shakeDetector.setThreshold(threshold);

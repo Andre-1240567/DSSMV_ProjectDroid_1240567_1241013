@@ -21,6 +21,7 @@ import pt.isep.dssmv.projectdroid.adapters.MovieSearchAdapter;
 import pt.isep.dssmv.projectdroid.network.RetrofitClient;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbMovieDto;
 import pt.isep.dssmv.projectdroid.network.dto.TmdbSearchResponse;
+import pt.isep.dssmv.projectdroid.utils.NetworkMonitor;
 import pt.isep.dssmv.projectdroid.utils.SharedPrefManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,7 +29,7 @@ import retrofit2.Response;
 
 public class MovieSearchActivity extends AppCompatActivity {
 
-    private Button buttonBack;
+    private View buttonBack;
     private EditText editTextSearchQuery;
     private Button buttonPerformSearch;
     private ProgressBar progressBarSearch;
@@ -80,6 +81,12 @@ public class MovieSearchActivity extends AppCompatActivity {
         String query = editTextSearchQuery.getText().toString().trim();
         if (query.isEmpty()) {
             Toast.makeText(this, R.string.error_empty_search, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        NetworkMonitor networkMonitor = new NetworkMonitor(this, isConnected -> {});
+        if (!networkMonitor.isCurrentlyConnected()) {
+            Toast.makeText(this, R.string.warning_search_offline, Toast.LENGTH_SHORT).show();
             return;
         }
 

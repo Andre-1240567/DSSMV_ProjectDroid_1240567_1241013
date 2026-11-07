@@ -15,7 +15,7 @@ A especificação de requisitos do **CineTrack** (*ProjectDroid*) estrutura-se e
 | **RF05** | Localizar Cinemas Próximos | #5 | Mapear salas de cinema num raio geográfico através do GPS e da Foursquare Places API. | Should Have |
 | **RF06** | Sugestão Aleatória (*Shake to Suggest*) | #6 | Recomendar um filme aleatório da coleção do utilizador quando o dispositivo for agitado fisicamente. | Should Have |
 | **RF07** | Gestão de Perfil e Logout | #7 | Consultar dados da conta e terminar sessão de forma segura. | Must Have |
-| **RF08** | Guardar Preferências Locais | #8 | Persistir localmente o raio de pesquisa de cinemas e o país padrão em `SharedPreferences`. | Should Have |
+| **RF08** | Guardar Preferências Locais | #8 | Persistir localmente as preferências de utilizador (raio de cinemas, país, nota mínima, ano mínimo, provedores de streaming e sensibilidade do acelerómetro) em `SharedPreferences`. | Should Have |
 | **RF09** | Filtragem e Ordenação da Coleção | #9 | Ordenar por título/nota e filtrar por estado de visualização na camada de domínio. | Should Have |
 | **RF10** | Visualização de Trailers Oficiais | #10 | Abrir trailers do YouTube a partir dos metadados do TMDB via *Implicit Intent*. | Could Have |
 | **RF11** | Partilha Externa de Filmes | #11 | Partilhar dados formatados de um filme para apps externas via `ACTION_SEND` e *Chooser*. | Could Have |

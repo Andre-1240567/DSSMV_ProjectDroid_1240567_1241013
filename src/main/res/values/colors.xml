@@ -7,5 +7,8 @@
     <color name="surface">#FFFFFF</color>
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
+    <color name="card_stroke">#E8EAF6</color>
+    <color name="badge_bg">#E8EAF6</color>
     <color name="error">#D32F2F</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

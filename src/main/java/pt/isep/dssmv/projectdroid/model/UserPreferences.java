@@ -20,12 +20,19 @@ public class UserPreferences {
     public static final String PROVIDER_PRIME_VIDEO = "119";
     public static final String PROVIDER_APPLE_TV = "350";
 
+    // Theme modes
+    public static final String THEME_SYSTEM = "SYSTEM";
+    public static final String THEME_LIGHT = "LIGHT";
+    public static final String THEME_DARK = "DARK";
+    public static final String DEFAULT_THEME_MODE = THEME_SYSTEM;
+
     private int cinemaRadiusKm;
     private String defaultRegion;
     private float minRating;
     private int minReleaseYear;
     private Set<String> streamingProviders;
     private float shakeThreshold;
+    private String themeMode;
 
     public UserPreferences() {
         this.cinemaRadiusKm = DEFAULT_RADIUS_KM;
@@ -34,6 +41,7 @@ public class UserPreferences {
         this.minReleaseYear = DEFAULT_MIN_YEAR;
         this.streamingProviders = new HashSet<>();
         this.shakeThreshold = DEFAULT_SHAKE_THRESHOLD;
+        this.themeMode = DEFAULT_THEME_MODE;
     }
 
     public UserPreferences(int cinemaRadiusKm, String defaultRegion) throws InvalidDataException {
@@ -43,12 +51,17 @@ public class UserPreferences {
     }
 
     public UserPreferences(int cinemaRadiusKm, String defaultRegion, float minRating, int minReleaseYear, Set<String> streamingProviders, float shakeThreshold) throws InvalidDataException {
+        this(cinemaRadiusKm, defaultRegion, minRating, minReleaseYear, streamingProviders, shakeThreshold, DEFAULT_THEME_MODE);
+    }
+
+    public UserPreferences(int cinemaRadiusKm, String defaultRegion, float minRating, int minReleaseYear, Set<String> streamingProviders, float shakeThreshold, String themeMode) throws InvalidDataException {
         setCinemaRadiusKm(cinemaRadiusKm);
         setDefaultRegion(defaultRegion);
         setMinRating(minRating);
         setMinReleaseYear(minReleaseYear);
         setStreamingProviders(streamingProviders);
         setShakeThreshold(shakeThreshold);
+        setThemeMode(themeMode);
     }
 
     public int getCinemaRadiusKm() {
@@ -112,6 +125,19 @@ public class UserPreferences {
             throw new InvalidDataException("Shake threshold must be between 1.5g and 6.0g");
         }
         this.shakeThreshold = shakeThreshold;
+    }
+
+    public String getThemeMode() {
+        return themeMode != null ? themeMode : DEFAULT_THEME_MODE;
+    }
+
+    public void setThemeMode(String themeMode) throws InvalidDataException {
+        if (themeMode == null || (!THEME_SYSTEM.equalsIgnoreCase(themeMode)
+                && !THEME_LIGHT.equalsIgnoreCase(themeMode)
+                && !THEME_DARK.equalsIgnoreCase(themeMode))) {
+            throw new InvalidDataException("Theme mode must be SYSTEM, LIGHT, or DARK");
+        }
+        this.themeMode = themeMode.toUpperCase();
     }
 
     /**

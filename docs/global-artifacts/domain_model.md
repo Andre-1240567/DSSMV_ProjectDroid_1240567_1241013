@@ -97,6 +97,10 @@ package "CineTrack Domain" <<Rectangle>> {
     class UserPreferences {
         - cinemaRadiusKm : Integer
         - defaultRegion : String
+        - minRating : Float
+        - minReleaseYear : Integer
+        - streamingProviders : Set<String>
+        - shakeThreshold : Float
     }
 
 }
@@ -185,8 +189,12 @@ User ..> Cinema : searches nearby >
 ### 3.7. `UserPreferences`
 * **Purpose:** Local lightweight settings persisted via `SharedPreferences`.
 * **Attributes:**
-  * `cinemaRadiusKm : Integer` — Search radius (e.g., 5 km, 10 km).
+  * `cinemaRadiusKm : Integer` — Search radius (e.g., 5 km, 10 km, 20 km).
   * `defaultRegion : String` — ISO region code (default: "PT").
+  * `minRating : Float` — Minimum rating threshold for shake suggestions (0.0 to 10.0).
+  * `minReleaseYear : Integer` — Minimum release year threshold (0 = any year).
+  * `streamingProviders : Set<String>` — Preferred streaming providers filter (Netflix, HBO, Disney, Prime, Apple).
+  * `shakeThreshold : Float` — Sensitivity threshold for accelerometer shake detection.
 * **Persistence Constraint:**
   * Write operations must always invoke `.apply()` (asynchronous), never `.commit()`.
 
@@ -198,8 +206,10 @@ User ..> Cinema : searches nearby >
 | :--- | :--- | :--- |
 | `User` | **Issue #1, Issue #7** | Firebase Authentication, Register, Profile, Logout. |
 | `MovieList` | **Issue #2** | List creation, management, Firestore sync. |
-| `SavedMovie` | **Issue #3, Issue #6, Issue #9** | Adding movies, Shake to Suggest, sorting/filtering. |
-| `Rating` | **Issue #3** | Score $[1.0, 5.0]$ submission and average computation. |
+| `SavedMovie` | **Issue #3, Issue #6, Issue #9, Issue #11** | Adding movies, Shake to Suggest, sorting/filtering, sharing. |
+| `Rating` | **Issue #3** | Score $[1.0, 5.0]$ submission, comment review, and TMDB REST POST. |
 | `WatchProvider` | **Issue #4** | TMDB API search and streaming providers display. |
 | `Cinema` | **Issue #5** | Geo-mapping cinemas using GPS and Foursquare API. |
 | `UserPreferences` | **Issue #8** | Local storage using `SharedPreferences` (`.apply()`). |
+| `SavedMovieFilterSorter` | **Issue #9** | In-memory filtering by `WatchStatus` and multi-criteria sorting using Java 21 `Comparator`. |
+| `MovieShareFormatter` | **Issue #11** | Structured formatting of movie metadata for external sharing via `ACTION_SEND`. |
