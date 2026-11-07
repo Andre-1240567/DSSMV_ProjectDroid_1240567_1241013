@@ -1,0 +1,41 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "Firebase Authentication" as FbAuth <<BaaS>>
+
+rectangle "CineTrack - UC1: User Registration & Sign-In" {
+    usecase "UC01: Register New Account" as UC01
+    usecase "UC02: Sign In with Email & Password" as UC02
+    usecase "Validate Credentials Locally" as UC_Val
+    usecase "Establish Auth Session" as UC_Session
+}
+
+User --> UC01
+User --> UC02
+
+UC01 ..> UC_Val : <<include>>
+UC02 ..> UC_Val : <<include>>
+
+UC01 ..> UC_Session : <<include>>
+UC02 ..> UC_Session : <<include>>
+
+UC_Session ..> FbAuth : createUser / signInWithEmail
+@enduml

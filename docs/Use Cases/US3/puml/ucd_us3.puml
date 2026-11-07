@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Cloud Firestore" as Firestore <<NoSQL DB>>
+actor "TMDB API" as TMDB <<REST API>>
+
+rectangle "CineTrack - UC3: Add Movie to List & Submit Rating" {
+    usecase "UC05: Add Movie to Custom List" as UC05
+    usecase "UC06: Submit Movie Rating (1.0-5.0)" as UC06
+    usecase "Persist in Subcollection" as UC_Sub
+    usecase "Sync Rating to TMDB Guest Session" as UC_Sync
+}
+
+User --> UC05
+UC05 <.. UC06 : <<extend>>
+
+UC05 ..> UC_Sub : <<include>>
+UC06 ..> UC_Sync : <<include>>
+
+UC_Sub ..> Firestore : lists/{id}/movies/{movieId}
+UC_Sync ..> TMDB : POST /movie/{id}/rating
+@enduml

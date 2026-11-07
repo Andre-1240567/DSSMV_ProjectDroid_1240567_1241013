@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "Accelerometer Sensor" as Accel <<Hardware>>
+actor "Device Vibrator" as Vib <<Hardware>>
+actor "TMDB API" as TMDB <<REST API>>
+
+rectangle "CineTrack - UC6: Shake to Suggest Random Movie" {
+    usecase "UC10: Shake to Suggest Movie" as UC10
+    usecase "Detect Multi-Peak Acceleration (>2.7g)" as UC_Shake
+    usecase "Preload Discover Recommendations" as UC_Preload
+    usecase "Trigger Haptic Vibration" as UC_Vib
+    usecase "Display Suggestion Dialog Modal" as UC_Dialog
+}
+
+User --> UC10
+
+UC10 ..> UC_Shake : <<include>>
+UC10 ..> UC_Preload : <<include>>
+UC10 ..> UC_Vib : <<include>>
+UC10 ..> UC_Dialog : <<include>>
+
+UC_Shake ..> Accel : onSensorChanged()
+UC_Preload ..> TMDB : GET /discover/movie
+UC_Vib ..> Vib : vibrate(VibrationEffect)
+@enduml

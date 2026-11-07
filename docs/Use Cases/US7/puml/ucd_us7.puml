@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Firebase Authentication" as FbAuth <<BaaS>>
+
+rectangle "CineTrack - UC7: Account Profile & Sign Out" {
+    usecase "UC11: View Account Profile" as UC11
+    usecase "UC12: Sign Out of Application" as UC12
+    usecase "Display User Email and Stats" as UC_Display
+    usecase "Revoke Session & Clear Task Backstack" as UC_Logout
+}
+
+User --> UC11
+User --> UC12
+
+UC11 ..> UC_Display : <<include>>
+UC12 ..> UC_Logout : <<include>>
+
+UC_Logout ..> FbAuth : signOut()
+@enduml

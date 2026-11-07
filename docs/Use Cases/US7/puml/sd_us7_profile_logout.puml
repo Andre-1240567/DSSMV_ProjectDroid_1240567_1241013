@@ -1,0 +1,73 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+
+title US7 - User Profile and Session Logout
+
+actor "User" as User
+participant ":ProfileActivity" as ProfileAct
+participant ":FirebaseAuthManager" as AuthMgr
+participant ":FirebaseUser" as FirebaseUser
+participant ":FirestoreManager" as FirestoreMgr
+participant ":Intent" as Intent
+participant ":LoginActivity" as LoginAct
+
+autonumber
+
+== Scenario 1: Load Profile & Movie Statistics ==
+
+User -> ProfileAct : openProfile()
+activate ProfileAct
+
+ProfileAct -> AuthMgr : isUserLoggedIn()
+activate AuthMgr
+AuthMgr --> ProfileAct : true
+deactivate AuthMgr
+
+ProfileAct -> AuthMgr : getCurrentUser()
+activate AuthMgr
+AuthMgr -> FirebaseUser : getEmail(), getUid(), getMetadata()
+activate FirebaseUser
+FirebaseUser --> AuthMgr : email, uid, metadata
+deactivate FirebaseUser
+AuthMgr --> ProfileAct : currentUser
+deactivate AuthMgr
+
+ProfileAct -> ProfileAct : displayUserData(email, uid, memberSince)
+
+ProfileAct -> FirestoreMgr : getUserMovieLists(uid, callback)
+activate FirestoreMgr
+FirestoreMgr --> ProfileAct : onSuccess(userLists)
+deactivate FirestoreMgr
+
+ProfileAct -> ProfileAct : textViewProfileTotalLists.setText(size)
+ProfileAct --> User : displayProfileWithStatistics()
+
+== Scenario 2: Logout and Clear Navigation Stack ==
+
+User -> ProfileAct : clickLogoutButton()
+ProfileAct --> User : showConfirmLogoutDialog()
+
+User -> ProfileAct : confirmLogout()
+
+ProfileAct -> AuthMgr : logout()
+activate AuthMgr
+AuthMgr --> ProfileAct : void
+deactivate AuthMgr
+
+ProfileAct -> Intent : new Intent(ProfileActivity, LoginActivity)
+activate Intent
+ProfileAct -> Intent : setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK)
+Intent --> ProfileAct : clearTaskIntent
+deactivate Intent
+
+ProfileAct -> LoginAct : startActivity(clearTaskIntent)
+ProfileAct -> ProfileAct : finish()
+deactivate ProfileAct
+activate LoginAct
+LoginAct --> User : renderLoginScreen()
+deactivate LoginAct
+
+@enduml

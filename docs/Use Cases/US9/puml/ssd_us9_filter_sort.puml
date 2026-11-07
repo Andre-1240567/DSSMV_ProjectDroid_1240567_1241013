@@ -1,9 +1,10 @@
 @startuml
-skinparam handwritten false
 skinparam monochrome false
 skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
 skinparam defaultFontSize 12
+
+title US9 - Filter and Sort Local Movie Collection (SSD)
 
 actor "User" as User
 participant ":System\n(ListDetailsActivity)" as System

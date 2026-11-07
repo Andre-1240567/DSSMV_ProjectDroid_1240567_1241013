@@ -57,11 +57,25 @@ Como um utilizador autenticado no CineTrack, pretendo aceder aos detalhes de uma
 
 ---
 
-## 6. Diagrama de Sequência de Sistema (SSD)
 
+## Diagrama de Caso de Uso Dedicado (UCD)
+Ficheiro PlantUML fonte: [`puml/ucd_us3.puml`](puml/ucd_us3.puml)
+
+![Diagrama de Caso de Uso - US3](svg/ucd_us3.svg)
+
+---
+
+## 6. Diagramas de Sequência
+
+### 6.1. Diagrama de Sequência de Sistema (SSD — Nível de Análise)
 Ficheiro PlantUML fonte: [`puml/ssd_us3_add_movies_and_ratings.puml`](puml/ssd_us3_add_movies_and_ratings.puml)
 
 ![Diagrama de Sequência de Sistema - US3](svg/ssd_us3_add_movies_and_ratings.svg)
+
+### 6.2. Diagrama de Sequência de Realização (SD — Nível de Design/Implementação)
+Ficheiro PlantUML fonte: [`puml/sd_us3_add_movies_and_ratings.puml`](puml/sd_us3_add_movies_and_ratings.puml)
+
+![Diagrama de Sequência de Realização - US3](svg/sd_us3_add_movies_and_ratings.svg)
 
 ---
 

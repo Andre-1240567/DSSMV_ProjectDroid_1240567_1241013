@@ -1,0 +1,46 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "User" as User
+actor "Device GPS\n(LocationManager)" as GPS <<Hardware>>
+actor "Foursquare Places API" as FSQ <<REST API>>
+actor "External Maps App\n(Google Maps / Waze)" as ExtMaps <<Navigation>>
+
+rectangle "CineTrack - UC5: Locate Nearby Cinemas" {
+    usecase "UC09: Locate Nearby Cinemas" as UC09
+    usecase "Request Runtime GPS Permission" as UC_GPS
+    usecase "Render OSMDroid Map & Radius" as UC_Map
+    usecase "Toggle Split / Map / List View" as UC_Toggle
+    usecase "Launch External Turn-by-Turn Route" as UC_Nav
+}
+
+User --> UC09
+User --> UC_Toggle
+User --> UC_Nav
+
+UC09 ..> UC_GPS : <<include>>
+UC09 ..> UC_Map : <<include>>
+UC09 <.. UC_Toggle : <<extend>>
+UC09 <.. UC_Nav : <<extend>>
+
+UC_GPS ..> GPS : getLastKnownLocation()
+UC09 ..> FSQ : GET /places/search (cat 10024)
+UC_Nav ..> ExtMaps : Intent(ACTION_VIEW, "geo:lat,lon")
+@enduml

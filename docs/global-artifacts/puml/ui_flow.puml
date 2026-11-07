@@ -1,5 +1,4 @@
 @startuml
-skinparam handwritten false
 skinparam monochrome false
 skinparam shadowing false
 skinparam defaultFontName "Helvetica, Arial, sans-serif"
@@ -47,6 +46,7 @@ state MainActivity {
 
 MainActivity --> MovieSearchActivity : Tap Search (Explicit Intent)
 MainActivity --> ListDetailsActivity : Select custom list (Explicit Intent)
+MainActivity --> MovieDetailActivity : View Shake Suggestion Details (Explicit Intent)
 MainActivity --> CinemasActivity : Click "Nearby Cinemas" (Explicit Intent)
 MainActivity --> ProfileActivity : Click "Profile" icon (Explicit Intent)
 

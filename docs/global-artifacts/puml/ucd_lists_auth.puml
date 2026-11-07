@@ -1,0 +1,75 @@
+@startuml
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontName "Helvetica, Arial, sans-serif"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #1A237E
+    ArrowColor #283593
+}
+
+left to right direction
+
+actor "Unauthenticated User" as Guest
+actor "Registered User" as AuthUser
+actor "Firebase Authentication" as FbAuth <<BaaS>>
+actor "Cloud Firestore" as Firestore <<NoSQL DB>>
+actor "TMDB API" as TMDB <<REST API>>
+actor "Messaging & Social Apps" as SocialApps <<External Share>>
+
+AuthUser -up-|> Guest
+
+rectangle "Identity, Movie Lists and Ratings Subsystem" {
+    package "Identity Management" {
+        usecase "UC01: Register New Account" as UC01
+        usecase "UC02: Sign In (Login)" as UC02
+        usecase "UC07: View Profile and Sign Out" as UC07
+    }
+    
+    package "Personal Movie Lists and Ratings" {
+        usecase "UC02_L: Create and Manage Movie Lists" as UC02_L
+        usecase "UC02_L1: Realtime Synchronization" as UC02_L1
+        usecase "UC03: Add Movie to List" as UC03
+        usecase "UC03_R: Rate Movie (1.0 - 5.0 Stars)" as UC03_R
+        usecase "UC03_T: Sync Rating to TMDB" as UC03_T
+        usecase "UC09: Filter and Sort List Movies" as UC09
+        usecase "UC11: Share Movie Card" as UC11
+    }
+}
+
+' User Access
+Guest --> UC01
+Guest --> UC02
+
+AuthUser --> UC07
+AuthUser --> UC02_L
+AuthUser --> UC03
+AuthUser --> UC09
+AuthUser --> UC11
+
+' Internal Relationships
+UC02_L ..> UC02_L1 : <<include>>
+UC03 <.. UC03_R : <<extend>>
+UC03_R ..> UC03_T : <<include>>
+
+' Cloud and External Integrations
+UC01 ..> FbAuth : createUserWithEmailAndPassword()
+UC02 ..> FbAuth : signInWithEmailAndPassword()
+UC07 ..> FbAuth : signOut()
+
+UC02_L ..> Firestore : collection "users/{uid}/lists"
+UC02_L1 ..> Firestore : addSnapshotListener()
+UC03 ..> Firestore : subcollection "lists/{id}/movies"
+UC03_T ..> TMDB : POST /movie/{id}/rating (Guest Session)
+
+UC11 ..> SocialApps : Intent.createChooser(ACTION_SEND)
+
+@enduml
