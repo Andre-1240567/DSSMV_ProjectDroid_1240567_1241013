@@ -85,25 +85,29 @@ This technical report documents the design, architecture, and implementation of 
 \newpage
 
 % ====================================================================
-\section{Introduction}
+\section{Context and Project Scope}
 % ====================================================================
 The proliferation of digital streaming platforms has created an increasingly fragmented landscape for cinema enthusiasts seeking where specific titles are available for viewing or looking for physical screening rooms nearby. The \textbf{CineTrack} mobile application addresses this challenge by providing an integrated, responsive solution that merges remote cinematic catalogs, cloud-synced personal lists, hardware sensors, and geospatial mapping.
 
-From an engineering perspective, developing robust software for mobile devices imposes strict architectural constraints due to limited physical resources, variable network connectivity, and the imperative requirement of maintaining graphical interface (\textit{UI Thread}) responsiveness. To prevent \textit{Application Not Responding} (ANR) dialogs and excessive battery depletion, CineTrack strictly follows four foundational mobile principles:
+Developed within the academic framework of the Software Development and Mobile Systems (\textit{DSSMV}) course unit in the Informatics and Telecommunications Engineering degree at the Instituto Superior de Engenharia do Porto (ISEP), CineTrack is designed to embody core mobile software engineering practices. Developing robust software for mobile devices imposes strict architectural constraints due to limited physical resources, variable network connectivity, and the imperative requirement of maintaining graphical interface (\textit{UI Thread}) responsiveness. To prevent \textit{Application Not Responding} (ANR) dialogs and excessive battery depletion, CineTrack strictly follows four foundational mobile principles:
 \begin{enumerate}[label=\textbf{\arabic*.}]
-    \item \textbf{Model-View-Controller (MVC) Separation:} Pure Java~21 domain entities isolated from the Android SDK, enabling fast, isolated unit testing.
-    \item \textbf{Non-Blocking I/O:} All network requests (Retrofit~2) and persistence updates are executed asynchronously off the main thread.
+    \item \textbf{Model-View-Controller (MVC) Separation:} Pure Java~21 domain entities isolated from the Android SDK, enabling fast, isolated unit testing without requiring emulator mocks.
+    \item \textbf{Non-Blocking Asynchronous I/O:} All network requests (Retrofit~2) and persistence updates (Cloud Firestore and SharedPreferences) are executed asynchronously off the main thread.
     \item \textbf{Sensor Lifecycle Discipline:} Hardware listeners for the accelerometer and GPS are registered exclusively in \texttt{onResume()} and immediately detached in \texttt{onPause()}.
     \item \textbf{Density-Independent UI Design:} Interface layouts in XML rely strictly on density-independent pixels (\texttt{dp}) and scale-independent pixels (\texttt{sp}).
 \end{enumerate}
 
+\newpage
+
 % ====================================================================
-\section{Project Status}
+\section{Analysis: Requirements, Domain Modeling, and Glossary}
 % ====================================================================
+
+\subsection{Project Scope and Implementation Matrix}
 The CineTrack project was developed collaboratively using a structured Git feature branch workflow, segregating tasks into two parallel development branches (\texttt{andre-1240567} and \texttt{afonso-1241013}) before integration into the \texttt{main} branch via peer-reviewed Pull Requests. Table \ref{tab:project-status} summarizes the implementation status and automated test coverage across all 11 User Stories.
 
 \begin{table}[H]
-\caption{CineTrack Implementation and Testing Status}
+\caption{CineTrack Implementation and Testing Matrix}
 \label{tab:project-status}
 \centering\small
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.2cm}
@@ -115,27 +119,27 @@ The CineTrack project was developed collaboratively using a structured Git featu
 \textbf{ID} & \textbf{User Story Description} & \textbf{Author} & \textbf{Status} & \textbf{Tests} \\
 \hline
 US1  & [Auth] User Registration and Sign-In       & André (1240567)  & 100\% Complete & Manual / Live \\
-US2  & [CRUD] Create and Manage Movie Lists       & André (1240567)  & 100\% Complete & Unit / Mock \\
-US3  & [CRUD] Add Movies and Submit Ratings       & André (1240567)  & 100\% Complete & 8 Unit Tests \\
-US4  & [API] TMDB Search and Streaming Providers  & Afonso (1241013) & 100\% Complete & 6 Unit Tests \\
+US2  & [CRUD] Create and Manage Movie Lists       & André (1240567)  & 100\% Complete & 3 Unit Tests \\
+US3  & [CRUD] Add Movies and Submit Ratings       & André (1240567)  & 100\% Complete & 10 Unit Tests \\
+US4  & [API] TMDB Search and Streaming Providers  & Afonso (1241013) & 100\% Complete & 7 Unit Tests \\
 US5  & [Map] Nearby Cinemas (GPS + OSMDroid)      & Afonso (1241013) & 100\% Complete & 7 Unit Tests \\
-US6  & [Sensor] Shake to Suggest (Accelerometer)  & Afonso (1241013) & 100\% Complete & 4 Unit Tests \\
-US7  & [Auth] Profile Management and Sign-Out     & André (1240567)  & 100\% Complete & Manual / Live \\
-US8  & [Persistence] Local Preferences (apply)   & Afonso (1241013) & 100\% Complete & 7 Unit Tests \\
-US9  & [CRUD] Local Collection Filter and Sort    & André (1240567)  & 100\% Complete & 12 Unit Tests \\
+US6  & [Sensor] Shake to Suggest (Accelerometer)  & Afonso (1241013) & 100\% Complete & Hardware / Live \\
+US7  & [Auth] Profile Management and Stats Cards  & André (1240567)  & 100\% Complete & 8 Unit Tests \\
+US8  & [Persistence] Local Preferences (apply)   & Afonso (1241013) & 100\% Complete & 13 Unit Tests \\
+US9  & [CRUD] Local Collection Filter and Sort    & André (1240567)  & 100\% Complete & 10 Unit Tests \\
 US10 & [API] Official YouTube Video Trailers      & Afonso (1241013) & 100\% Complete & 4 Unit Tests \\
-US11 & [Social] External Movie Card Sharing       & André (1240567)  & 100\% Complete & Manual / Live \\
+US11 & [Social] External Movie Card Sharing       & André (1240567)  & 100\% Complete & 8 Unit Tests \\
 \hline
-\textbf{Total} & \multicolumn{3}{l}{\textbf{All 11 User Stories Fully Implemented and Merged}} & \textbf{53 Passing} \\
+\multicolumn{2}{@{}l}{\textbf{Additional DTO / API Integration Tests}} & Team & 100\% Complete & 4 Unit Tests \\
+\hline
+\textbf{Total} & \multicolumn{3}{l}{\textbf{All 11 User Stories Fully Implemented and Merged}} & \textbf{74 Passing} \\
 \hline
 \end{tabular}
 \end{table}
 
 \newpage
 
-% ====================================================================
-\section{Domain Model}
-% ====================================================================
+\subsection{Conceptual Domain Model}
 The conceptual Domain Model defines the business entities and structural relationships of CineTrack independent of technological frameworks. As illustrated in Figure \ref{fig:dm}, the domain revolves around the central concepts of authenticated users, personal movie lists, saved movies, watch states, ratings, and physical cinema points of interest.
 
 \begin{figure}[H]
@@ -155,9 +159,7 @@ The domain model enforces several essential business invariants:
 
 \newpage
 
-% ====================================================================
-\section{Glossary}
-% ====================================================================
+\subsection{Technical and Domain Glossary}
 Table \ref{tab:glossary} establishes the standard technical and domain terminology used throughout the CineTrack documentation and implementation.
 
 \begin{table}[H]
@@ -192,8 +194,20 @@ WatchProvider & Fornecedor de Streaming & Licensed digital streaming service (e.
 
 \newpage
 
+\subsection{Global Use Case Architecture}
+Figure \ref{fig:ucd-global} presents the high-level Use Case Diagram synthesizing the four primary functional modules: \textit{Module 1: Identity and Session}, \textit{Module 2: Catalog and Multimedia}, \textit{Module 3: Personal Lists and Ratings}, and \textit{Module 4: Geolocation and Cinemas}, alongside external cloud integrations (Firebase, TMDB, Foursquare Places API) and device hardware sensors.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/global-artifacts/UCD_Global.pdf}
+    \caption{CineTrack Global Use Case Architecture}
+    \label{fig:ucd-global}
+\end{figure}
+
+\newpage
+
 % ====================================================================
-\section{Design}
+\section{Design: Architecture, Navigation Flow, and Realization}
 % ====================================================================
 
 \subsection{Model - Class Diagram}
@@ -770,13 +784,13 @@ Table \ref{tab:uc11} details the functional specification of UC11. Figure \ref{f
 
 \newpage
 % ====================================================================
-\section{Implementation and Testing}
+\section{Implementation: Core Subsystems and Technical Solutions}
 % ====================================================================
 
-This section presents representative excerpts from the CineTrack Java~21 codebase and from the JUnit~5 test suites. The excerpts demonstrate how the system enforces Model purity, maintains asynchronous UI Thread responsiveness, manages hardware sensors, and verifies domain integrity through automated tests.
+This section presents representative implementation excerpts from the CineTrack Java~21 and Android codebase. The excerpts demonstrate how the system enforces Model purity, maintains asynchronous UI Thread responsiveness, manages hardware sensors, and handles real-time network and system notification events.
 
-\subsection{Pure Java 21 Domain Model and Validation}
-Listing \ref{lst:cinema-model} shows the pure Java~21 \texttt{Cinema} domain entity. Notice the defensive validation checks and absence of Android SDK imports.
+\subsection{Pure Java 21 Domain Model and Defensive Validation}
+Listing \ref{lst:cinema-model} shows the pure Java~21 \texttt{Cinema} domain entity. Notice the defensive validation checks, strict interval enforcement, and complete absence of Android SDK imports.
 
 \begin{lstlisting}[style=javastyle,caption={Pure Java 21 Cinema Domain Entity (Cinema.java)},label={lst:cinema-model}]
 package pt.isep.dssmv.projectdroid.model;
@@ -826,41 +840,6 @@ public class Cinema {
 
     @Override
     public int hashCode() { return Objects.hash(fsqId); }
-}
-\end{lstlisting}
-
-\begin{lstlisting}[style=javastyle,caption={JUnit 5 Automated Domain Tests (CinemaTest.java)},label={lst:cinema-test}]
-package pt.isep.dssmv.projectdroid.model;
-
-import org.junit.jupiter.api.Test;
-import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
-import static org.junit.jupiter.api.Assertions.*;
-
-public class CinemaTest {
-    @Test
-    public void testValidCinemaCreation() throws InvalidDataException {
-        Cinema cinema = new Cinema("fsq_123", "Cinema Trindade", 41.1504, -8.6095);
-        cinema.setAddress("Rua do Almada 412");
-        cinema.setDistanceMeters(850);
-
-        assertEquals("fsq_123", cinema.getFsqId());
-        assertEquals("Cinema Trindade", cinema.getName());
-        assertEquals(41.1504, cinema.getLatitude(), 0.0001);
-        assertEquals(-8.6095, cinema.getLongitude(), 0.0001);
-        assertEquals("Rua do Almada 412", cinema.getAddress());
-        assertEquals(850, cinema.getDistanceMeters());
-    }
-
-    @Test
-    public void testEmptyFsqIdThrowsException() {
-        assertThrows(InvalidDataException.class, () -> new Cinema("", "Cinema 1", 41.15, -8.60));
-        assertThrows(InvalidDataException.class, () -> new Cinema(null, "Cinema 1", 41.15, -8.60));
-    }
-
-    @Test
-    public void testEmptyNameThrowsException() {
-        assertThrows(InvalidDataException.class, () -> new Cinema("fsq_123", "   ", 41.15, -8.60));
-    }
 }
 \end{lstlisting}
 
@@ -923,7 +902,7 @@ private void queryFoursquareCinemas(double lat, double lon, int radiusKm) {
 \newpage
 
 \subsection{Hardware Sensor Lifecycle: Accelerometer Shake Detection}
-Listing \ref{lst:shake-lifecycle} demonstrates battery preservation rules by registering the sensor listener in \texttt{onResume()} and immediately unregistering in \texttt{onPause()}.
+Listing \ref{lst:shake-lifecycle} demonstrates battery preservation rules by registering the sensor listener in \texttt{onResume()} and immediately unregistering in \texttt{onPause()}. Listing \ref{lst:shake-detector} outlines the multi-peak threshold detection algorithm.
 
 \begin{lstlisting}[style=javastyle,caption={Accelerometer Lifecycle Discipline (MainActivity.java)},label={lst:shake-lifecycle}]
 @Override
@@ -1005,18 +984,151 @@ public final class SavedMovieFilterSorter {
 }
 \end{lstlisting}
 
+\newpage
+
+% ====================================================================
+\section{Tests: Automated Verification and Quality Assurance}
+% ====================================================================
+
+Software testability is a first-class citizen in the CineTrack project. Because the entire domain model and data transformation logic reside in pure Java~21 classes isolated from Android SDK dependencies, tests run directly on the local Java Virtual Machine (JVM) without requiring Android emulators, instrumentation harnesses, or complex mocking frameworks.
+
+\subsection{Testing Strategy and Pure Model Testability}
+The automated verification strategy encompasses three complementary layers:
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{Unit Testing (Domain Layer):} Exhaustive boundary testing of constructor constraints, validation predicates, and defensive exceptions on entities (\texttt{User}, \texttt{MovieList}, \texttt{SavedMovie}, \texttt{Rating}, \texttt{Cinema}, \texttt{UserPreferences}, \texttt{UserMovieStats}).
+    \item \textbf{Data Transformation and Sorting Testing:} Validation of pure comparators, filtering predicates, and social share text formatters (\texttt{SavedMovieFilterSorter}, \texttt{MovieShareFormatter}).
+    \item \textbf{DTO Deserialization and REST Mapping Testing:} Verification that JSON payloads from external TMDB and Foursquare REST endpoints serialize and deserialize into domain objects without loss of structural fidelity.
+\end{enumerate}
+
+\subsection{Automated Test Suite Breakdown}
+Table \ref{tab:test-suites} details the 15 automated test suites implemented in JUnit~5, totaling \textbf{74 unit tests} with a \textbf{100\% pass rate}.
+
+\begin{table}[H]
+\caption{Automated JUnit 5 Test Suite Verification Breakdown}
+\label{tab:test-suites}
+\centering\scriptsize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.2cm}
+                    >{\centering\arraybackslash}p{1.8cm}
+                    >{\centering\arraybackslash}p{1.4cm}
+                    >{\centering\arraybackslash}p{1.6cm}
+                    >{\raggedright\arraybackslash}p{3.2cm}@{}}
+\hline
+\textbf{Test Class} & \textbf{Layer / Package} & \textbf{Tests} & \textbf{Status} & \textbf{Component Under Test} \\
+\hline
+\texttt{CinemaTest}                  & \texttt{model}   & 4  & 100\% Pass & POI invariants and radius \\
+\texttt{MovieListTest}               & \texttt{model}   & 3  & 100\% Pass & List ownership and dates \\
+\texttt{MovieShareFormatterTest}     & \texttt{model}   & 8  & 100\% Pass & Social share formatting (US11) \\
+\texttt{RatingTest}                  & \texttt{model}   & 5  & 100\% Pass & Interval $[1.0, 5.0]$ boundaries \\
+\texttt{SavedMovieFilterSorterTest}  & \texttt{model}   & 10 & 100\% Pass & Comparators and predicates (US9) \\
+\texttt{SavedMovieTest}              & \texttt{model}   & 5  & 100\% Pass & Movie identity and watch status \\
+\texttt{UserMovieStatsTest}          & \texttt{model}   & 3  & 100\% Pass & Library statistics and averages \\
+\texttt{UserPreferencesTest}         & \texttt{model}   & 13 & 100\% Pass & SharedPreferences ranges (US8) \\
+\texttt{UserTest}                    & \texttt{model}   & 5  & 100\% Pass & Account UID and email formats \\
+\texttt{WatchProviderTest}           & \texttt{model}   & 5  & 100\% Pass & Streaming providers (US4) \\
+\texttt{FsqPlaceDtoTest}             & \texttt{network} & 3  & 100\% Pass & Foursquare Places JSON DTOs \\
+\texttt{TmdbMovieDtoTest}            & \texttt{network} & 2  & 100\% Pass & TMDB catalog JSON DTOs \\
+\texttt{TmdbRatingDtoTest}           & \texttt{network} & 3  & 100\% Pass & TMDB rating JSON DTOs \\
+\texttt{TmdbRatingIntegrationTest}   & \texttt{network} & 1  & 100\% Pass & TMDB guest session flow \\
+\texttt{TmdbVideosResponseTest}      & \texttt{network} & 4  & 100\% Pass & YouTube trailer extraction (US10) \\
+\hline
+\textbf{Total}                       & \textbf{15 Classes} & \textbf{74} & \textbf{0 Failures} & \textbf{100\% Automated Pass Rate} \\
+\hline
+\end{tabular}
+\end{table}
+
+\newpage
+
+\subsection{Representative Automated Test Implementations}
+Listings \ref{lst:cinema-test} and \ref{lst:share-test} demonstrate automated unit test cases written using JUnit~5 Jupiter assertions, validating defensive boundary exceptions and text generation rules.
+
+\begin{lstlisting}[style=javastyle,caption={JUnit 5 Automated Domain Tests (CinemaTest.java)},label={lst:cinema-test}]
+package pt.isep.dssmv.projectdroid.model;
+
+import org.junit.jupiter.api.Test;
+import pt.isep.dssmv.projectdroid.exceptions.InvalidDataException;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CinemaTest {
+    @Test
+    public void testValidCinemaCreation() throws InvalidDataException {
+        Cinema cinema = new Cinema("fsq_123", "Cinema Trindade", 41.1504, -8.6095);
+        cinema.setAddress("Rua do Almada 412");
+        cinema.setDistanceMeters(850);
+
+        assertEquals("fsq_123", cinema.getFsqId());
+        assertEquals("Cinema Trindade", cinema.getName());
+        assertEquals(41.1504, cinema.getLatitude(), 0.0001);
+        assertEquals(-8.6095, cinema.getLongitude(), 0.0001);
+        assertEquals("Rua do Almada 412", cinema.getAddress());
+        assertEquals(850, cinema.getDistanceMeters());
+    }
+
+    @Test
+    public void testEmptyFsqIdThrowsException() {
+        assertThrows(InvalidDataException.class, () -> new Cinema("", "Cinema 1", 41.15, -8.60));
+        assertThrows(InvalidDataException.class, () -> new Cinema(null, "Cinema 1", 41.15, -8.60));
+    }
+
+    @Test
+    public void testEmptyNameThrowsException() {
+        assertThrows(InvalidDataException.class, () -> new Cinema("fsq_123", "   ", 41.15, -8.60));
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle,caption={JUnit 5 Social Share Formatter Tests (MovieShareFormatterTest.java)},label={lst:share-test}]
+package pt.isep.dssmv.projectdroid.model;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MovieShareFormatterTest {
+    @Test
+    public void testFormatMovieDetailsComplete() {
+        String result = MovieShareFormatter.formatDetails(
+            "Inception", 2010, "A thief enters the dreams of others.",
+            27205, 4.5f, "Masterpiece by Christopher Nolan", WatchStatus.FAVORITE
+        );
+
+        assertTrue(result.contains("🎬 Inception (2010)"));
+        assertTrue(result.contains("⭐"));
+        assertTrue(result.contains("4.5/5.0"));
+        assertTrue(result.contains("Masterpiece by Christopher Nolan"));
+        assertTrue(result.contains("https://www.themoviedb.org/movie/27205"));
+    }
+
+    @Test
+    public void testFormatNullTitleFallback() {
+        String result = MovieShareFormatter.format(null, 2024, "Overview", 12345);
+        assertTrue(result.contains("Movie (2024)"));
+    }
+}
+\end{lstlisting}
+
+\subsection{Physical Device Execution and Hardware Verification}
+In addition to automated unit tests, the CineTrack application was verified through live execution across physical Android smartphones running Android 14 (API 34) and Android 15 (API 35):
+\begin{itemize}
+    \item \textbf{Sensor Responsiveness:} The accelerometer shake detector was calibrated and tested under normal handling (discarding incidental steps or table vibrations) and intentional shakes ($>2.7g$), reliably triggering the recommendation dialog with haptic feedback.
+    \item \textbf{GPS and OpenStreetMap Overlays:} Location accuracy and dynamic radius drawing were validated in Porto, Portugal, plotting real cinema pins returned by the Foursquare Places API.
+    \item \textbf{Network State Changes:} The application was audited under offline mode and variable network toggles, verifying that the offline banner appears dynamically and the app continues gracefully without crashing.
+\end{itemize}
+
+\newpage
+
 % ====================================================================
 \section{Conclusion}
 % ====================================================================
-This technical report presented the comprehensive specification, architectural design, implementation, and verification of the \textbf{CineTrack} mobile application. Over the course of the project, all 11 User Stories assigned across the team were completed with 100\% functionality and verified against automated test suites and live hardware deployments.
+This technical report presented the comprehensive specification, architectural design, implementation, and verification of the \textbf{CineTrack} mobile application. Over the course of the project, all 11 User Stories assigned across the team were completed with 100\% functionality and verified against 74 automated unit tests and live hardware deployments.
 
 The application successfully reconciles disparate mobile concerns into an integrated architecture:
 \begin{itemize}
-    \item \textbf{Architectural Decoupling:} Strict adherence to MVC preserved the purity of domain business logic in Java~21 without framework contamination, making 53 automated unit tests run instantaneously.
+    \item \textbf{Architectural Decoupling:} Strict adherence to MVC preserved the purity of domain business logic in Java~21 without framework contamination, allowing \textbf{74 automated unit tests} to run instantaneously on the local JVM.
     \item \textbf{UI Thread Responsiveness:} Mandatory asynchronous execution via Retrofit~2 \texttt{.enqueue()} and SharedPreferences \texttt{.apply()} eradicated ANR risks across network and storage boundaries.
-    \item \textbf{Hardware and Battery Protection:} The accelerometer-based \textit{Shake to Suggest} and native GPS tracking adhere to Android lifecycle discipline, preventing sensor battery drain when activities are paused.
+    \item \textbf{Hardware and Battery Protection:} The accelerometer-based \textit{Shake to Suggest} and native GPS tracking adhere strictly to Android lifecycle discipline, registering in \texttt{onResume()} and releasing in \texttt{onPause()}.
     \item \textbf{Free Geospatial Mapping:} Integrating OSMDroid alongside modern Foursquare Places API enabled full interactive cinema mapping with custom radius circles without requiring paid Google Cloud keys.
 \end{itemize}
+
+Future enhancements could expand CineTrack by introducing social friend lists, push notifications for theatrical releases, and offline caching of movie details via Android Room database. In its current release, CineTrack stands as a complete, robust, and academically sound mobile solution demonstrating software engineering excellence in Android native development.
 
 Future enhancements could expand CineTrack by introducing social friend lists, push notifications for theatrical releases, and offline caching of movie details via Android Room database. In its current release, CineTrack stands as a complete, robust, and academically sound mobile solution demonstrating software engineering excellence in Android native development.
 
